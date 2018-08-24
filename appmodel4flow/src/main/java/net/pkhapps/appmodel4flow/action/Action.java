@@ -23,17 +23,17 @@ public interface Action<OUTPUT> extends Serializable {
      * @return the context, never {@code null}.
      */
     @Nonnull
-    Context getContext();
+    Context getContext(); // TODO Not sure we need to tie an action to a context. The action could request the context if it needs it.
 
     /**
      * Checks if this action is performable right now within its {@link #getContext() context}. Normally an action
      * that is not {@link #isAccessible() accessible} should not be performable either. By default, this methods returns
-     * true. Subclasses may override.
+     * the same value as {@link #isAccessible()}. Subclasses may override.
      *
      * @return true if the action is performable, false otherwise.
      */
     default boolean isPerformable() {
-        return true;
+        return isAccessible();
     }
 
     /**
@@ -45,7 +45,7 @@ public interface Action<OUTPUT> extends Serializable {
      */
     default boolean isAccessible() {
         return true;
-    }
+    } // TODO Not sure whether this flag is really needed. It may become a source of confusion.
 
     /**
      * Performs the action, returning any output.
@@ -75,6 +75,16 @@ public interface Action<OUTPUT> extends Serializable {
      */
     @Nonnull
     Registration addStateChangeListener(@Nonnull SerializableConsumer<StateChangeEvent> listener);
+
+    /**
+     * Registers a listener to be notified whenever the state of this action (e.g. the
+     * {@link #isPerformable() performable} flag} is changed. The listener is registered using a weak reference and will
+     * be automatically removed when garbage collected. This means you have to make sure you keep another reference to
+     * the listener for as long as you need it or it will become garbage collected too soon.
+     *
+     * @param listener the listener, never {@code null}.
+     */
+    void addWeakStateChangeListener(@Nonnull SerializableConsumer<StateChangeEvent> listener);
 
     /**
      * Base class for events fired by a {@link Action}.

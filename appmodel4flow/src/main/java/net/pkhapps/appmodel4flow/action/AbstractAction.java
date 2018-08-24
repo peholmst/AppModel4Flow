@@ -3,12 +3,11 @@ package net.pkhapps.appmodel4flow.action;
 import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.shared.Registration;
 import net.pkhapps.appmodel4flow.context.Context;
+import net.pkhapps.appmodel4flow.context.scope.Scope;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Base class for {@link Action}s. Developers creating new actions will almost always want to extend this class instead
@@ -23,6 +22,7 @@ public abstract class AbstractAction<OUTPUT> implements Action<OUTPUT> {
     private final Context context;
     private Set<SerializableConsumer<PerformEvent<OUTPUT>>> performListeners;
     private Set<SerializableConsumer<StateChangeEvent>> stateChangeListeners;
+    private Map<SerializableConsumer<StateChangeEvent>, Void> weakStateChangeListeners;
 
     /**
      * Creates a new action.
@@ -31,6 +31,15 @@ public abstract class AbstractAction<OUTPUT> implements Action<OUTPUT> {
      */
     protected AbstractAction(@Nonnull Context context) {
         this.context = Objects.requireNonNull(context, "context must not be null");
+    }
+
+    /**
+     * Creates a new action.
+     *
+     * @param scope the scope from which the context should be taken, never {@code null}.
+     */
+    protected AbstractAction(@Nonnull Scope scope) {
+        this(Objects.requireNonNull(scope, "scope must not be null").getContext());
     }
 
     @Nonnull
@@ -45,7 +54,7 @@ public abstract class AbstractAction<OUTPUT> implements Action<OUTPUT> {
             final var output = doPerform();
             if (performListeners != null) {
                 final PerformEvent<OUTPUT> event = new PerformEvent<>(this, output);
-                performListeners.forEach(listener -> listener.accept(event));
+                new HashSet<>(performListeners).forEach(listener -> listener.accept(event));
             }
             return output;
         } else {
@@ -63,7 +72,10 @@ public abstract class AbstractAction<OUTPUT> implements Action<OUTPUT> {
     protected void fireStateChangeEvent(@Nonnull StateChangeEvent event) {
         Objects.requireNonNull(event, "event must not be null");
         if (stateChangeListeners != null) {
-            stateChangeListeners.forEach(listener -> listener.accept(event));
+            new HashSet<>(stateChangeListeners).forEach(listener -> listener.accept(event));
+        }
+        if (weakStateChangeListeners != null) {
+            new HashSet<>(weakStateChangeListeners.keySet()).forEach(listener -> listener.accept(event));
         }
     }
 
@@ -95,5 +107,14 @@ public abstract class AbstractAction<OUTPUT> implements Action<OUTPUT> {
         }
         stateChangeListeners.add(listener);
         return () -> stateChangeListeners.remove(listener);
+    }
+
+    @Override
+    public void addWeakStateChangeListener(@Nonnull SerializableConsumer<StateChangeEvent> listener) {
+        Objects.requireNonNull(listener, "listener must not be null");
+        if (weakStateChangeListeners == null) {
+            weakStateChangeListeners = new WeakHashMap<>();
+        }
+        weakStateChangeListeners.put(listener, null);
     }
 }
