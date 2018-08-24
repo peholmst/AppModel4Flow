@@ -2,10 +2,11 @@ package net.pkhapps.appmodel4flow.action;
 
 import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.shared.Registration;
+import net.pkhapps.appmodel4flow.util.ListenerCollection;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
-import java.util.*;
+import java.util.Objects;
 
 /**
  * Base class for {@link Action}s. Developers creating new actions will almost always want to extend this class instead
@@ -17,9 +18,8 @@ import java.util.*;
 @NotThreadSafe
 public abstract class AbstractAction<OUTPUT> implements Action<OUTPUT> {
 
-    private Set<SerializableConsumer<PerformEvent<OUTPUT>>> performListeners;
-    private Set<SerializableConsumer<StateChangeEvent>> stateChangeListeners;
-    private Map<SerializableConsumer<StateChangeEvent>, Void> weakStateChangeListeners;
+    private ListenerCollection<PerformEvent<OUTPUT>> performListeners;
+    private ListenerCollection<StateChangeEvent> stateChangeListeners;
 
     @Override
     public OUTPUT perform() {
@@ -27,7 +27,7 @@ public abstract class AbstractAction<OUTPUT> implements Action<OUTPUT> {
             final var output = doPerform();
             if (performListeners != null) {
                 final PerformEvent<OUTPUT> event = new PerformEvent<>(this, output);
-                new HashSet<>(performListeners).forEach(listener -> listener.accept(event));
+                performListeners.fireEvent(event);
             }
             return output;
         } else {
@@ -36,8 +36,7 @@ public abstract class AbstractAction<OUTPUT> implements Action<OUTPUT> {
     }
 
     /**
-     * Fires the given {@link StateChangeEvent} to all registered
-     * {@link #addStateChangeListener(SerializableConsumer) listeners}.
+     * Fires the given {@link StateChangeEvent} to all registered listeners.
      *
      * @param event the event to fire, never {@code null}.
      */
@@ -45,10 +44,16 @@ public abstract class AbstractAction<OUTPUT> implements Action<OUTPUT> {
     protected void fireStateChangeEvent(@Nonnull StateChangeEvent event) {
         Objects.requireNonNull(event, "event must not be null");
         if (stateChangeListeners != null) {
-            new HashSet<>(stateChangeListeners).forEach(listener -> listener.accept(event));
+            stateChangeListeners.fireEvent(event);
         }
-        if (weakStateChangeListeners != null) {
-            new HashSet<>(weakStateChangeListeners.keySet()).forEach(listener -> listener.accept(event));
+    }
+
+    /**
+     * Creates and {@link #fireStateChangeEvent(StateChangeEvent) fires} a new {@link StateChangeEvent}.
+     */
+    protected void fireStateChangeEvent() {
+        if (stateChangeListeners != null) {
+            fireStateChangeEvent(new StateChangeEvent(this));
         }
     }
 
@@ -63,31 +68,36 @@ public abstract class AbstractAction<OUTPUT> implements Action<OUTPUT> {
     @Nonnull
     @Override
     public Registration addPerformListener(@Nonnull SerializableConsumer<PerformEvent<OUTPUT>> listener) {
-        Objects.requireNonNull(listener, "listener must not be null");
+        return getPerformListeners().addListener(listener);
+    }
+
+    @Override
+    public void addWeakPerformListener(@Nonnull SerializableConsumer<PerformEvent<OUTPUT>> listener) {
+        getPerformListeners().addWeakListener(listener);
+    }
+
+    private ListenerCollection<PerformEvent<OUTPUT>> getPerformListeners() {
         if (performListeners == null) {
-            performListeners = new HashSet<>();
+            performListeners = new ListenerCollection<>();
         }
-        performListeners.add(listener);
-        return () -> performListeners.remove(listener);
+        return performListeners;
     }
 
     @Nonnull
     @Override
     public Registration addStateChangeListener(@Nonnull SerializableConsumer<StateChangeEvent> listener) {
-        Objects.requireNonNull(listener, "listener must not be null");
-        if (stateChangeListeners == null) {
-            stateChangeListeners = new HashSet<>();
-        }
-        stateChangeListeners.add(listener);
-        return () -> stateChangeListeners.remove(listener);
+        return getStateChangeListeners().addListener(listener);
     }
 
     @Override
     public void addWeakStateChangeListener(@Nonnull SerializableConsumer<StateChangeEvent> listener) {
-        Objects.requireNonNull(listener, "listener must not be null");
-        if (weakStateChangeListeners == null) {
-            weakStateChangeListeners = new WeakHashMap<>();
+        getStateChangeListeners().addWeakListener(listener);
+    }
+
+    private ListenerCollection<StateChangeEvent> getStateChangeListeners() {
+        if (stateChangeListeners == null) {
+            stateChangeListeners = new ListenerCollection<>();
         }
-        weakStateChangeListeners.put(listener, null);
+        return stateChangeListeners;
     }
 }

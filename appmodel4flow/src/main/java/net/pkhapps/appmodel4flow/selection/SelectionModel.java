@@ -63,6 +63,15 @@ public interface SelectionModel<T> extends Serializable {
     Registration addSelectionChangeListener(@Nonnull SerializableConsumer<SelectionChangeEvent<T>> listener);
 
     /**
+     * Registers a listener to be notified whenever the selection changes. The listener is registered using a weak
+     * reference and will be automatically removed when garbage collected. This means you have to make sure you keep
+     * another reference to the listener for as long as you need it or it will become garbage collected too soon.
+     *
+     * @param listener the listener, never {@code null}.
+     */
+    void addWeakSelectionChangeListener(@Nonnull SerializableConsumer<SelectionChangeEvent<T>> listener);
+
+    /**
      * Event fired by a {@link SelectionModel} when its selection is changed.
      *
      * @param <T> the type of the items in the selection.

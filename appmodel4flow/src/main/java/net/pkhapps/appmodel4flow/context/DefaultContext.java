@@ -2,11 +2,14 @@ package net.pkhapps.appmodel4flow.context;
 
 import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.shared.Registration;
+import net.pkhapps.appmodel4flow.util.ListenerCollection;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
 import java.lang.ref.WeakReference;
-import java.util.*;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -17,8 +20,7 @@ public class DefaultContext implements Context {
 
     private final WeakReference<Context> parent;
     private final Map<Class<?>, Object> contextualObjects = new ConcurrentHashMap<>();
-    private final WeakHashMap<SerializableConsumer<ContextualChangeEvent>, Void> weakListeners = new WeakHashMap<>();
-    private final Set<SerializableConsumer<ContextualChangeEvent>> strongListeners = new HashSet<>();
+    private final ListenerCollection<ContextualChangeEvent> listeners = new ListenerCollection<>();
     // Keep a reference to the method pointer here since it will be registered using a weak reference
     private final SerializableConsumer<ContextualChangeEvent> parentContextListener = this::fireContextualChangeEvent;
 
@@ -87,34 +89,15 @@ public class DefaultContext implements Context {
     @Nonnull
     @Override
     public Registration addContextualChangeListener(@Nonnull SerializableConsumer<ContextualChangeEvent> listener) {
-        Objects.requireNonNull(listener, "listener must not be null");
-        synchronized (strongListeners) {
-            strongListeners.add(listener);
-        }
-        return () -> {
-            synchronized (strongListeners) {
-                strongListeners.remove(listener);
-            }
-        };
+        return listeners.addListener(listener);
     }
 
     @Override
     public void addWeakContextualChangeListener(@Nonnull SerializableConsumer<ContextualChangeEvent> listener) {
-        Objects.requireNonNull(listener, "listener must not be null");
-        synchronized (weakListeners) {
-            weakListeners.put(listener, null);
-        }
+        listeners.addWeakListener(listener);
     }
 
     private void fireContextualChangeEvent(@Nonnull ContextualChangeEvent event) {
-        Objects.requireNonNull(event, "event must not be null");
-        Set<SerializableConsumer<ContextualChangeEvent>> recipients;
-        synchronized (strongListeners) {
-            recipients = new HashSet<>(strongListeners);
-        }
-        synchronized (weakListeners) {
-            recipients.addAll(weakListeners.keySet());
-        }
-        recipients.forEach(listener -> listener.accept(event));
+        listeners.fireEvent(event);
     }
 }

@@ -57,6 +57,15 @@ public interface Action<OUTPUT> extends Serializable {
     Registration addPerformListener(@Nonnull SerializableConsumer<PerformEvent<OUTPUT>> listener);
 
     /**
+     * Registers a listener to be notified whenever this action is performed. The listener is registered using a weak
+     * reference and will be automatically removed when garbage collected. This means you have to make sure you keep
+     * another reference to the listener for as long as you need it or it will become garbage collected too soon.
+     *
+     * @param listener the listener, never {@code null}.
+     */
+    void addWeakPerformListener(@Nonnull SerializableConsumer<PerformEvent<OUTPUT>> listener);
+
+    /**
      * Registers a listener to be notified whenever the state of this action (e.g. the
      * {@link #isPerformable() performable} flag} is changed.
      *

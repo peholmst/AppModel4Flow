@@ -2,13 +2,11 @@ package net.pkhapps.appmodel4flow.selection;
 
 import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.shared.Registration;
+import net.pkhapps.appmodel4flow.util.ListenerCollection;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
 
 /**
  * Default implementation of {@link SelectionModel}. Developers are free to use this whenever they need an
@@ -20,7 +18,7 @@ import java.util.Set;
 public class DefaultSelectionModel<T> implements SelectionModel<T> {
 
     private Selection<T> selection = new DefaultSelection<>();
-    private Set<SerializableConsumer<SelectionChangeEvent<T>>> selectionChangedListeners;
+    private ListenerCollection<SelectionChangeEvent<T>> selectionChangedListeners;
 
     @Nonnull
     @Override
@@ -32,20 +30,27 @@ public class DefaultSelectionModel<T> implements SelectionModel<T> {
     public void select(@Nonnull Collection<T> items) {
         var oldSelection = selection;
         selection = new DefaultSelection<>(items);
-        if (selectionChangedListeners != null && selectionChangedListeners.size() > 0) {
+        if (selectionChangedListeners != null && selectionChangedListeners.containsListeners()) {
             SelectionChangeEvent<T> event = new SelectionChangeEvent<>(this, oldSelection);
-            selectionChangedListeners.forEach(listener -> listener.accept(event));
+            selectionChangedListeners.fireEvent(event);
         }
     }
 
     @Nonnull
     @Override
     public Registration addSelectionChangeListener(@Nonnull SerializableConsumer<SelectionChangeEvent<T>> listener) {
-        Objects.requireNonNull(listener, "listener must not be null");
+        return getSelectionChangedListeners().addListener(listener);
+    }
+
+    @Override
+    public void addWeakSelectionChangeListener(@Nonnull SerializableConsumer<SelectionChangeEvent<T>> listener) {
+        getSelectionChangedListeners().addWeakListener(listener);
+    }
+
+    private ListenerCollection<SelectionChangeEvent<T>> getSelectionChangedListeners() {
         if (selectionChangedListeners == null) {
-            selectionChangedListeners = new HashSet<>();
+            selectionChangedListeners = new ListenerCollection<>();
         }
-        selectionChangedListeners.add(listener);
-        return () -> selectionChangedListeners.remove(listener);
+        return selectionChangedListeners;
     }
 }
