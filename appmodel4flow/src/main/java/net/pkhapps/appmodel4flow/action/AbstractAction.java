@@ -2,8 +2,6 @@ package net.pkhapps.appmodel4flow.action;
 
 import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.shared.Registration;
-import net.pkhapps.appmodel4flow.context.Context;
-import net.pkhapps.appmodel4flow.context.scope.Scope;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
@@ -19,34 +17,9 @@ import java.util.*;
 @NotThreadSafe
 public abstract class AbstractAction<OUTPUT> implements Action<OUTPUT> {
 
-    private final Context context;
     private Set<SerializableConsumer<PerformEvent<OUTPUT>>> performListeners;
     private Set<SerializableConsumer<StateChangeEvent>> stateChangeListeners;
     private Map<SerializableConsumer<StateChangeEvent>, Void> weakStateChangeListeners;
-
-    /**
-     * Creates a new action.
-     *
-     * @param context the context that the action will live inside, never {@code null}.
-     */
-    protected AbstractAction(@Nonnull Context context) {
-        this.context = Objects.requireNonNull(context, "context must not be null");
-    }
-
-    /**
-     * Creates a new action.
-     *
-     * @param scope the scope from which the context should be taken, never {@code null}.
-     */
-    protected AbstractAction(@Nonnull Scope scope) {
-        this(Objects.requireNonNull(scope, "scope must not be null").getContext());
-    }
-
-    @Nonnull
-    @Override
-    public Context getContext() {
-        return context;
-    }
 
     @Override
     public OUTPUT perform() {

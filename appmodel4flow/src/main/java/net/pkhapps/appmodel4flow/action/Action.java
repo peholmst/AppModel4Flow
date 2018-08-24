@@ -2,7 +2,6 @@ package net.pkhapps.appmodel4flow.action;
 
 import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.shared.Registration;
-import net.pkhapps.appmodel4flow.context.Context;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
@@ -10,25 +9,16 @@ import java.io.Serializable;
 import java.util.Objects;
 
 /**
- * Interface defining an action that can be performed by an actor (typically a user). An action lives inside a
- * {@link Context} that the action uses to look up the information it needs to perform itself.
+ * Interface defining an action that can be performed by an actor (typically a user).
  *
  * @param <OUTPUT> the output type of the action, can be {@link Void} for actions that don't return any output.
  */
 public interface Action<OUTPUT> extends Serializable {
 
     /**
-     * The context in which this action lives and acts.
-     *
-     * @return the context, never {@code null}.
-     */
-    @Nonnull
-    Context getContext(); // TODO Not sure we need to tie an action to a context. The action could request the context if it needs it.
-
-    /**
-     * Checks if this action is performable right now within its {@link #getContext() context}. Normally an action
-     * that is not {@link #isAccessible() accessible} should not be performable either. By default, this methods returns
-     * the same value as {@link #isAccessible()}. Subclasses may override.
+     * Checks if this action is performable right now. Normally an action that is not {@link #isAccessible() accessible}
+     * should not be performable either. By default, this methods returns the same value as {@link #isAccessible()}.
+     * Subclasses may override.
      *
      * @return true if the action is performable, false otherwise.
      */
