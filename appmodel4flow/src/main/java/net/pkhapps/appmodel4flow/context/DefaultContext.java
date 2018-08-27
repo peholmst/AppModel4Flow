@@ -22,6 +22,7 @@ public class DefaultContext implements Context {
     private final Map<Class<?>, Object> contextualObjects = new ConcurrentHashMap<>();
     private final ListenerCollection<ContextualChangeEvent> listeners = new ListenerCollection<>();
     // Keep a reference to the method pointer here since it will be registered using a weak reference
+    @SuppressWarnings("FieldCanBeLocal")
     private final SerializableConsumer<ContextualChangeEvent> parentContextListener = this::fireContextualChangeEvent;
 
     /**

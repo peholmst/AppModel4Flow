@@ -10,6 +10,7 @@ import java.io.Serializable;
 /**
  * Interface defining a simple event bus.
  */
+@SuppressWarnings("UnusedReturnValue")
 public interface EventBus extends Serializable {
 
     /**

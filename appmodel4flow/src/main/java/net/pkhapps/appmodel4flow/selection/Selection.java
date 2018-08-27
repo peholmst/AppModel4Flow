@@ -19,8 +19,19 @@ public interface Selection<T> extends Iterable<T>, Serializable {
      * Returns whether this selection is empty.
      *
      * @return true if this selection is empty, false if it contains at least one item.
+     * @see #hasValue()
      */
     boolean isEmpty();
+
+    /**
+     * Returns whether this selection contains at least one item.
+     *
+     * @return true if this selection contains at least one item, false if it is empty.
+     * @see #isEmpty()
+     */
+    default boolean hasValue() {
+        return !isEmpty();
+    }
 
     /**
      * Returns the first item in this selection.

@@ -13,29 +13,17 @@ import java.util.Objects;
  *
  * @param <OUTPUT> the output type of the action, can be {@link Void} for actions that don't return any output.
  */
+@SuppressWarnings({"UnusedReturnValue", "WeakerAccess"})
 public interface Action<OUTPUT> extends Serializable {
 
     /**
-     * Checks if this action is performable right now. Normally an action that is not {@link #isAccessible() accessible}
-     * should not be performable either. By default, this methods returns the same value as {@link #isAccessible()}.
-     * Subclasses may override.
+     * Checks if this action is performable right now. By default, this methods returns true. Subclasses may override.
      *
      * @return true if the action is performable, false otherwise.
      */
     default boolean isPerformable() {
-        return isAccessible();
-    }
-
-    /**
-     * Checks if this action is accessible right now, regardless of whether it is performable or not. This flag is
-     * mainly intended to be used for security checks, where actions that the user is not allowed to perform don't
-     * show up anywhere in the UI at all. By default, this method returns true. Subclasses may override.
-     *
-     * @return true if the action is accessible, false otherwise.
-     */
-    default boolean isAccessible() {
         return true;
-    } // TODO Not sure whether this flag is really needed. It may become a source of confusion.
+    }
 
     /**
      * Performs the action, returning any output.
@@ -43,7 +31,6 @@ public interface Action<OUTPUT> extends Serializable {
      * @return the output of the action, may be {@code null}.
      * @throws IllegalStateException if the action is not performable.
      */
-    @SuppressWarnings("UnusedReturnValue")
     OUTPUT perform();
 
     /**
@@ -53,7 +40,6 @@ public interface Action<OUTPUT> extends Serializable {
      * @return a registration handle, never {@code null}.
      */
     @Nonnull
-    @SuppressWarnings("UnusedReturnValue")
     Registration addPerformListener(@Nonnull SerializableConsumer<PerformEvent<OUTPUT>> listener);
 
     /**
@@ -122,7 +108,6 @@ public interface Action<OUTPUT> extends Serializable {
          * @param action the action that was performed, never {@code null}.
          * @param output the output of the action, may be {@code null}.
          */
-        @SuppressWarnings("WeakerAccess")
         public PerformEvent(@Nonnull Action<OUTPUT> action, OUTPUT output) {
             super(action);
             this.output = output;
@@ -140,7 +125,7 @@ public interface Action<OUTPUT> extends Serializable {
 
     /**
      * Event fired by an {@link Action} whenever its state, such as its {@link Action#isPerformable() performable}
-     * or {@link Action#isAccessible() accessible} flags, is changed.
+     * flag, is changed.
      */
     @Immutable
     class StateChangeEvent extends Event<Action<?>> {

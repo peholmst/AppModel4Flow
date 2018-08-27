@@ -33,7 +33,7 @@ public class DefaultSelectionTest {
     @Test
     public void isEmpty_nonEmptySelection_returnsFalse() {
         var nonEmptySelection = new DefaultSelection<>(Set.of("hello", "world"));
-        assertThat(nonEmptySelection.isEmpty()).isFalse();
+        assertThat(nonEmptySelection.hasValue()).isTrue();
     }
 
     @Test

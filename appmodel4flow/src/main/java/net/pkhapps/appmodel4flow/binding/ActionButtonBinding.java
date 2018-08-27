@@ -54,6 +54,5 @@ public class ActionButtonBinding implements Serializable, Registration {
 
     private void updateButtonState() {
         button.setEnabled(action.isPerformable());
-        button.setVisible(action.isAccessible());
     }
 }

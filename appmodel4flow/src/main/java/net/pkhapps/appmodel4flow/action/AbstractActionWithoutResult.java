@@ -1,9 +1,12 @@
 package net.pkhapps.appmodel4flow.action;
 
+import javax.annotation.concurrent.NotThreadSafe;
+
 /**
  * Base class for actions that don't produce any output. This class is provided for developer convenience only and
  * does not introduce any new features.
  */
+@NotThreadSafe
 public abstract class AbstractActionWithoutResult extends AbstractAction<Void> {
 
     @Override
