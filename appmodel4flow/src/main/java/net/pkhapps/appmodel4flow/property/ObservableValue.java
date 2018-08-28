@@ -14,7 +14,7 @@ import java.util.Optional;
  *
  * @param <T> the value type.
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "UnusedReturnValue"})
 public interface ObservableValue<T> extends Serializable {
 
     /**
