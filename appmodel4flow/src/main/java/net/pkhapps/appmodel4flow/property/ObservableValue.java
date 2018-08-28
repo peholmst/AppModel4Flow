@@ -7,12 +7,14 @@ import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 import java.io.Serializable;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Interface for objects that wrap a value and allow listeners to be notified whenever the value is changed.
  *
  * @param <T> the value type.
  */
+@SuppressWarnings("unused")
 public interface ObservableValue<T> extends Serializable {
 
     /**
@@ -21,6 +23,35 @@ public interface ObservableValue<T> extends Serializable {
      * @return the value. Implementations are free to decide whether this can or cannot be {@code null}.
      */
     T getValue();
+
+    /**
+     * Returns the current value wrapped in an {@code Optional}.
+     *
+     * @return the current value or an empty optional if there is no value.
+     */
+    @Nonnull
+    default Optional<T> getOptionalValue() {
+        return isEmpty() ? Optional.empty() : Optional.of(getValue());
+    }
+
+    /**
+     * Returns whether this object is empty or contains a value. Implementations are free to decide when the object
+     * is empty (e.g. a {@code null} value, an empty string or empty collection, etc.).
+     *
+     * @return true if there is no value, false if there is one.
+     * @see #hasValue()
+     */
+    boolean isEmpty();
+
+    /**
+     * Returns whether this object has a value or is empty. This is the opposite of {@link #isEmpty()} and is provided
+     * to make the code easier to read depending on what you want to test for.
+     *
+     * @return true if there is a value, false if there is none.
+     */
+    default boolean hasValue() {
+        return !isEmpty();
+    }
 
     /**
      * Registers a listener to be notified when the value changes.
@@ -45,6 +76,7 @@ public interface ObservableValue<T> extends Serializable {
      *
      * @param <T> the value type.
      */
+    @SuppressWarnings("WeakerAccess")
     @Immutable
     class ValueChangeEvent<T> implements Serializable {
         private final ObservableValue<T> sender;
