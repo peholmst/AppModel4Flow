@@ -1,14 +1,16 @@
 package net.pkhapps.appmodel4flow;
 
+import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.data.converter.Converter;
 import com.vaadin.flow.shared.Registration;
 import net.pkhapps.appmodel4flow.action.Action;
 import net.pkhapps.appmodel4flow.action.support.CompositeAction;
-import net.pkhapps.appmodel4flow.binding.ActionButtonBinding;
-import net.pkhapps.appmodel4flow.binding.SelectionModelComboBoxBinding;
-import net.pkhapps.appmodel4flow.binding.SelectionModelGridBinding;
+import net.pkhapps.appmodel4flow.binding.*;
+import net.pkhapps.appmodel4flow.property.ObservableValue;
+import net.pkhapps.appmodel4flow.property.Property;
 import net.pkhapps.appmodel4flow.selection.DefaultSelectionModel;
 import net.pkhapps.appmodel4flow.selection.SelectionModel;
 
@@ -82,5 +84,71 @@ public final class AppModel {
     @Nonnull
     public static Action<?> compose(@Nonnull Action<?>... actions) {
         return new CompositeAction(actions);
+    }
+
+
+    /**
+     * Binds the given model and field together using a one-way binding where the field is read-only.
+     *
+     * @param model the model, never {@code null}.
+     * @param field the field, never {@code null}.
+     * @param <T>   the type of the value in the model and the field.
+     * @return the binding, never {@code null}.
+     */
+    @Nonnull
+    public static <T> FieldBinding<T, T> bindOneWay(@Nonnull ObservableValue<T> model,
+                                                    @Nonnull HasValue<? extends HasValue.ValueChangeEvent<T>, T> field) {
+        return new ObservableValueFieldBinding<>(model, field,
+                new ObservableValueFieldBinding.PassThroughConverter<>());
+    }
+
+    /**
+     * Binds the given model and field together using a one-way binding where the field is read-only.
+     *
+     * @param model     the model, never {@code null}.
+     * @param field     the field, never {@code null}.
+     * @param converter the converter to use for converting between model and field values, never {@code null}.
+     * @param <M>       the type of the value in the model.
+     * @param <P>       the type of the value in the field.
+     * @return the binding, never {@code null}.
+     */
+    @Nonnull
+    public static <M, P> FieldBinding<M, P> bindOneWay(@Nonnull ObservableValue<M> model,
+                                                       @Nonnull HasValue<? extends HasValue.ValueChangeEvent<P>, P> field,
+                                                       @Nonnull Converter<P, M> converter) {
+        return new ObservableValueFieldBinding<>(model, field, converter);
+    }
+
+    /**
+     * Binds the given model and field together using a two-way binding where changes made in the field are reflected
+     * in the model and vice versa.
+     *
+     * @param model the model, never {@code null}.
+     * @param field the field, never {@code null}.
+     * @param <T>   the type of the value in the model and the field.
+     * @return the binding, never {@code null}.
+     */
+    @Nonnull
+    public static <T> TwoWayFieldBinding<T, T> bind(@Nonnull Property<T> model,
+                                                    @Nonnull HasValue<? extends HasValue.ValueChangeEvent<T>, T> field) {
+        return new PropertyFieldBinding<>(model, field, new ObservableValueFieldBinding.PassThroughConverter<>());
+    }
+
+    /**
+     * Binds the given model and field together using a two-way binding where changes made in the field are reflected
+     * in the model and vice versa.
+     *
+     * @param model     the model, never {@code null}.
+     * @param field     the field, never {@code null}.
+     * @param converter the converter to use for converting between model and field values, never {@code null}.
+     * @param <M>       the type of the value in the model.
+     * @param <P>       the type of the value in the field.
+     * @return the binding, never {@code null}.
+     */
+    @Nonnull
+    public static <M, P> TwoWayFieldBinding<M, P> bind(@Nonnull Property<M> model,
+                                                       @Nonnull HasValue<? extends HasValue.ValueChangeEvent<P>, P> field,
+                                                       @Nonnull Converter<P, M> converter) {
+        return new PropertyFieldBinding<>(model, field, converter);
     }
 }
