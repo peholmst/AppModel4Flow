@@ -1,4 +1,4 @@
-package net.pkhapps.appmodel4flow.event;
+package net.pkhapps.appmodel4flow.incubator.event;
 
 import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.function.SerializablePredicate;

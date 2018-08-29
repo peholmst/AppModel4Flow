@@ -1,4 +1,4 @@
-package net.pkhapps.appmodel4flow.context;
+package net.pkhapps.appmodel4flow.incubator.context;
 
 import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.shared.Registration;
