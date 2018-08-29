@@ -21,7 +21,7 @@ public interface Action<OUTPUT> extends Serializable {
      *
      * @return true if the action is performable, false otherwise.
      */
-    default boolean isPerformable() {
+    default boolean isPerformable() { // TODO BEFORE 1.0: Consider turning this into an ObservableValue
         return true;
     }
 
