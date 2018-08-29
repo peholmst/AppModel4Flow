@@ -1,10 +1,5 @@
 package net.pkhapps.appmodel4flow.property;
 
-import com.vaadin.flow.function.SerializableConsumer;
-import com.vaadin.flow.shared.Registration;
-import net.pkhapps.appmodel4flow.util.ListenerCollection;
-
-import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
 import java.util.Objects;
 
@@ -17,9 +12,8 @@ import java.util.Objects;
  */
 @NotThreadSafe
 @SuppressWarnings("WeakerAccess")
-public class DefaultObservableValue<T> implements ObservableValue<T> {
+public class DefaultObservableValue<T> extends AbstractObservableValue<T> {
 
-    private ListenerCollection<ValueChangeEvent<T>> valueChangeEventListeners;
     private T value;
 
     /**
@@ -51,9 +45,7 @@ public class DefaultObservableValue<T> implements ObservableValue<T> {
         if (!Objects.equals(this.value, value)) {
             var old = this.value;
             this.value = value;
-            if (valueChangeEventListeners != null) {
-                valueChangeEventListeners.fireEvent(new ValueChangeEvent<>(this, old, value));
-            }
+            fireValueChangeEvent(old, value);
         }
     }
 
@@ -62,22 +54,8 @@ public class DefaultObservableValue<T> implements ObservableValue<T> {
         return value == null;
     }
 
-    @Nonnull
     @Override
-    public Registration addValueChangeListener(@Nonnull SerializableConsumer<ValueChangeEvent<T>> listener) {
-        return getValueChangeEventListeners().addListener(listener);
-    }
-
-    @Override
-    public void addWeakValueChangeListener(@Nonnull SerializableConsumer<ValueChangeEvent<T>> listener) {
-        getValueChangeEventListeners().addWeakListener(listener);
-    }
-
-    @Nonnull
-    private ListenerCollection<ValueChangeEvent<T>> getValueChangeEventListeners() {
-        if (valueChangeEventListeners == null) {
-            valueChangeEventListeners = new ListenerCollection<>();
-        }
-        return valueChangeEventListeners;
+    public String toString() {
+        return String.format("%s@%x[value=%s]", getClass().getSimpleName(), hashCode(), value);
     }
 }

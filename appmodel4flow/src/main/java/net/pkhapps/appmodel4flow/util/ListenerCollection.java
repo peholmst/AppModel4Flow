@@ -2,6 +2,8 @@ package net.pkhapps.appmodel4flow.util;
 
 import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.shared.Registration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
@@ -16,6 +18,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 @ThreadSafe
 public class ListenerCollection<EVENT> implements Serializable {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ListenerCollection.class);
     private final ReentrantReadWriteLock listenerLock = new ReentrantReadWriteLock();
     private Set<SerializableConsumer<EVENT>> listeners;
     private Map<SerializableConsumer<EVENT>, Void> weakListeners;
@@ -39,6 +42,7 @@ public class ListenerCollection<EVENT> implements Serializable {
         } finally {
             listenerLock.readLock().unlock();
         }
+        LOGGER.trace("Firing event {} to {} listener(s)", event, listeners.size());
         listeners.forEach(listener -> listener.accept(event));
     }
 
@@ -96,6 +100,7 @@ public class ListenerCollection<EVENT> implements Serializable {
      *
      * @return true if there is at least one listener registered, false if there are none.
      */
+    @SuppressWarnings("WeakerAccess")
     public boolean containsListeners() {
         listenerLock.readLock().lock();
         try {

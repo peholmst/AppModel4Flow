@@ -92,6 +92,11 @@ public interface Action<OUTPUT> extends Serializable {
         public A getAction() {
             return action;
         }
+
+        @Override
+        public String toString() {
+            return String.format("%s[action=%s]", getClass().getSimpleName(), action);
+        }
     }
 
     /**
@@ -120,6 +125,11 @@ public interface Action<OUTPUT> extends Serializable {
          */
         public OUTPUT getOutput() {
             return output;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("%s[action=%s, output=%s]", getClass().getSimpleName(), getAction(), output);
         }
     }
 

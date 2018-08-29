@@ -3,6 +3,8 @@ package net.pkhapps.appmodel4flow.action;
 import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.shared.Registration;
 import net.pkhapps.appmodel4flow.util.ListenerCollection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
@@ -18,19 +20,28 @@ import java.util.Objects;
 @NotThreadSafe
 public abstract class AbstractAction<OUTPUT> implements Action<OUTPUT> {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(Action.class);
+
     private ListenerCollection<PerformEvent<OUTPUT>> performListeners;
     private ListenerCollection<StateChangeEvent> stateChangeListeners;
 
     @Override
     public OUTPUT perform() {
         if (isPerformable()) {
-            final var output = doPerform();
-            if (performListeners != null) {
-                final PerformEvent<OUTPUT> event = new PerformEvent<>(this, output);
-                performListeners.fireEvent(event);
+            try {
+                final var output = doPerform();
+                if (performListeners != null) {
+                    final PerformEvent<OUTPUT> event = new PerformEvent<>(this, output);
+                    LOGGER.debug("Firing event {}", event);
+                    performListeners.fireEvent(event);
+                }
+                return output;
+            } catch (RuntimeException ex) {
+                LOGGER.error("An error occurred while performing action " + this, ex);
+                throw ex;
             }
-            return output;
         } else {
+            LOGGER.warn("Tried to perform action {} even though it is not performable", this);
             throw new IllegalStateException("The action is not performable");
         }
     }
@@ -44,6 +55,7 @@ public abstract class AbstractAction<OUTPUT> implements Action<OUTPUT> {
     protected void fireStateChangeEvent(@Nonnull StateChangeEvent event) {
         Objects.requireNonNull(event, "event must not be null");
         if (stateChangeListeners != null) {
+            LOGGER.debug("Firing event {}", event);
             stateChangeListeners.fireEvent(event);
         }
     }

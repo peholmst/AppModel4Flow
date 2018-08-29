@@ -116,5 +116,10 @@ public interface ObservableValue<T> extends Serializable {
         public T getValue() {
             return value;
         }
+
+        @Override
+        public String toString() {
+            return String.format("%s[sender=%s, oldValue=%s, value=%s]", getClass().getSimpleName(), sender, oldValue, value);
+        }
     }
 }

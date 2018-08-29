@@ -1,8 +1,8 @@
 package net.pkhapps.appmodel4flow.action.support;
 
 import com.vaadin.flow.function.SerializableConsumer;
-import net.pkhapps.appmodel4flow.action.AbstractActionWithoutResult;
 import net.pkhapps.appmodel4flow.action.Action;
+import net.pkhapps.appmodel4flow.action.ActionWithoutResult;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
@@ -18,7 +18,7 @@ import java.util.Objects;
  * state, the composite action will also change its state.
  */
 @NotThreadSafe
-public class CompositeAction extends AbstractActionWithoutResult {
+public class CompositeAction extends ActionWithoutResult {
 
     private final SerializableConsumer<Action.StateChangeEvent> anyActionStateChangeListener
             = this::onAnyActionStateChange;
@@ -60,5 +60,10 @@ public class CompositeAction extends AbstractActionWithoutResult {
     @Override
     protected void doPerformWithoutResult() {
         actions.forEach(Action::perform);
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s@%x[actions=%s]", getClass().getSimpleName(), hashCode(), actions);
     }
 }
