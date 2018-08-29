@@ -38,10 +38,10 @@ public class DefaultSelectionModelTest {
     public void selectionChangeListener() {
         var model = new DefaultSelectionModel<String>();
         var listenerFired = new AtomicBoolean(false);
-        var registration = model.addSelectionChangeListener(event -> {
+        var registration = model.addValueChangeListener(event -> {
             assertThat(event.getSender()).isSameAs(model);
-            assertThat(event.getOldSelection()).isEmpty();
-            assertThat(event.getSelection()).containsExactly("hello");
+            assertThat(event.getOldValue()).isEmpty();
+            assertThat(event.getValue()).containsExactly("hello");
             listenerFired.set(true);
         });
         model.selectOne("hello");

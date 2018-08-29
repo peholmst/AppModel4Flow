@@ -1,6 +1,7 @@
 package net.pkhapps.appmodel4flow.binding;
 
 import com.vaadin.flow.shared.Registration;
+import net.pkhapps.appmodel4flow.property.ObservableValue;
 import net.pkhapps.appmodel4flow.selection.Selection;
 import net.pkhapps.appmodel4flow.selection.SelectionModel;
 
@@ -33,11 +34,11 @@ public abstract class AbstractSelectionModelBinding<T> implements Serializable, 
     public AbstractSelectionModelBinding(@Nonnull SelectionModel<T> selectionModel) {
         this.selectionModel = Objects.requireNonNull(selectionModel, "selectionModel must not be null");
 
-        selectionModelRegistration = selectionModel.addSelectionChangeListener(this::onSelectionChanged);
+        selectionModelRegistration = selectionModel.addValueChangeListener(this::onSelectionChanged);
     }
 
-    private void onSelectionChanged(@Nonnull SelectionModel.SelectionChangeEvent<T> event) {
-        updateSelection(event.getSelection());
+    private void onSelectionChanged(@Nonnull ObservableValue.ValueChangeEvent<Selection<T>> event) {
+        updateSelection(event.getValue());
     }
 
     /**
