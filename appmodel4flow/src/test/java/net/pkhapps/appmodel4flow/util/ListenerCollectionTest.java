@@ -31,7 +31,6 @@ public class ListenerCollectionTest {
 
         collection.fireEvent("world");
         assertThat(receivedEvent.get()).isEqualTo("hello");
-        assertThat(collection.containsListeners()).isFalse();
     }
 
     @Test
