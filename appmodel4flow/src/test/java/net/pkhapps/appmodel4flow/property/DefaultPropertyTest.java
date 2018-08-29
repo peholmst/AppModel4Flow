@@ -31,6 +31,13 @@ public class DefaultPropertyTest {
     }
 
     @Test
+    public void dirtyFlag_falseAfterSettingCleanValue() {
+        DefaultProperty<String> property = new DefaultProperty<>();
+        property.setCleanValue("hello");
+        assertThat(property.isDirty().getValue()).isFalse();
+    }
+
+    @Test
     public void dirtyFlag_falseAfterSettingValueBackToOriginal() {
         DefaultProperty<String> property = new DefaultProperty<>("hello");
         property.setValue("world");

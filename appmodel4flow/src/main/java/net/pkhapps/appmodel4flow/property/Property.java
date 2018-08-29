@@ -33,6 +33,18 @@ public interface Property<T> extends ObservableValue<T> {
     void resetDirtyFlag();
 
     /**
+     * Sets the value of this property and reset the {@link #isDirty() dirty} flag to false. This is the same as calling
+     * {@link #setValue(Object)} followed by {@link #resetDirtyFlag()}.
+     *
+     * @param value the value to set.
+     * @throws ReadOnlyException if the property is {@link #isReadOnly() read-only}.
+     */
+    default void setCleanValue(T value) {
+        setValue(value);
+        resetDirtyFlag();
+    }
+
+    /**
      * Discards the current value and resets it to the value the property had when {@link #resetDirtyFlag()} was last
      * called. This will also set the {@link #isDirty() dirty} flag to false.
      */
