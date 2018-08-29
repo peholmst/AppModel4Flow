@@ -20,7 +20,7 @@ import javax.annotation.Nonnull;
  * A utility class for making it easier to work with AppModel4Flow. There is nothing you can do with this class that you
  * also can't do without it, but it may make the code a little easier to read.
  */
-@SuppressWarnings("UnusedReturnValue")
+@SuppressWarnings({"UnusedReturnValue", "WeakerAccess", "unused"})
 public final class AppModel {
 
     private AppModel() {
@@ -35,6 +35,26 @@ public final class AppModel {
     @Nonnull
     public static <T> SelectionModel<T> newSelectionModel() {
         return new DefaultSelectionModel<>();
+    }
+
+    /**
+     * Creates and returns a new {@link Binder}.
+     *
+     * @return the binder, never {@code null}.
+     */
+    @Nonnull
+    public static Binder newBinder() {
+        return new Binder();
+    }
+
+    /**
+     * Creates and returns a new {@link FieldBinder}.
+     *
+     * @return the binder, never {@code null}.
+     */
+    @Nonnull
+    public static FieldBinder newFieldBinder() {
+        return new FieldBinder();
     }
 
     /**
