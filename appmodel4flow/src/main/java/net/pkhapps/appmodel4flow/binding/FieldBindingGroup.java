@@ -15,15 +15,15 @@ import java.util.Collection;
 import java.util.stream.Stream;
 
 /**
- * Extended version of {@link Binder} especially designed for {@link FieldBinding}s and {@link TwoWayFieldBinding}s.
- * It provides features for handling {@link #withConverterResultHandler(ConverterResultHandler) converter errors} and
- * {@link #withValidationResultHandler(ValidationResultHandler) validation errors} in one place and also collectively
+ * Extended version of {@link BindingGroup} especially designed for {@link FieldBinding}s and {@link TwoWayFieldBinding}s.
+ * It provides features for handling {@link #withConverterResultHandler(ConverterResultHandler) converter results} and
+ * {@link #withValidationResultHandler(ValidationResultHandler) validation results} in one place and also collectively
  * tracks the status of the {@link Property#isDirty() dirty}, {@link FieldBinding#isPresentationValid() presentationValid}
  * and {@link FieldBinding#isModelValid() modelValid} flags.
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
 @NotThreadSafe
-public class FieldBinder extends Binder {
+public class FieldBindingGroup extends BindingGroup {
 
     private final DefaultObservableValue<Boolean> dirty = new DefaultObservableValue<>(false);
     private final DefaultObservableValue<Boolean> presentationValid = new DefaultObservableValue<>(true);
@@ -36,7 +36,7 @@ public class FieldBinder extends Binder {
 
     @Nonnull
     @Override
-    public FieldBinder withBinding(@Nonnull Registration binding) {
+    public FieldBindingGroup withBinding(@Nonnull Registration binding) {
         if (binding instanceof TwoWayFieldBinding) {
             var twoWayFieldBinding = (TwoWayFieldBinding<?, ?>) binding;
             twoWayFieldBinding.withConverterResultHandler(result -> handleConverterResult(twoWayFieldBinding, result));
@@ -57,11 +57,11 @@ public class FieldBinder extends Binder {
                 presentationValid.setValue(false);
             }
         }
-        return (FieldBinder) super.withBinding(binding);
+        return (FieldBindingGroup) super.withBinding(binding);
     }
 
     /**
-     * Returns whether there are any {@link Property#isDirty() dirty} properties among the bindings in this binder.
+     * Returns whether there are any {@link Property#isDirty() dirty} properties among the bindings in this group.
      *
      * @return true if at least one property is dirty, false if all of them are clean.
      */
@@ -140,10 +140,10 @@ public class FieldBinder extends Binder {
      * bindings.
      *
      * @param converterResultHandler the result handler or {@code null} to use none.
-     * @return this field binder, to allow for method chaining.
+     * @return this field binding group, to allow for method chaining.
      */
     @Nonnull
-    public FieldBinder withConverterResultHandler(ConverterResultHandler converterResultHandler) {
+    public FieldBindingGroup withConverterResultHandler(ConverterResultHandler converterResultHandler) {
         this.converterResultHandler = converterResultHandler;
         return this;
     }
@@ -154,10 +154,10 @@ public class FieldBinder extends Binder {
      * bindings.
      *
      * @param validationResultHandler the result handler or {@code null} to use none.
-     * @return this field binder, to allow for method chaining.
+     * @return this field binding group, to allow for method chaining.
      */
     @Nonnull
-    public FieldBinder withValidationResultHandler(ValidationResultHandler validationResultHandler) {
+    public FieldBindingGroup withValidationResultHandler(ValidationResultHandler validationResultHandler) {
         this.validationResultHandler = validationResultHandler;
         return this;
     }
@@ -176,7 +176,7 @@ public class FieldBinder extends Binder {
     }
 
     /**
-     * Functional interface for {@link FieldBinder#withConverterResultHandler(ConverterResultHandler) converter result handlers}.
+     * Functional interface for {@link FieldBindingGroup#withConverterResultHandler(ConverterResultHandler) converter result handlers}.
      */
     @FunctionalInterface
     public interface ConverterResultHandler extends Serializable {
@@ -191,7 +191,7 @@ public class FieldBinder extends Binder {
     }
 
     /**
-     * Functional interface for {@link FieldBinder#withValidationResultHandler(ValidationResultHandler) validation result handlers}.
+     * Functional interface for {@link FieldBindingGroup#withValidationResultHandler(ValidationResultHandler) validation result handlers}.
      */
     @FunctionalInterface
     public interface ValidationResultHandler extends Serializable {

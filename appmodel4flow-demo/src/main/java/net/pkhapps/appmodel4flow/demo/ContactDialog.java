@@ -7,7 +7,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import net.pkhapps.appmodel4flow.AppModel;
 import net.pkhapps.appmodel4flow.action.ActionWithoutResult;
-import net.pkhapps.appmodel4flow.action.support.FieldBinderAction;
+import net.pkhapps.appmodel4flow.action.support.FieldBindingGroupAction;
 
 import javax.annotation.Nonnull;
 
@@ -15,7 +15,7 @@ class ContactDialog extends Dialog {
 
     ContactDialog(@Nonnull ContactController contactController, @Nonnull Contact contact) {
         final var contactModel = new ContactModel();
-        final var binder = AppModel.newFieldBinder();
+        final var binder = AppModel.newFieldBindingGroup();
 
         var uuid = new TextField("UUID");
         binder.withBinding(AppModel.bindOneWay(contactModel.getUuid(), uuid, new StringTOUUIDConverter()));
@@ -46,7 +46,7 @@ class ContactDialog extends Dialog {
 
         // TODO Create default result handler implementations that are useable in most situations
 
-        var commitAction = new FieldBinderAction(binder, () -> contactModel.write(contact));
+        var commitAction = new FieldBindingGroupAction(binder, () -> contactModel.write(contact));
         var closeAction = new ActionWithoutResult(this::close);
         var saveAction = AppModel.compose(commitAction, contactController.saveContactAction(contact), closeAction);
         AppModel.bind(saveAction, save);

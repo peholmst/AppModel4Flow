@@ -14,9 +14,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Unit test for {@link FieldBinder}.
+ * Unit test for {@link FieldBindingGroup}.
  */
-public class FieldBinderTest {
+public class FieldBindingGroupTest {
 
     private TextField stringField;
     private TextField integerField;
@@ -24,7 +24,7 @@ public class FieldBinderTest {
     private DefaultProperty<String> stringProperty;
     private DefaultProperty<Integer> integerProperty;
     private DefaultProperty<Boolean> booleanProperty;
-    private FieldBinder binder;
+    private FieldBindingGroup group;
 
     @Before
     public void setUp() {
@@ -36,44 +36,44 @@ public class FieldBinderTest {
         integerProperty = new DefaultProperty<>();
         booleanProperty = new DefaultProperty<>(false);
 
-        binder = new FieldBinder();
-        binder.withBinding(new PropertyFieldBinding<>(stringProperty, stringField, new ObservableValueFieldBinding.PassThroughConverter<>())
+        group = new FieldBindingGroup();
+        group.withBinding(new PropertyFieldBinding<>(stringProperty, stringField, new ObservableValueFieldBinding.PassThroughConverter<>())
                 .withValidator(new StringLengthValidator("lengthError", 3, 10)));
-        binder.withBinding(new PropertyFieldBinding<>(integerProperty, integerField, new StringToIntegerConverter("intConversionError")));
-        binder.withBinding(new PropertyFieldBinding<>(booleanProperty, booleanField, new ObservableValueFieldBinding.PassThroughConverter<>()));
+        group.withBinding(new PropertyFieldBinding<>(integerProperty, integerField, new StringToIntegerConverter("intConversionError")));
+        group.withBinding(new PropertyFieldBinding<>(booleanProperty, booleanField, new ObservableValueFieldBinding.PassThroughConverter<>()));
     }
 
     @Test
     public void dirtyFlag() {
-        assertThat(binder.isDirty().getValue()).isFalse();
+        assertThat(group.isDirty().getValue()).isFalse();
         booleanField.setValue(true);
-        assertThat(binder.isDirty().getValue()).isTrue();
+        assertThat(group.isDirty().getValue()).isTrue();
         booleanProperty.discard();
-        assertThat(binder.isDirty().getValue()).isFalse();
+        assertThat(group.isDirty().getValue()).isFalse();
     }
 
     @Test
     public void presentationValidFlag() {
-        assertThat(binder.isPresentationValid().getValue()).isTrue();
+        assertThat(group.isPresentationValid().getValue()).isTrue();
         integerField.setValue("this is not a number");
-        assertThat(binder.isPresentationValid().getValue()).isFalse();
+        assertThat(group.isPresentationValid().getValue()).isFalse();
         integerField.setValue("50");
-        assertThat(binder.isPresentationValid().getValue()).isTrue();
+        assertThat(group.isPresentationValid().getValue()).isTrue();
     }
 
     @Test
     public void modelValidFlag() {
-        assertThat(binder.isModelValid().getValue()).isTrue();
+        assertThat(group.isModelValid().getValue()).isTrue();
         stringField.setValue("this string is too long");
-        assertThat(binder.isModelValid().getValue()).isFalse();
+        assertThat(group.isModelValid().getValue()).isFalse();
         stringField.setValue("this is OK");
-        assertThat(binder.isModelValid().getValue()).isTrue();
+        assertThat(group.isModelValid().getValue()).isTrue();
     }
 
     @Test
     public void converterResultHandler_error() {
         var handlerInvoked = new AtomicBoolean(false);
-        binder.withConverterResultHandler((binding, result) -> {
+        group.withConverterResultHandler((binding, result) -> {
             assertThat(binding.getModel()).isSameAs(integerProperty);
             assertThat(result.isError()).isTrue();
             handlerInvoked.set(true);
@@ -85,7 +85,7 @@ public class FieldBinderTest {
     @Test
     public void converterResultHandler_success() {
         var handlerInvoked = new AtomicBoolean(false);
-        binder.withConverterResultHandler((binding, result) -> {
+        group.withConverterResultHandler((binding, result) -> {
             assertThat(binding.getModel()).isSameAs(integerProperty);
             assertThat(result.isError()).isFalse();
             handlerInvoked.set(true);
@@ -97,7 +97,7 @@ public class FieldBinderTest {
     @Test
     public void validationResultHandler_error() {
         var handlerInvoked = new AtomicBoolean(false);
-        binder.withValidationResultHandler((binding, results) -> {
+        group.withValidationResultHandler((binding, results) -> {
             assertThat(binding.getModel()).isSameAs(stringProperty);
             assertThat(results).anyMatch(ValidationResult::isError);
             handlerInvoked.set(true);
@@ -109,7 +109,7 @@ public class FieldBinderTest {
     @Test
     public void validationResultHandler_success() {
         var handlerInvoked = new AtomicBoolean(false);
-        binder.withValidationResultHandler((binding, results) -> {
+        group.withValidationResultHandler((binding, results) -> {
             assertThat(binding.getModel()).isSameAs(stringProperty);
             assertThat(results).noneMatch(ValidationResult::isError);
             handlerInvoked.set(true);

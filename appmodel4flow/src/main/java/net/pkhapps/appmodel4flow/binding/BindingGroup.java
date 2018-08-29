@@ -11,30 +11,29 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 /**
- * Base class for a binder that groups a set of bindings together to make it possible to perform collective operations
- * on them.
+ * Base class for a group of bindings to make it possible to perform collective operations on them.
  */
 @SuppressWarnings("WeakerAccess")
 @NotThreadSafe
-public class Binder implements Serializable {
+public class BindingGroup implements Serializable {
 
     private Set<Registration> bindings = new HashSet<>();
 
     /**
-     * Registers the given binding with this binder.
+     * Registers the given binding with this group.
      *
      * @param binding the binding to register, never {@code null}.
-     * @return this binder to allow for method chaining.
+     * @return this binding group to allow for method chaining.
      */
     @Nonnull
-    public Binder withBinding(@Nonnull Registration binding) {
+    public BindingGroup withBinding(@Nonnull Registration binding) {
         Objects.requireNonNull(binding, "binding must not be null");
         bindings.add(binding);
         return this;
     }
 
     /**
-     * Returns a stream of all bindings currently in the binder.
+     * Returns a stream of all bindings currently in the group.
      *
      * @return the bindings, never {@code null}.
      */
@@ -44,7 +43,7 @@ public class Binder implements Serializable {
     }
 
     /**
-     * Calls the {@link Registration#remove() remove} method of each binding and removes them from this binder.
+     * Calls the {@link Registration#remove() remove} method of each binding and removes them from this group.
      */
     public void dispose() {
         bindings.forEach(Registration::remove);

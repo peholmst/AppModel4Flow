@@ -38,23 +38,23 @@ public final class AppModel {
     }
 
     /**
-     * Creates and returns a new {@link Binder}.
+     * Creates and returns a new {@link BindingGroup}.
      *
      * @return the binder, never {@code null}.
      */
     @Nonnull
-    public static Binder newBinder() {
-        return new Binder();
+    public static BindingGroup newBindingGroup() {
+        return new BindingGroup();
     }
 
     /**
-     * Creates and returns a new {@link FieldBinder}.
+     * Creates and returns a new {@link FieldBindingGroup}.
      *
      * @return the binder, never {@code null}.
      */
     @Nonnull
-    public static FieldBinder newFieldBinder() {
-        return new FieldBinder();
+    public static FieldBindingGroup newFieldBindingGroup() {
+        return new FieldBindingGroup();
     }
 
     /**

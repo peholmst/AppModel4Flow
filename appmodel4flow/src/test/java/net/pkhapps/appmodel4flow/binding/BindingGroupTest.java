@@ -8,13 +8,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 /**
- * Unit test for {@link Binder}.
+ * Unit test for {@link BindingGroup}.
  */
-public class BinderTest {
+public class BindingGroupTest {
 
     @Test
     public void withBinding_bindingAddedToStream() {
-        var binder = new Binder();
+        var binder = new BindingGroup();
         var binding = mock(Registration.class);
         binder.withBinding(binding);
         assertThat(binder.getBindings()).contains(binding);
@@ -22,7 +22,7 @@ public class BinderTest {
 
     @Test
     public void dispose_removeIsCalledAndBindingsAreCleared() {
-        var binder = new Binder();
+        var binder = new BindingGroup();
         var binding = mock(Registration.class);
         binder.withBinding(binding);
         binder.dispose();
