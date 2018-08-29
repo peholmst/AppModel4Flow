@@ -1,4 +1,8 @@
+# IntelliJ
 *.iml
 .idea/
+!.idea/copyright/
+
+# Maven
 target/
 
