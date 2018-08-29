@@ -55,7 +55,9 @@ public abstract class AbstractAction<OUTPUT> implements Action<OUTPUT> {
     protected void fireStateChangeEvent(@Nonnull StateChangeEvent event) {
         Objects.requireNonNull(event, "event must not be null");
         if (stateChangeListeners != null) {
-            LOGGER.debug("Firing event {}", event);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Firing event {}, performable={}", event, isPerformable());
+            }
             stateChangeListeners.fireEvent(event);
         }
     }
