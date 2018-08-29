@@ -5,6 +5,8 @@ import net.pkhapps.appmodel4flow.AppModel;
 import net.pkhapps.appmodel4flow.action.AbstractAction;
 import net.pkhapps.appmodel4flow.action.Action;
 import net.pkhapps.appmodel4flow.action.ActionWithoutResult;
+import net.pkhapps.appmodel4flow.property.ObservableValue;
+import net.pkhapps.appmodel4flow.selection.Selection;
 import net.pkhapps.appmodel4flow.selection.SelectionModel;
 
 import javax.annotation.Nonnull;
@@ -18,15 +20,6 @@ class ContactController implements Serializable {
     private final SelectionModel<Contact> contactSelectionModel = AppModel.newSelectionModel();
     private final List<Contact> contacts = new ArrayList<>();
     private final ListDataProvider<Contact> contactDataProvider = new ListDataProvider<>(contacts);
-
-    abstract class ContactDialogAction extends ActionWithoutResult {
-
-        void openDialog(Contact contact) {
-            var dialog = new ContactDialog(ContactController.this, contact);
-            dialog.open();
-        }
-    }
-
     private final Action<Void> createContactAction = new ContactDialogAction() {
 
         @Override
@@ -34,16 +27,7 @@ class ContactController implements Serializable {
             openDialog(new Contact());
         }
     };
-
-    private final Action<Void> editSelectedContactAction = new ContactDialogAction() {
-        {
-            contactSelectionModel.addValueChangeListener(event -> fireStateChangeEvent());
-        }
-
-        @Override
-        public boolean isPerformable() {
-            return contactSelectionModel.getSelection().hasValue();
-        }
+    private final Action<Void> editSelectedContactAction = new ContactDialogAction(contactSelectionModel.map(Selection::hasValue)) {
 
         @Override
         protected void doPerformWithoutResult() {
@@ -105,5 +89,20 @@ class ContactController implements Serializable {
     @Nonnull
     ListDataProvider<Contact> contactDataProvider() {
         return contactDataProvider;
+    }
+
+    abstract class ContactDialogAction extends ActionWithoutResult {
+
+        public ContactDialogAction() {
+        }
+
+        public ContactDialogAction(@Nonnull ObservableValue<Boolean> isPerformable) {
+            super(isPerformable);
+        }
+
+        void openDialog(Contact contact) {
+            var dialog = new ContactDialog(ContactController.this, contact);
+            dialog.open();
+        }
     }
 }

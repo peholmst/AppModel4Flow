@@ -4,6 +4,7 @@ import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.shared.Registration;
 import net.pkhapps.appmodel4flow.action.Action;
+import net.pkhapps.appmodel4flow.property.ObservableValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +38,7 @@ public class ActionButtonBinding implements Serializable, Registration {
         this.button = Objects.requireNonNull(button, "button must not be null");
 
         buttonRegistration = button.addClickListener(this::onButtonClick);
-        actionRegistration = action.addStateChangeListener(this::onActionStateChange);
+        actionRegistration = action.isPerformable().addValueChangeListener(this::onActionPerformableChange);
         updateButtonState();
     }
 
@@ -52,12 +53,12 @@ public class ActionButtonBinding implements Serializable, Registration {
         action.perform();
     }
 
-    private void onActionStateChange(Action.StateChangeEvent event) {
+    private void onActionPerformableChange(ObservableValue.ValueChangeEvent<Boolean> event) {
         updateButtonState();
     }
 
     private void updateButtonState() {
-        var performable = action.isPerformable();
+        var performable = action.isPerformable().getValue();
         LOGGER.trace("Setting enabled state of button {} to {}", button, performable);
         button.setEnabled(performable);
     }

@@ -1,6 +1,7 @@
 package net.pkhapps.appmodel4flow.action;
 
 import com.vaadin.flow.function.SerializableRunnable;
+import net.pkhapps.appmodel4flow.property.ObservableValue;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
@@ -19,9 +20,7 @@ public class ActionWithoutResult extends AbstractAction<Void> {
      * Default constructor that requires the subclass to override {@link #doPerformWithoutResult()}.
      */
     public ActionWithoutResult() {
-        command = () -> {
-            throw new UnsupportedOperationException("doPerformWithoutResult has not been overridden");
-        };
+        this(createDefaultCommand());
     }
 
     /**
@@ -32,6 +31,33 @@ public class ActionWithoutResult extends AbstractAction<Void> {
      */
     public ActionWithoutResult(@Nonnull SerializableRunnable command) {
         this.command = Objects.requireNonNull(command, "command must not be null");
+    }
+
+    /**
+     * Constructor that requires the subclass to override {@link #doPerformWithoutResult()} and uses an external
+     * {@link #isPerformable()} observable value.
+     *
+     * @param isPerformable the observable value that determines whether this action is performable or not, never {@code null}.
+     */
+    public ActionWithoutResult(@Nonnull ObservableValue<Boolean> isPerformable) {
+        this(isPerformable, createDefaultCommand());
+    }
+
+    /**
+     * Constructor that wraps a command inside the action and uses an external {@link #isPerformable()} observable value.
+     *
+     * @param isPerformable the observable value that determines whether this action is performable or not, never {@code null}.
+     * @param command       the command to invoke when the action is performed, never {@code null}.
+     */
+    public ActionWithoutResult(@Nonnull ObservableValue<Boolean> isPerformable, @Nonnull SerializableRunnable command) {
+        super(isPerformable);
+        this.command = Objects.requireNonNull(command, "command must not be null");
+    }
+
+    private static SerializableRunnable createDefaultCommand() {
+        return () -> {
+            throw new UnsupportedOperationException("doPerformWithoutResult has not been overridden");
+        };
     }
 
     @Override

@@ -5,17 +5,10 @@ package net.pkhapps.appmodel4flow.action;
  */
 public class TestAction extends AbstractAction<Integer> {
 
-    private boolean performable = true;
     private int performCount = 0;
 
-    @Override
-    public boolean isPerformable() {
-        return performable;
-    }
-
     public void setPerformable(boolean performable) {
-        this.performable = performable;
-        fireStateChangeEvent();
+        super.setPerformable(performable);
     }
 
     public int getPerformCount() {

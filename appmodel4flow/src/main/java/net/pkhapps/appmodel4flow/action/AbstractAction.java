@@ -2,6 +2,8 @@ package net.pkhapps.appmodel4flow.action;
 
 import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.shared.Registration;
+import net.pkhapps.appmodel4flow.property.DefaultObservableValue;
+import net.pkhapps.appmodel4flow.property.ObservableValue;
 import net.pkhapps.appmodel4flow.util.ListenerCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,8 +14,7 @@ import java.util.Objects;
 
 /**
  * Base class for {@link Action}s. Developers creating new actions will almost always want to extend this class instead
- * of implementing the interface directly. When implementing {@link Action#isPerformable()}, remember to call
- * {@link #fireStateChangeEvent(StateChangeEvent)} every time the state of that flag is changed.
+ * of implementing the interface directly.
  *
  * @param <OUTPUT> the output type of the action, can be {@link Void} for actions that don't return any output.
  */
@@ -21,13 +22,31 @@ import java.util.Objects;
 public abstract class AbstractAction<OUTPUT> implements Action<OUTPUT> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Action.class);
-
+    private final ObservableValue<Boolean> isPerformable;
     private ListenerCollection<PerformEvent<OUTPUT>> performListeners;
-    private ListenerCollection<StateChangeEvent> stateChangeListeners;
+
+    /**
+     * Default constructor with an internal {@link #isPerformable()} observable value. You can use
+     * {@link #setPerformable(boolean)} to change the value of the flag (the default is true).
+     */
+    protected AbstractAction() {
+        this(new IsPerformableValue());
+    }
+
+    /**
+     * Constructor with an external {@link #isPerformable()} observable value. You have to interact with the
+     * value directly to change it.
+     *
+     * @param isPerformable the observable value that determines whether this action is performable or not, never {@code null}.
+     */
+    @SuppressWarnings("WeakerAccess")
+    protected AbstractAction(@Nonnull ObservableValue<Boolean> isPerformable) {
+        this.isPerformable = Objects.requireNonNull(isPerformable, "isPerformable must not be null");
+    }
 
     @Override
     public OUTPUT perform() {
-        if (isPerformable()) {
+        if (isPerformable().getValue()) {
             try {
                 final var output = doPerform();
                 if (performListeners != null) {
@@ -47,37 +66,32 @@ public abstract class AbstractAction<OUTPUT> implements Action<OUTPUT> {
     }
 
     /**
-     * Fires the given {@link StateChangeEvent} to all registered listeners.
-     *
-     * @param event the event to fire, never {@code null}.
-     */
-    @SuppressWarnings("WeakerAccess")
-    protected void fireStateChangeEvent(@Nonnull StateChangeEvent event) {
-        Objects.requireNonNull(event, "event must not be null");
-        if (stateChangeListeners != null) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Firing event {}, performable={}", event, isPerformable());
-            }
-            stateChangeListeners.fireEvent(event);
-        }
-    }
-
-    /**
-     * Creates and {@link #fireStateChangeEvent(StateChangeEvent) fires} a new {@link StateChangeEvent}.
-     */
-    protected void fireStateChangeEvent() {
-        if (stateChangeListeners != null) {
-            fireStateChangeEvent(new StateChangeEvent(this));
-        }
-    }
-
-    /**
      * Performs the action. When this method is called, {@link #isPerformable()} is guaranteed to be true.
      *
      * @return the output of the action, may be {@code null}.
      */
-    @SuppressWarnings("WeakerAccess")
     protected abstract OUTPUT doPerform();
+
+    @Nonnull
+    @Override
+    public ObservableValue<Boolean> isPerformable() {
+        return isPerformable;
+    }
+
+    /**
+     * Sets the value of the {@link #isPerformable()} flag. This is only possible if the action was created using
+     * the {@link #AbstractAction() default constructor}.
+     *
+     * @param performable true if the action is performable, false if it is not.
+     * @throws UnsupportedOperationException if this action was created using the {@link #AbstractAction(ObservableValue)} constructor.
+     */
+    protected void setPerformable(boolean performable) {
+        if (isPerformable instanceof IsPerformableValue) {
+            ((IsPerformableValue) isPerformable).setValue(performable);
+        } else {
+            throw new UnsupportedOperationException("The isPerformable value is external and cannot be set using this method");
+        }
+    }
 
     @Nonnull
     @Override
@@ -90,6 +104,7 @@ public abstract class AbstractAction<OUTPUT> implements Action<OUTPUT> {
         getPerformListeners().addWeakListener(listener);
     }
 
+    @Nonnull
     private ListenerCollection<PerformEvent<OUTPUT>> getPerformListeners() {
         if (performListeners == null) {
             performListeners = new ListenerCollection<>();
@@ -97,21 +112,9 @@ public abstract class AbstractAction<OUTPUT> implements Action<OUTPUT> {
         return performListeners;
     }
 
-    @Nonnull
-    @Override
-    public Registration addStateChangeListener(@Nonnull SerializableConsumer<StateChangeEvent> listener) {
-        return getStateChangeListeners().addListener(listener);
-    }
-
-    @Override
-    public void addWeakStateChangeListener(@Nonnull SerializableConsumer<StateChangeEvent> listener) {
-        getStateChangeListeners().addWeakListener(listener);
-    }
-
-    private ListenerCollection<StateChangeEvent> getStateChangeListeners() {
-        if (stateChangeListeners == null) {
-            stateChangeListeners = new ListenerCollection<>();
+    private static class IsPerformableValue extends DefaultObservableValue<Boolean> {
+        IsPerformableValue() {
+            super(true);
         }
-        return stateChangeListeners;
     }
 }

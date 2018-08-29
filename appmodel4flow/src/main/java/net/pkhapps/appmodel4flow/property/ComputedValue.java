@@ -2,10 +2,9 @@ package net.pkhapps.appmodel4flow.property;
 
 import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.function.SerializableSupplier;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
 
@@ -15,49 +14,43 @@ import java.util.Set;
  *
  * @param <T> the value type.
  */
-public class ComputedValue<T> extends AbstractObservableValue<T> {
+public class ComputedValue<T> extends AbstractComputedValue<T> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ComputedValue.class);
-    private final Set<ObservableValue> dependencies;
-    private final SerializableConsumer<ValueChangeEvent> dependencyValueChangeListener = (event) -> updateCachedValue();
+    private final Collection<? extends ObservableValue> dependencies;
     private final SerializableSupplier<T> valueSupplier;
-
-    private T cachedValue;
+    private final SerializableConsumer<ValueChangeEvent> dependencyValueChangeListener = (event) -> updateCachedValue();
 
     /**
      * Creates a new {@code ComputedValue}.
      *
      * @param valueSupplier the function that will be used to compute the value, never {@code null}.
-     * @param dependencies  the observable values that this computed value depends on, never {@code null}.
+     * @param dependencies  the observable values that this computed value depends on, never {@code null} but must contain at least one value.
+     */
+    public ComputedValue(@Nonnull SerializableSupplier<T> valueSupplier, @Nonnull ObservableValue... dependencies) {
+        this(valueSupplier, Set.of(dependencies));
+    }
+
+    /**
+     * Creates a new {@code ComputedValue}.
+     *
+     * @param valueSupplier the function that will be used to compute the value, never {@code null}.
+     * @param dependencies  the observable values that this computed value depends on, never {@code null} but must contain at least one value.
      */
     @SuppressWarnings("unchecked")
-    public ComputedValue(@Nonnull SerializableSupplier<T> valueSupplier, @Nonnull ObservableValue... dependencies) {
+    public ComputedValue(@Nonnull SerializableSupplier<T> valueSupplier, @Nonnull Collection<? extends ObservableValue> dependencies) {
         this.valueSupplier = Objects.requireNonNull(valueSupplier, "valueSupplier must not be null");
-        if (dependencies.length == 0) {
+        Objects.requireNonNull(dependencies, "dependencies must not be null");
+        if (dependencies.size() == 0) {
             throw new IllegalArgumentException("Need at least one dependency");
         }
-        this.dependencies = Set.of(dependencies);
+        this.dependencies = dependencies;
         this.dependencies.forEach(dependency -> dependency.addWeakValueChangeListener(dependencyValueChangeListener));
         updateCachedValue();
     }
 
-    private void updateCachedValue() {
-        var old = cachedValue;
-        cachedValue = valueSupplier.get();
-        if (!Objects.equals(old, cachedValue)) {
-            LOGGER.trace("Updating cached value of {} to {}", this, cachedValue);
-            fireValueChangeEvent(old, cachedValue);
-        }
-    }
-
     @Override
-    public T getValue() {
-        return cachedValue;
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return cachedValue == null;
+    protected T computeValue() {
+        return valueSupplier.get();
     }
 
     @Override

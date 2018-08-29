@@ -1,6 +1,7 @@
 package net.pkhapps.appmodel4flow.property;
 
 import com.vaadin.flow.function.SerializableConsumer;
+import com.vaadin.flow.function.SerializableFunction;
 import com.vaadin.flow.shared.Registration;
 
 import javax.annotation.Nonnull;
@@ -70,6 +71,16 @@ public interface ObservableValue<T> extends Serializable {
      * @param listener the listener, never {@code null}.
      */
     void addWeakValueChangeListener(@Nonnull SerializableConsumer<Property.ValueChangeEvent<T>> listener);
+
+    /**
+     * TODO Document and test me!
+     *
+     * @param mapFunction
+     * @param <E>
+     * @return
+     */
+    @Nonnull
+    <E> ObservableValue<E> map(@Nonnull SerializableFunction<T, E> mapFunction);
 
     /**
      * Event fired by a {@link ObservableValue} when the value changes.

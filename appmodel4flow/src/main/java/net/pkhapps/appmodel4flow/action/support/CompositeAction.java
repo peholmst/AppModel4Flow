@@ -1,15 +1,18 @@
 package net.pkhapps.appmodel4flow.action.support;
 
-import com.vaadin.flow.function.SerializableConsumer;
 import net.pkhapps.appmodel4flow.action.Action;
 import net.pkhapps.appmodel4flow.action.ActionWithoutResult;
+import net.pkhapps.appmodel4flow.property.CombinedValue;
+import net.pkhapps.appmodel4flow.property.ObservableValue;
+import net.pkhapps.appmodel4flow.property.support.Combinators;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * A special action that is a combination of multiple actions. For this action to be performable, all
@@ -20,8 +23,6 @@ import java.util.Objects;
 @NotThreadSafe
 public class CompositeAction extends ActionWithoutResult {
 
-    private final SerializableConsumer<Action.StateChangeEvent> anyActionStateChangeListener
-            = this::onAnyActionStateChange;
     private final List<Action<?>> actions;
 
     /**
@@ -31,12 +32,8 @@ public class CompositeAction extends ActionWithoutResult {
      */
     @SuppressWarnings("WeakerAccess")
     public CompositeAction(@Nonnull List<Action<?>> actions) {
-        Objects.requireNonNull(actions, "actions must not be null");
-        if (actions.isEmpty()) {
-            throw new IllegalArgumentException("The actions list must contain at least one action");
-        }
-        this.actions = new ArrayList<>(actions);
-        actions.forEach(action -> action.addWeakStateChangeListener(anyActionStateChangeListener));
+        super(combinedIsPerformable(actions));
+        this.actions = actions;
     }
 
     /**
@@ -48,13 +45,13 @@ public class CompositeAction extends ActionWithoutResult {
         this(Arrays.asList(actions));
     }
 
-    private void onAnyActionStateChange(Action.StateChangeEvent event) {
-        fireStateChangeEvent();
-    }
-
-    @Override
-    public boolean isPerformable() {
-        return actions.stream().allMatch(Action::isPerformable);
+    private static ObservableValue<Boolean> combinedIsPerformable(@Nonnull Collection<Action<?>> actions) {
+        Objects.requireNonNull(actions, "actions must not be null");
+        if (actions.isEmpty()) {
+            throw new IllegalArgumentException("The actions list must contain at least one action");
+        }
+        var isPerformableCollection = actions.stream().map(Action::isPerformable).collect(Collectors.toSet());
+        return new CombinedValue<>(Combinators.allTrue(), isPerformableCollection);
     }
 
     @Override
