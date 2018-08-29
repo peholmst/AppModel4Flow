@@ -10,7 +10,8 @@ import java.util.Objects;
 
 /**
  * Default implementation of {@link ObservableValue} that considers {@code null} values to be {@link #isEmpty() empty}.
- * Developers are free to use as-is or extend.
+ * Developers are free to use as-is or extend. However, in most cases they should not expose instances of this class
+ * directly to other classes but use the {@link ObservableValue interface} instead.
  *
  * @param <T> the value type.
  */
@@ -41,6 +42,11 @@ public class DefaultObservableValue<T> implements ObservableValue<T> {
         return value;
     }
 
+    /**
+     * Sets the value, notifying the listeners if the new value is different from the old one.
+     *
+     * @param value the new value to set.
+     */
     public void setValue(T value) {
         if (!Objects.equals(this.value, value)) {
             var old = this.value;

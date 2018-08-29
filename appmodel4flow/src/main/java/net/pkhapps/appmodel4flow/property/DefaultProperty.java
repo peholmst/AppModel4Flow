@@ -5,7 +5,8 @@ import javax.annotation.concurrent.NotThreadSafe;
 import java.util.Objects;
 
 /**
- * Default implementation of {@link Property}. Developers are free to use as-is or extend.
+ * Default implementation of {@link Property}. Developers are free to use as-is or extend.  However, in most cases they
+ * should not expose instances of this class directly to other classes but use the {@link Property interface} instead.
  *
  * @param <T> the value type.
  */
