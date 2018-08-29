@@ -46,4 +46,24 @@ public class DefaultPropertyTest {
         assertThat(property.isReadOnly().getValue()).isTrue();
         property.setValue("hello");
     }
+
+    @Test
+    public void discard_noFlagReset_valueSetToNull() {
+        DefaultProperty<String> property = new DefaultProperty<>();
+        property.setValue("hello");
+        property.discard();
+        assertThat(property.getValue()).isNull();
+        assertThat(property.isDirty().getValue()).isFalse();
+    }
+
+    @Test
+    public void discard_flagReset_valueSetToOld() {
+        DefaultProperty<String> property = new DefaultProperty<>();
+        property.setValue("hello");
+        property.resetDirtyFlag();
+        property.setValue("world");
+        property.discard();
+        assertThat(property.getValue()).isEqualTo("hello");
+        assertThat(property.isDirty().getValue()).isFalse();
+    }
 }

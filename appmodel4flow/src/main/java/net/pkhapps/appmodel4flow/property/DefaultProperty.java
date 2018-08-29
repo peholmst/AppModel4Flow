@@ -54,6 +54,12 @@ public class DefaultProperty<T> extends DefaultObservableValue<T> implements Pro
         dirty.setValue(false);
     }
 
+    @Override
+    public void discard() {
+        super.setValue(cleanValue);
+        dirty.setValue(false);
+    }
+
     @Nonnull
     @Override
     public ObservableValue<Boolean> isReadOnly() {

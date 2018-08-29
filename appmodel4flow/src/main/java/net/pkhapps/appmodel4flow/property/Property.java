@@ -33,6 +33,12 @@ public interface Property<T> extends ObservableValue<T> {
     void resetDirtyFlag();
 
     /**
+     * Discards the current value and resets it to the value the property had when {@link #resetDirtyFlag()} was last
+     * called. This will also set the {@link #isDirty() dirty} flag to false.
+     */
+    void discard();
+
+    /**
      * Returns whether this property is read-only or writable.
      *
      * @return true if the property is read-only, false if it is writable.
