@@ -8,6 +8,7 @@ import net.pkhapps.appmodel4flow.property.ObservableValue;
 import net.pkhapps.appmodel4flow.property.Property;
 
 import javax.annotation.Nonnull;
+import javax.annotation.concurrent.NotThreadSafe;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.stream.Stream;
@@ -20,6 +21,7 @@ import java.util.stream.Stream;
  * and {@link FieldBinding#isModelValid() modelValid} flags.
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
+@NotThreadSafe
 public class FieldBinder extends Binder {
 
     private final DefaultObservableValue<Boolean> dirty = new DefaultObservableValue<>(false);

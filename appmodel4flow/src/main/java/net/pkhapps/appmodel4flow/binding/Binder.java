@@ -3,6 +3,7 @@ package net.pkhapps.appmodel4flow.binding;
 import com.vaadin.flow.shared.Registration;
 
 import javax.annotation.Nonnull;
+import javax.annotation.concurrent.NotThreadSafe;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Objects;
@@ -14,6 +15,7 @@ import java.util.stream.Stream;
  * on them.
  */
 @SuppressWarnings("WeakerAccess")
+@NotThreadSafe
 public class Binder implements Serializable {
 
     private Set<Registration> bindings = new HashSet<>();

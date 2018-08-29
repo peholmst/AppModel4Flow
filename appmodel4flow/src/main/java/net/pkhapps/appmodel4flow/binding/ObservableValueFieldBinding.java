@@ -12,6 +12,7 @@ import net.pkhapps.appmodel4flow.property.ObservableValue;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
+import javax.annotation.concurrent.ThreadSafe;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -144,6 +145,7 @@ public class ObservableValueFieldBinding<MODEL, PRESENTATION> implements FieldBi
      *
      * @param <T> the type of the presentation and model values.
      */
+    @ThreadSafe
     public static class PassThroughConverter<T> implements Converter<T, T> {
 
         @Override
