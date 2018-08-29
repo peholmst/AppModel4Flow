@@ -29,6 +29,10 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+        </dependency>
+        <dependency>
             <groupId>net.pkhapps.appmodel4flow</groupId>
             <artifactId>appmodel4flow</artifactId>
             <version>${project.version}</version>
