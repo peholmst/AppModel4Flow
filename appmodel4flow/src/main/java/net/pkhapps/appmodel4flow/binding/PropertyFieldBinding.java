@@ -1,10 +1,12 @@
 package net.pkhapps.appmodel4flow.binding;
 
 import com.vaadin.flow.component.HasValue;
+import com.vaadin.flow.data.binder.Result;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.binder.Validator;
 import com.vaadin.flow.data.converter.Converter;
 import com.vaadin.flow.function.SerializableConsumer;
+import com.vaadin.flow.function.SerializableSupplier;
 import com.vaadin.flow.shared.Registration;
 import net.pkhapps.appmodel4flow.property.Property;
 
@@ -30,10 +32,11 @@ public class PropertyFieldBinding<MODEL, PRESENTATION> extends ObservableValueFi
 
     private final Registration propertyReadOnlyRegistration;
     private final Registration fieldValueRegistration;
-    private SerializableConsumer<String> converterErrorHandler;
-    private SerializableConsumer<Collection<ValidationResult>> validationErrorHandler;
+    private SerializableConsumer<Result<MODEL>> converterResultHandler;
+    private SerializableConsumer<Collection<ValidationResult>> validationResultHandler;
     private boolean writeInvalidModelValuesEnabled = true;
     private final List<Validator<MODEL>> validators = new ArrayList<>();
+    private SerializableSupplier<String> requiredErrorMessageSupplier;
 
     /**
      * Creates a new {@code PropertyFieldBinding}.
@@ -62,36 +65,40 @@ public class PropertyFieldBinding<MODEL, PRESENTATION> extends ObservableValueFi
     }
 
     private void updatePropertyValue() {
-        var result = getConverter().convertToModel(getField().getValue(), createValueContext());
-        setPresentationValid(!result.isError());
-        result.handle(this::writePropertyValue, this::handleConverterError);
+        if (requiredErrorMessageSupplier != null && getField().isEmpty()) {
+            setPresentationValid(false);
+            handleConverterResult(Result.error(requiredErrorMessageSupplier.get()));
+        } else {
+            var result = getConverter().convertToModel(getField().getValue(), createValueContext());
+            setPresentationValid(!result.isError());
+            result.ifOk(this::writePropertyValue);
+            handleConverterResult(result);
+        }
     }
 
-    private void handleConverterError(String error) {
-        if (converterErrorHandler != null) {
-            converterErrorHandler.accept(error);
+    private void handleConverterResult(@Nonnull Result<MODEL> result) {
+        if (converterResultHandler != null) {
+            converterResultHandler.accept(result);
         }
     }
 
     private void writePropertyValue(MODEL value) {
         if (validators.size() > 0) {
             var valueContext = createValueContext();
-            var errors = validators.stream().map(validator -> validator.apply(value, valueContext))
-                    .filter(ValidationResult::isError).collect(Collectors.toSet());
-            setModelValid(errors.isEmpty());
-            if (errors.size() > 0) {
-                handleValidationErrors(errors);
-                if (!writeInvalidModelValuesEnabled) {
-                    return;
-                }
+            var validationResults = validators.stream().map(validator -> validator.apply(value, valueContext)).collect(Collectors.toSet());
+            var hasErrors = validationResults.stream().anyMatch(ValidationResult::isError);
+            setModelValid(!hasErrors);
+            handleValidationResults(validationResults);
+            if (hasErrors && !writeInvalidModelValuesEnabled) {
+                return;
             }
         }
         getModel().setValue(value);
     }
 
-    private void handleValidationErrors(Collection<ValidationResult> errors) {
-        if (validationErrorHandler != null) {
-            validationErrorHandler.accept(errors);
+    private void handleValidationResults(Collection<ValidationResult> results) {
+        if (validationResultHandler != null) {
+            validationResultHandler.accept(results);
         }
     }
 
@@ -105,15 +112,15 @@ public class PropertyFieldBinding<MODEL, PRESENTATION> extends ObservableValueFi
 
     @Nonnull
     @Override
-    public TwoWayFieldBinding<MODEL, PRESENTATION> withConverterErrorHandler(SerializableConsumer<String> converterErrorHandler) {
-        this.converterErrorHandler = converterErrorHandler;
+    public TwoWayFieldBinding<MODEL, PRESENTATION> withConverterResultHandler(SerializableConsumer<Result<MODEL>> converterResultHandler) {
+        this.converterResultHandler = converterResultHandler;
         return this;
     }
 
     @Nonnull
     @Override
-    public TwoWayFieldBinding<MODEL, PRESENTATION> withValidationErrorHandler(SerializableConsumer<Collection<ValidationResult>> validationErrorHandler) {
-        this.validationErrorHandler = validationErrorHandler;
+    public TwoWayFieldBinding<MODEL, PRESENTATION> withValidationResultHandler(SerializableConsumer<Collection<ValidationResult>> validationResultHandler) {
+        this.validationResultHandler = validationResultHandler;
         return this;
     }
 
@@ -121,6 +128,14 @@ public class PropertyFieldBinding<MODEL, PRESENTATION> extends ObservableValueFi
     @Override
     public TwoWayFieldBinding<MODEL, PRESENTATION> withWriteInvalidModelValuesDisabled() {
         writeInvalidModelValuesEnabled = false;
+        return this;
+    }
+
+    @Nonnull
+    @Override
+    public TwoWayFieldBinding<MODEL, PRESENTATION> asRequired(@Nonnull SerializableSupplier<String> errorMessageSupplier) {
+        this.requiredErrorMessageSupplier = Objects.requireNonNull(errorMessageSupplier, "errorMessageSupplier must not be null");
+        getField().setRequiredIndicatorVisible(true);
         return this;
     }
 

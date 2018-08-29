@@ -1,6 +1,7 @@
 package net.pkhapps.appmodel4flow.binding;
 
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.binder.Result;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.converter.StringToIntegerConverter;
 import com.vaadin.flow.data.validator.IntegerRangeValidator;
@@ -58,13 +59,26 @@ public class PropertyFieldBindingTest {
     }
 
     @Test
+    public void setFieldValue_valueIsValid_handlerIsInvoked() {
+        var resultHandler = new AtomicReference<Result<Integer>>();
+        binding.withConverterResultHandler(resultHandler::set);
+        field.setValue("123");
+        assertThat(resultHandler.get().isError()).isFalse();
+    }
+
+    @Test
+    public void setFieldValue_valueIsInvalid_handlerIsInvoked() {
+        var resultHandler = new AtomicReference<Result<Integer>>();
+        binding.withConverterResultHandler(resultHandler::set);
+        field.setValue("this is not a number");
+        assertThat(resultHandler.get().isError()).isTrue();
+    }
+
+    @Test
     public void setFieldValue_valueIsInvalid_modelIsNotUpdated() {
-        var errorHandler = new AtomicReference<String>();
-        binding.withConverterErrorHandler(errorHandler::set);
         field.setValue("this is not a number");
         assertThat(model.isEmpty()).isTrue();
         assertThat(binding.isPresentationValid().getValue()).isFalse();
-        assertThat(errorHandler.get()).isEqualTo("converterError");
     }
 
     @Test
@@ -76,14 +90,29 @@ public class PropertyFieldBindingTest {
     }
 
     @Test
+    public void setFieldValue_validatorPresentAndPasses_handlerIsInvoked() {
+        var resultHandler = new AtomicReference<Collection<ValidationResult>>();
+        binding.withValidationResultHandler(resultHandler::set);
+        binding.withValidator(new IntegerRangeValidator("intError", 0, 100));
+        field.setValue("50");
+        assertThat(resultHandler.get()).noneMatch(ValidationResult::isError);
+    }
+
+    @Test
     public void setFieldValue_validatorPresentAndBlocks_modelIsStillUpdated() {
-        var errorHandler = new AtomicReference<Collection<ValidationResult>>();
-        binding.withValidationErrorHandler(errorHandler::set);
         binding.withValidator(new IntegerRangeValidator("intError", 0, 100));
         field.setValue("110");
         assertThat(model.getValue()).isEqualTo(110);
         assertThat(binding.isModelValid().getValue()).isFalse();
-        assertThat(errorHandler.get()).allMatch(result -> result.getErrorMessage().equals("intError"));
+    }
+
+    @Test
+    public void setFieldValue_validatorPresentAndBlocks_handlerIsInvoked() {
+        var resultHandler = new AtomicReference<Collection<ValidationResult>>();
+        binding.withValidationResultHandler(resultHandler::set);
+        binding.withValidator(new IntegerRangeValidator("intError", 0, 100));
+        field.setValue("110");
+        assertThat(resultHandler.get()).allMatch(ValidationResult::isError);
     }
 
     @Test

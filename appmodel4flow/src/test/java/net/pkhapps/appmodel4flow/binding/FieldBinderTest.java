@@ -2,6 +2,7 @@ package net.pkhapps.appmodel4flow.binding;
 
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.converter.StringToIntegerConverter;
 import com.vaadin.flow.data.validator.StringLengthValidator;
 import net.pkhapps.appmodel4flow.property.DefaultProperty;
@@ -70,11 +71,11 @@ public class FieldBinderTest {
     }
 
     @Test
-    public void converterErrorHandler() {
+    public void converterResultHandler_error() {
         var handlerInvoked = new AtomicBoolean(false);
-        binder.withConverterErrorHandler((binding, errorMessage) -> {
+        binder.withConverterResultHandler((binding, result) -> {
             assertThat(binding.getModel()).isSameAs(integerProperty);
-            assertThat(errorMessage).isEqualTo("intConversionError");
+            assertThat(result.isError()).isTrue();
             handlerInvoked.set(true);
         });
         integerField.setValue("this is not a number");
@@ -82,14 +83,38 @@ public class FieldBinderTest {
     }
 
     @Test
-    public void validationErrorHandler() {
+    public void converterResultHandler_success() {
         var handlerInvoked = new AtomicBoolean(false);
-        binder.withValidationErrorHandler((binding, errors) -> {
+        binder.withConverterResultHandler((binding, result) -> {
+            assertThat(binding.getModel()).isSameAs(integerProperty);
+            assertThat(result.isError()).isFalse();
+            handlerInvoked.set(true);
+        });
+        integerField.setValue("123");
+        assertThat(handlerInvoked).isTrue();
+    }
+
+    @Test
+    public void validationResultHandler_error() {
+        var handlerInvoked = new AtomicBoolean(false);
+        binder.withValidationResultHandler((binding, results) -> {
             assertThat(binding.getModel()).isSameAs(stringProperty);
-            assertThat(errors).anyMatch(result -> result.getErrorMessage().equals("lengthError"));
+            assertThat(results).anyMatch(ValidationResult::isError);
             handlerInvoked.set(true);
         });
         stringField.setValue("ts");
+        assertThat(handlerInvoked).isTrue();
+    }
+
+    @Test
+    public void validationResultHandler_success() {
+        var handlerInvoked = new AtomicBoolean(false);
+        binder.withValidationResultHandler((binding, results) -> {
+            assertThat(binding.getModel()).isSameAs(stringProperty);
+            assertThat(results).noneMatch(ValidationResult::isError);
+            handlerInvoked.set(true);
+        });
+        stringField.setValue("proper");
         assertThat(handlerInvoked).isTrue();
     }
 }

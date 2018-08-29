@@ -1,5 +1,6 @@
 package net.pkhapps.appmodel4flow.binding;
 
+import com.vaadin.flow.data.binder.Result;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.shared.Registration;
@@ -15,8 +16,8 @@ import java.util.stream.Stream;
 
 /**
  * Extended version of {@link Binder} especially designed for {@link FieldBinding}s and {@link TwoWayFieldBinding}s.
- * It provides features for handling {@link #withConverterErrorHandler(ConverterErrorHandler) converter errors} and
- * {@link #withValidationErrorHandler(ValidationErrorHandler) validation errors} in one place and also collectively
+ * It provides features for handling {@link #withConverterResultHandler(ConverterResultHandler) converter errors} and
+ * {@link #withValidationResultHandler(ValidationResultHandler) validation errors} in one place and also collectively
  * tracks the status of the {@link Property#isDirty() dirty}, {@link FieldBinding#isPresentationValid() presentationValid}
  * and {@link FieldBinding#isModelValid() modelValid} flags.
  */
@@ -30,16 +31,16 @@ public class FieldBinder extends Binder {
     private final SerializableConsumer<ObservableValue.ValueChangeEvent<Boolean>> dirtyListener = (event) -> updateDirtyFlag();
     private final SerializableConsumer<ObservableValue.ValueChangeEvent<Boolean>> modelValidListener = (event) -> updateModelValidFlag();
     private final SerializableConsumer<ObservableValue.ValueChangeEvent<Boolean>> presentationValidListener = (event) -> updatePresentationValidFlag();
-    private ConverterErrorHandler converterErrorHandler;
-    private ValidationErrorHandler validationErrorHandler;
+    private ConverterResultHandler converterResultHandler;
+    private ValidationResultHandler validationResultHandler;
 
     @Nonnull
     @Override
     public FieldBinder withBinding(@Nonnull Registration binding) {
         if (binding instanceof TwoWayFieldBinding) {
             var twoWayFieldBinding = (TwoWayFieldBinding<?, ?>) binding;
-            twoWayFieldBinding.withConverterErrorHandler(error -> handleConverterError(twoWayFieldBinding, error));
-            twoWayFieldBinding.withValidationErrorHandler(errors -> handleValidationError(twoWayFieldBinding, errors));
+            twoWayFieldBinding.withConverterResultHandler(result -> handleConverterResult(twoWayFieldBinding, result));
+            twoWayFieldBinding.withValidationResultHandler(results -> handleValidationResult(twoWayFieldBinding, results));
             twoWayFieldBinding.getModel().isDirty().addWeakValueChangeListener(dirtyListener);
             if (twoWayFieldBinding.getModel().isDirty().getValue()) {
                 dirty.setValue(true);
@@ -69,7 +70,22 @@ public class FieldBinder extends Binder {
         return dirty;
     }
 
+    /**
+     * Invokes {@link Property#resetDirtyFlag()} for all bound properties.
+     */
+    public void resetDirtyFlag() {
+        getTwoWayBindings().forEach(binding -> binding.getModel().resetDirtyFlag());
+    }
+
+    /**
+     * Invokes {@link Property#discard()} for all bound properties.
+     */
+    public void discard() {
+        getTwoWayBindings().forEach(binding -> binding.getModel().discard());
+    }
+
     private void updateDirtyFlag() {
+        // TODO Optimize so that this is only called once when set as a result of resetDirtyFlag or discard
         dirty.setValue(getTwoWayBindings().map(binding -> binding.getModel().isDirty())
                 .anyMatch(ObservableValue::getValue));
     }
@@ -119,74 +135,74 @@ public class FieldBinder extends Binder {
     }
 
     /**
-     * Specifies an error handler that is used to collectively handle all
-     * {@link TwoWayFieldBinding#withConverterErrorHandler(SerializableConsumer) converter errors} coming from the
+     * Specifies a result handler that is used to collectively handle all
+     * {@link TwoWayFieldBinding#withConverterResultHandler(SerializableConsumer) converter results} coming from the
      * bindings.
      *
-     * @param converterErrorHandler the error handler or {@code null} to use none.
+     * @param converterResultHandler the result handler or {@code null} to use none.
      * @return this field binder, to allow for method chaining.
      */
     @Nonnull
-    public FieldBinder withConverterErrorHandler(ConverterErrorHandler converterErrorHandler) {
-        this.converterErrorHandler = converterErrorHandler;
+    public FieldBinder withConverterResultHandler(ConverterResultHandler converterResultHandler) {
+        this.converterResultHandler = converterResultHandler;
         return this;
     }
 
     /**
-     * Specifies an error handler that is used to collectively handle all
-     * {@link TwoWayFieldBinding#withValidationErrorHandler(SerializableConsumer) validation errors} coming from the
+     * Specifies a result handler that is used to collectively handle all
+     * {@link TwoWayFieldBinding#withValidationResultHandler(SerializableConsumer) validation results} coming from the
      * bindings.
      *
-     * @param validationErrorHandler the error handler or {@code null} to use none.
+     * @param validationResultHandler the result handler or {@code null} to use none.
      * @return this field binder, to allow for method chaining.
      */
     @Nonnull
-    public FieldBinder withValidationErrorHandler(ValidationErrorHandler validationErrorHandler) {
-        this.validationErrorHandler = validationErrorHandler;
+    public FieldBinder withValidationResultHandler(ValidationResultHandler validationResultHandler) {
+        this.validationResultHandler = validationResultHandler;
         return this;
     }
 
-    private void handleConverterError(@Nonnull TwoWayFieldBinding<?, ?> binding, String errorMessage) {
-        if (converterErrorHandler != null) {
-            converterErrorHandler.handleConverterError(binding, errorMessage);
+    private void handleConverterResult(@Nonnull TwoWayFieldBinding<?, ?> binding, Result<?> result) {
+        if (converterResultHandler != null) {
+            converterResultHandler.handleConverterResult(binding, result);
         }
     }
 
-    private void handleValidationError(@Nonnull TwoWayFieldBinding<?, ?> binding,
-                                       @Nonnull Collection<ValidationResult> errors) {
-        if (validationErrorHandler != null) {
-            validationErrorHandler.handleValidationError(binding, errors);
+    private void handleValidationResult(@Nonnull TwoWayFieldBinding<?, ?> binding,
+                                        @Nonnull Collection<ValidationResult> results) {
+        if (validationResultHandler != null) {
+            validationResultHandler.handleValidationResult(binding, results);
         }
     }
 
     /**
-     * Functional interface for {@link FieldBinder#withConverterErrorHandler(ConverterErrorHandler) converter error handlers}.
+     * Functional interface for {@link FieldBinder#withConverterResultHandler(ConverterResultHandler) converter result handlers}.
      */
     @FunctionalInterface
-    public interface ConverterErrorHandler extends Serializable {
+    public interface ConverterResultHandler extends Serializable {
 
         /**
-         * Handles the specified converter error.
+         * Handles the specified converter result.
          *
-         * @param binding      the binding that caused the error, never {@code null}.
-         * @param errorMessage the error message reported by the {@link com.vaadin.flow.data.converter.Converter converter}.
+         * @param binding the binding that invoked the converter, never {@code null}.
+         * @param result  the result of the {@link com.vaadin.flow.data.converter.Converter converter}.
          */
-        void handleConverterError(@Nonnull TwoWayFieldBinding<?, ?> binding, String errorMessage);
+        void handleConverterResult(@Nonnull TwoWayFieldBinding<?, ?> binding, Result<?> result);
     }
 
     /**
-     * Functional interface for {@link FieldBinder#withValidationErrorHandler(ValidationErrorHandler) validation error handlers}.
+     * Functional interface for {@link FieldBinder#withValidationResultHandler(ValidationResultHandler) validation result handlers}.
      */
     @FunctionalInterface
-    public interface ValidationErrorHandler extends Serializable {
+    public interface ValidationResultHandler extends Serializable {
 
         /**
-         * Handles the specified validation error.
+         * Handles the specified validation result.
          *
-         * @param binding the binding that caused the error, never {@code null}.
-         * @param errors  the validation errors reported by the {@link com.vaadin.flow.data.binder.Validator validators}.
+         * @param binding the binding that invoked the validators, never {@code null}.
+         * @param results the results of the {@link com.vaadin.flow.data.binder.Validator validators}.
          */
-        void handleValidationError(@Nonnull TwoWayFieldBinding<?, ?> binding,
-                                   @Nonnull Collection<ValidationResult> errors);
+        void handleValidationResult(@Nonnull TwoWayFieldBinding<?, ?> binding,
+                                    @Nonnull Collection<ValidationResult> results);
     }
 }

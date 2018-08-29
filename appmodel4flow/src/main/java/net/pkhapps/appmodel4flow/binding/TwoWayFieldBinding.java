@@ -1,12 +1,15 @@
 package net.pkhapps.appmodel4flow.binding;
 
+import com.vaadin.flow.data.binder.Result;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.binder.Validator;
 import com.vaadin.flow.function.SerializableConsumer;
+import com.vaadin.flow.function.SerializableSupplier;
 import net.pkhapps.appmodel4flow.property.Property;
 
 import javax.annotation.Nonnull;
 import java.util.Collection;
+import java.util.Objects;
 
 /**
  * Interface for a field binding that binds a model to a UI field using a two-way binding where updates the field are
@@ -15,6 +18,7 @@ import java.util.Collection;
  * @param <MODEL>        the value type of the model.
  * @param <PRESENTATION> the value type of the field.
  */
+@SuppressWarnings("UnusedReturnValue")
 public interface TwoWayFieldBinding<MODEL, PRESENTATION> extends FieldBinding<MODEL, PRESENTATION> {
 
     @Nonnull
@@ -22,16 +26,16 @@ public interface TwoWayFieldBinding<MODEL, PRESENTATION> extends FieldBinding<MO
     Property<MODEL> getModel();
 
     /**
-     * Configures the binding to handle any conversion errors using the given error handler. A conversion error occurs
-     * when the field value cannot be converted to a model value. The {@link #isPresentationValid()} flag will be
-     * updated regardless of the presence of an error handler.
+     * Configures the binding to invoke the given handler whenever a conversion from field to model is performed.
+     * The result handler can be used to e.g. show error messages or clear them. The {@link #isPresentationValid()} flag
+     * will be updated regardless of the presence of a handler.
      *
-     * @param converterErrorHandler the error handler or {@code null} (the default) if none is needed.
+     * @param converterResultHandler the result handler or {@code null} (the default) if none is needed.
      * @return this binding, to allow for method chaining.
      * @see com.vaadin.flow.data.converter.Converter
      */
     @Nonnull
-    TwoWayFieldBinding<MODEL, PRESENTATION> withConverterErrorHandler(SerializableConsumer<String> converterErrorHandler);
+    TwoWayFieldBinding<MODEL, PRESENTATION> withConverterResultHandler(SerializableConsumer<Result<MODEL>> converterResultHandler);
 
     /**
      * Configures the binding to validate the model value using the given validator. It is possible to specify
@@ -44,16 +48,16 @@ public interface TwoWayFieldBinding<MODEL, PRESENTATION> extends FieldBinding<MO
     TwoWayFieldBinding<MODEL, PRESENTATION> withValidator(@Nonnull Validator<MODEL> validator);
 
     /**
-     * Configures the binding to handle any validation errors using the given error handler. A validation error occurs
-     * when any of the {@link #withValidator(Validator) validators} don't accept a value that has been successfully
-     * converted. The {@link #isModelValid()} flag will be updated regardless of the presence of an error handler.
+     * Configures the binding to invoke the given handler whenever a validation of a model value is performed.
+     * The result handler can be used to e.g. show error messages or clear them. The {@link #isModelValid()} flag will
+     * be updated regardless of the presence of a handler.
      *
-     * @param validationErrorHandler the error handler or {@code null} (the default) if none is needed.
+     * @param validationResultHandler the result handler or {@code null} (the default) if none is needed.
      * @return this binding, to allow for method chaining.
      * @see Validator
      */
     @Nonnull
-    TwoWayFieldBinding<MODEL, PRESENTATION> withValidationErrorHandler(SerializableConsumer<Collection<ValidationResult>> validationErrorHandler);
+    TwoWayFieldBinding<MODEL, PRESENTATION> withValidationResultHandler(SerializableConsumer<Collection<ValidationResult>> validationResultHandler);
 
     /**
      * By default, the binding will write model values to the underlying model even if they don't pass
@@ -64,4 +68,38 @@ public interface TwoWayFieldBinding<MODEL, PRESENTATION> extends FieldBinding<MO
      */
     @Nonnull
     TwoWayFieldBinding<MODEL, PRESENTATION> withWriteInvalidModelValuesDisabled();
+
+    /**
+     * Marks the field as required using the specified error message supplier.
+     *
+     * @param errorMessageSupplier the supplier to use for getting the error message to report if the field is empty, never {@code null}.
+     * @return this binding, to allow for method chaining.
+     */
+    @Nonnull
+    TwoWayFieldBinding<MODEL, PRESENTATION> asRequired(@Nonnull SerializableSupplier<String> errorMessageSupplier);
+
+    /**
+     * Marks the field as required using the specified error message.
+     *
+     * @param errorMessage the error message to report if the field is empty, never {@code null}.
+     * @return this binding, to allow for method chaining.
+     */
+    @Nonnull
+    default TwoWayFieldBinding<MODEL, PRESENTATION> asRequired(@Nonnull String errorMessage) {
+        Objects.requireNonNull(errorMessage, "errorMessage must not be null");
+        return asRequired(() -> errorMessage);
+    }
+
+
+    /**
+     * Marks the field as required using a default error message.
+     *
+     * @return this binding, to allow for method chaining.
+     * @see #asRequired(String)
+     */
+    @Nonnull
+    default TwoWayFieldBinding<MODEL, PRESENTATION> asRequired() {
+        return asRequired("Please provide a value");
+    }
+
 }
