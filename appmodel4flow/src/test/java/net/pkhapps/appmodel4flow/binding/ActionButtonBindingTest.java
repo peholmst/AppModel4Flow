@@ -46,7 +46,7 @@ public class ActionButtonBindingTest {
     }
 
     @Test
-    public void bindingIsRemoved_actionNoLongerPerfomedWhenButtonIsClicked() {
+    public void bindingIsRemoved_actionNoLongerPerformedWhenButtonIsClicked() {
         binding.remove();
         button.simulateClick();
         assertThat(action.getPerformCount()).isEqualTo(0);
