@@ -75,7 +75,11 @@ public class ObservableValueFieldBinding<MODEL, PRESENTATION> implements FieldBi
     }
 
     private void updateFieldState() {
-        field.setValue(converter.convertToPresentation(model.getValue(), createValueContext()));
+        if (model.isEmpty()) {
+            field.setValue(field.getEmptyValue());
+        } else {
+            field.setValue(converter.convertToPresentation(model.getValue(), createValueContext()));
+        }
     }
 
     /**
