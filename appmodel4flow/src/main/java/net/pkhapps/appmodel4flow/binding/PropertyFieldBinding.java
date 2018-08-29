@@ -66,6 +66,7 @@ public class PropertyFieldBinding<MODEL, PRESENTATION> extends ObservableValueFi
 
     private void updatePropertyValue() {
         if (requiredErrorMessageSupplier != null && getField().isEmpty()) {
+            // TODO Write test for this and make sure it works properly (don't show any errors until the user has actually changed anything).
             setPresentationValid(false);
             handleConverterResult(Result.error(requiredErrorMessageSupplier.get()));
         } else {
