@@ -2,7 +2,7 @@ package net.pkhapps.appmodel4flow.binding;
 
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.button.Button;
-import net.pkhapps.appmodel4flow.action.AbstractActionWithoutResult;
+import net.pkhapps.appmodel4flow.action.TestAction;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -50,31 +50,6 @@ public class ActionButtonBindingTest {
         binding.remove();
         button.simulateClick();
         assertThat(action.getPerformCount()).isEqualTo(0);
-    }
-
-    public static class TestAction extends AbstractActionWithoutResult {
-
-        private boolean performable = true;
-        private int performCount = 0;
-
-        @Override
-        protected void doPerformWithoutResult() {
-            performCount++;
-        }
-
-        @Override
-        public boolean isPerformable() {
-            return performable;
-        }
-
-        void setPerformable(boolean performable) {
-            this.performable = performable;
-            fireStateChangeEvent();
-        }
-
-        int getPerformCount() {
-            return performCount;
-        }
     }
 
     public static class TestButton extends Button {
