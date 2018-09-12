@@ -33,10 +33,10 @@ public final class Combiners {
     }
 
     /**
-     * Combiner that <em>ANDs</em> all the booleans in the stream together. If the stream is empty, this method returns
+     * Combiner that <em>ANDs</em> all the booleans in the stream together. If the stream is empty, the function returns
      * true.
      *
-     * @return true if all of the booleans in the stream are true, false otherwise.
+     * @return a function that returns true if all of the booleans in the stream are true.
      */
     @Nonnull
     public static SerializableFunction<Stream<Boolean>, Boolean> allTrue() {
@@ -44,10 +44,10 @@ public final class Combiners {
     }
 
     /**
-     * Combiner that <em>ORs</em> all the booleans in the stream together. If the stream is empty, this method returns
+     * Combiner that <em>ORs</em> all the booleans in the stream together. If the stream is empty, the function returns
      * false.
      *
-     * @return true if at least one of the booleans in the stream is true, false otherwise.
+     * @return a function that returns true if at least one of the booleans in the stream is true.
      */
     @Nonnull
     public static SerializableFunction<Stream<Boolean>, Boolean> anyTrue() {
@@ -55,10 +55,10 @@ public final class Combiners {
     }
 
     /**
-     * Combiner that <em>inverse ANDs</em> all of the booleans in the stream together. If the stream is empty, this
-     * method returns true.
+     * Combiner that <em>inverse ANDs</em> all of the booleans in the stream together. If the stream is empty, the
+     * function returns true.
      *
-     * @return true if all of the booleans in the stream are false, false otherwise.
+     * @return a function that returns true if all of the booleans in the stream are false.
      */
     @Nonnull
     public static SerializableFunction<Stream<Boolean>, Boolean> allFalse() {
@@ -66,10 +66,10 @@ public final class Combiners {
     }
 
     /**
-     * Combiner that <em>inverse ORs</em> all of the booleans in the stream together. If the stream is empty, this
-     * method returns false.
+     * Combiner that <em>inverse ORs</em> all of the booleans in the stream together. If the stream is empty, the
+     * function returns false.
      *
-     * @return true if at least one of the booleans in the stream is false, false otherwise.
+     * @return a function that returns true if at least one of the booleans in the stream is false.
      */
     @Nonnull
     public static SerializableFunction<Stream<Boolean>, Boolean> anyFalse() {
@@ -77,10 +77,10 @@ public final class Combiners {
     }
 
     /**
-     * Combiner that joins all the strings in the stream together without any delimiter. If the stream is empty, this
-     * method returns an empty string.
+     * Combiner that joins all the strings in the stream together without any delimiter. If the stream is empty, the
+     * function returns an empty string.
      *
-     * @return the joined string, never {@code null}.
+     * @return a function that returns the joined string.
      */
     @Nonnull
     public static SerializableFunction<Stream<String>, String> joinStrings() {
@@ -88,11 +88,11 @@ public final class Combiners {
     }
 
     /**
-     * Combiner that joins all the strings in the stream together with the given delimiter. If the stream is empty, this
-     * method returns an empty string.
+     * Combiner that joins all the strings in the stream together with the given delimiter. If the stream is empty, the
+     * function returns an empty string.
      *
      * @param delimiter the delimiter to put between strings, never {@code null}.
-     * @return the joined string, never {@code null}.
+     * @return a function that returns the joined string.
      */
     @Nonnull
     public static SerializableFunction<Stream<String>, String> joinStrings(@Nonnull CharSequence delimiter) {
