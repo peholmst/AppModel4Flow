@@ -20,18 +20,29 @@ import javax.annotation.Nonnull;
 import java.util.function.Predicate;
 
 /**
- * TODO Document and test me!
+ * Utility class with predicates primarily intended to be used by {@link Combiners}, but may be used by developers as
+ * well when needed.
  */
 public final class Predicates {
 
     private Predicates() {
     }
 
+    /**
+     * Predicate that checks if the argument is true.
+     *
+     * @return a predicate that evaluates to true if the argument is true.
+     */
     @Nonnull
     public static Predicate<Boolean> isTrue() {
         return value -> value;
     }
 
+    /**
+     * Predicate that checks if the argument is false.
+     *
+     * @return a predicate that evaluates to true if the argument is false.
+     */
     @Nonnull
     public static Predicate<Boolean> isFalse() {
         return value -> !value;
