@@ -65,6 +65,7 @@ public class ActionWithoutResult extends AbstractAction<Void> {
      * @param isPerformable the observable value that determines whether this action is performable or not, never {@code null}.
      * @param command       the command to invoke when the action is performed, never {@code null}.
      */
+    @SuppressWarnings("WeakerAccess")
     public ActionWithoutResult(@Nonnull ObservableValue<Boolean> isPerformable, @Nonnull SerializableRunnable command) {
         super(isPerformable);
         this.command = Objects.requireNonNull(command, "command must not be null");

@@ -19,6 +19,7 @@ package net.pkhapps.appmodel4flow.selection;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -37,7 +38,7 @@ public class DefaultSelection<T> implements Selection<T> {
      */
     @SuppressWarnings("WeakerAccess")
     public DefaultSelection() {
-        this(Collections.emptySet());
+        this((T) null);
     }
 
     /**
@@ -49,6 +50,31 @@ public class DefaultSelection<T> implements Selection<T> {
     public DefaultSelection(@Nonnull Collection<T> items) {
         Objects.requireNonNull(items, "items must not be null");
         this.items = new ArrayList<>(items);
+    }
+
+    /**
+     * Creates a new {@code DefaultSelection}.
+     *
+     * @param items the items in the selection, never {@code null} but can be empty.
+     */
+    @SuppressWarnings("WeakerAccess")
+    public DefaultSelection(@Nonnull Stream<T> items) {
+        Objects.requireNonNull(items, "items must not be null");
+        this.items = items.collect(Collectors.toList());
+    }
+
+    /**
+     * Creates a new {@code DefaultSelection} with at most one item.
+     *
+     * @param item the item in the selection or {@code null} to create an empty selection.
+     */
+    @SuppressWarnings("WeakerAccess")
+    public DefaultSelection(T item) {
+        if (item == null) {
+            this.items = Collections.emptyList();
+        } else {
+            this.items = List.of(item);
+        }
     }
 
     @Override

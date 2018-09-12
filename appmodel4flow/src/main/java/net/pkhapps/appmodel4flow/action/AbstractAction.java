@@ -101,6 +101,7 @@ public abstract class AbstractAction<OUTPUT> implements Action<OUTPUT> {
      * @param performable true if the action is performable, false if it is not.
      * @throws UnsupportedOperationException if this action was created using the {@link #AbstractAction(ObservableValue)} constructor.
      */
+    @SuppressWarnings("WeakerAccess")
     protected void setPerformable(boolean performable) {
         if (isPerformable instanceof IsPerformableValue) {
             ((IsPerformableValue) isPerformable).setValue(performable);

@@ -24,7 +24,7 @@ import javax.annotation.Nonnull;
  * @param <T> the value type.
  */
 @SuppressWarnings("unused")
-public interface Property<T> extends ObservableValue<T> {
+public interface Property<T> extends WritableObservableValue<T> {
 
     /**
      * Sets the value of this property, notifying the listeners of the change.
@@ -32,6 +32,7 @@ public interface Property<T> extends ObservableValue<T> {
      * @param value the value to set.
      * @throws ReadOnlyException if the property is {@link #isReadOnly() read-only}.
      */
+    @Override
     void setValue(T value);
 
     /**

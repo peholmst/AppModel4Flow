@@ -61,6 +61,26 @@ public abstract class AbstractObservableValue<T> implements ObservableValue<T> {
     }
 
     /**
+     * Method for implementations of {@link WritableObservableValue#map(SerializableFunction, SerializableFunction)}.
+     * This method is included in this class to keep the class hierarchy as simple as possible.
+     *
+     * @param sourceValue        the source value (in most cases {@code this} when the class is implementing
+     *                           {@link WritableObservableValue}), never {@code null}.
+     * @param mapFunction        the map function to convert from this value to the mapped value, never {@code null}.
+     * @param inverseMapFunction the inverse map function to convert from the mapped value to this value, never
+     *                           {@code null}.
+     * @param <E>                the type of the mapped value.
+     * @return a writable observable value that is backed by the {@code sourceValue} but has a different type,
+     * never {@code null}.
+     */
+    @Nonnull
+    protected <E> WritableObservableValue<E> map(@Nonnull WritableObservableValue<T> sourceValue,
+                                                 @Nonnull SerializableFunction<T, E> mapFunction,
+                                                 @Nonnull SerializableFunction<E, T> inverseMapFunction) {
+        return new MappedWritableObservableValue<>(sourceValue, mapFunction, inverseMapFunction);
+    }
+
+    /**
      * Fires a {@link net.pkhapps.appmodel4flow.property.ObservableValue.ValueChangeEvent} to all registered listeners.
      *
      * @param old   the old value.
@@ -91,12 +111,12 @@ public abstract class AbstractObservableValue<T> implements ObservableValue<T> {
         }
 
         private E mapValue(T original) {
-            try {
-                return mapFunction.apply(original);
-            } catch (NullPointerException ex) {
-                // The map function does not know how to deal with nulls.
-                return null;
-            }
+            return mapFunction.apply(original);
+        }
+
+        @Nonnull
+        ObservableValue<T> getSourceValue() {
+            return sourceValue;
         }
 
         @Override
@@ -107,6 +127,36 @@ public abstract class AbstractObservableValue<T> implements ObservableValue<T> {
         @Override
         public boolean isEmpty() {
             return sourceValue.isEmpty();
+        }
+    }
+
+    private static class MappedWritableObservableValue<E, T> extends MappedObservableValue<E, T>
+            implements WritableObservableValue<E> {
+
+        private final SerializableFunction<E, T> writeMapFunction;
+
+        MappedWritableObservableValue(@Nonnull WritableObservableValue<T> sourceValue,
+                                      @Nonnull SerializableFunction<T, E> mapFunction,
+                                      @Nonnull SerializableFunction<E, T> inverseMapFunction) {
+            super(sourceValue, mapFunction);
+            this.writeMapFunction = Objects.requireNonNull(inverseMapFunction, "inverseMapFunction must not be null");
+        }
+
+        @Override
+        public void setValue(E value) {
+            getSourceValue().setValue(writeMapFunction.apply(value));
+        }
+
+        @Nonnull
+        @Override
+        WritableObservableValue<T> getSourceValue() {
+            return (WritableObservableValue<T>) super.getSourceValue();
+        }
+
+        @Override
+        public <O> WritableObservableValue<O> map(@Nonnull SerializableFunction<E, O> mapFunction,
+                                                  @Nonnull SerializableFunction<O, E> inverseMapFunction) {
+            return new MappedWritableObservableValue<>(this, mapFunction, inverseMapFunction);
         }
     }
 }

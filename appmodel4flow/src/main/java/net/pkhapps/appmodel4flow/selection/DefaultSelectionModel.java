@@ -16,7 +16,9 @@
 
 package net.pkhapps.appmodel4flow.selection;
 
+import com.vaadin.flow.function.SerializableFunction;
 import net.pkhapps.appmodel4flow.property.DefaultObservableValue;
+import net.pkhapps.appmodel4flow.property.WritableObservableValue;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
@@ -38,5 +40,11 @@ public class DefaultSelectionModel<T> extends DefaultObservableValue<Selection<T
     @Override
     public void select(@Nonnull Collection<T> items) {
         setValue(new DefaultSelection<>(items));
+    }
+
+    @Override
+    public <E> WritableObservableValue<E> map(@Nonnull SerializableFunction<Selection<T>, E> mapFunction,
+                                              @Nonnull SerializableFunction<E, Selection<T>> inverseMapFunction) {
+        return map(this, mapFunction, inverseMapFunction);
     }
 }

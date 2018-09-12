@@ -64,4 +64,16 @@ public class DefaultObservableValueTest {
         value.setValue("hello");
         assertThat(event.get()).isNull();
     }
+
+    @Test
+    public void map_changesToOriginalAreObservedInMappedValue() {
+        DefaultObservableValue<Integer> value = new DefaultObservableValue<>(123);
+        ObservableValue<String> mappedValue = value.map(String::valueOf);
+        AtomicReference<ObservableValue.ValueChangeEvent> event = new AtomicReference<>();
+        mappedValue.addValueChangeListener(event::set);
+        value.setValue(456);
+        assertThat(mappedValue.getValue()).isEqualTo("456");
+        assertThat(event.get().getOldValue()).isEqualTo("123");
+        assertThat(event.get().getValue()).isEqualTo("456");
+    }
 }

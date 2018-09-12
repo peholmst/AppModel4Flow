@@ -20,6 +20,7 @@ import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -67,5 +68,29 @@ public class DefaultSelectionModelTest {
         registration.remove();
         model.clear();
         assertThat(listenerFired).isFalse();
+    }
+
+    @Test
+    public void map_oneWay() {
+        var model = new DefaultSelectionModel<String>();
+        var modelEmpty = model.map(Selection::isEmpty);
+
+        assertThat(modelEmpty.getValue()).isTrue();
+
+        model.selectOne("hello");
+
+        assertThat(modelEmpty.getValue()).isFalse();
+    }
+
+    @Test
+    public void map_twoWays() {
+        var model = new DefaultSelectionModel<String>();
+        var stringsInModel = model.map(Selection::stream, DefaultSelection::new);
+
+        assertThat(stringsInModel.getValue()).isEmpty();
+
+        stringsInModel.setValue(Stream.of("Hello", "World"));
+
+        assertThat(model.getSelection().stream()).containsExactly("Hello", "World");
     }
 }

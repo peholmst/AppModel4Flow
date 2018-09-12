@@ -19,14 +19,20 @@ package net.pkhapps.appmodel4flow.property;
 import java.util.Objects;
 
 /**
- * TODO Document me!
+ * Base class for computed values ({@link CombinedValue} and {@link ComputedValue}). The computed value is kept in a
+ * cache and is only recomputed on demand.
  *
- * @param <T>
+ * @param <T> the type of the computed value.
  */
 public abstract class AbstractComputedValue<T> extends AbstractObservableValue<T> {
 
     private T cachedValue;
 
+    /**
+     * Recomputes and updates the cached value. If this results in a change of the value, an event is
+     * {@link #fireValueChangeEvent(Object, Object) fired}.
+     */
+    @SuppressWarnings("WeakerAccess")
     protected void updateCachedValue() {
         var old = cachedValue;
         cachedValue = computeValue();
@@ -35,6 +41,11 @@ public abstract class AbstractComputedValue<T> extends AbstractObservableValue<T
         }
     }
 
+    /**
+     * Computes the value.
+     *
+     * @return the computed value.
+     */
     protected abstract T computeValue();
 
     @Override

@@ -33,7 +33,7 @@ import java.util.stream.Stream;
 @NotThreadSafe
 public class BindingGroup implements Serializable {
 
-    private Set<Registration> bindings = new HashSet<>();
+    private final Set<Registration> bindings = new HashSet<>();
 
     /**
      * Registers the given binding with this group.

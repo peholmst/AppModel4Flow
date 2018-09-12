@@ -16,7 +16,7 @@
 
 package net.pkhapps.appmodel4flow.selection;
 
-import net.pkhapps.appmodel4flow.property.ObservableValue;
+import net.pkhapps.appmodel4flow.property.WritableObservableValue;
 
 import javax.annotation.Nonnull;
 import java.util.Collection;
@@ -28,7 +28,7 @@ import java.util.Collections;
  *
  * @param <T> the type of the items in the selection.
  */
-public interface SelectionModel<T> extends ObservableValue<Selection<T>> {
+public interface SelectionModel<T> extends WritableObservableValue<Selection<T>> {
 
     /**
      * Returns the current selection. This is an alias of {@link #getValue()} introduced to make the code easier

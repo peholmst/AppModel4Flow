@@ -16,6 +16,8 @@
 
 package net.pkhapps.appmodel4flow.property;
 
+import com.vaadin.flow.function.SerializableFunction;
+
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
 import java.util.Objects;
@@ -57,6 +59,12 @@ public class DefaultProperty<T> extends DefaultObservableValue<T> implements Pro
         }
         super.setValue(value);
         dirty.setValue(!Objects.equals(cleanValue, value));
+    }
+
+    @Override
+    public <E> WritableObservableValue<E> map(@Nonnull SerializableFunction<T, E> mapFunction,
+                                              @Nonnull SerializableFunction<E, T> inverseMapFunction) {
+        return map(this, mapFunction, inverseMapFunction);
     }
 
     @Nonnull

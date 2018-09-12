@@ -89,11 +89,13 @@ public interface ObservableValue<T> extends Serializable {
     void addWeakValueChangeListener(@Nonnull SerializableConsumer<Property.ValueChangeEvent<T>> listener);
 
     /**
-     * TODO Document and test me!
+     * Maps this observable value to an observable value with a different type. A map function is used to
+     * convert the value. If null values are supported, the map function must also be able to handle null values.
      *
-     * @param mapFunction
-     * @param <E>
-     * @return
+     * @param mapFunction the function to use when converting the value from this observable value to the mapped value,
+     *                    never {@code null}.
+     * @param <E>         the type of the mapped observable value.
+     * @return an observable value that is backed by this observable value but has a different type, never {@code null}.
      */
     @Nonnull
     <E> ObservableValue<E> map(@Nonnull SerializableFunction<T, E> mapFunction);

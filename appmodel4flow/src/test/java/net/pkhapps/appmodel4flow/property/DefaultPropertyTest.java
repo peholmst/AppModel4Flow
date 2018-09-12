@@ -89,4 +89,12 @@ public class DefaultPropertyTest {
         assertThat(property.getValue()).isEqualTo("hello");
         assertThat(property.isDirty().getValue()).isFalse();
     }
+
+    @Test
+    public void map_changesInMappedPropertyAreWrittenBack() {
+        DefaultProperty<Integer> property = new DefaultProperty<>(123);
+        WritableObservableValue<String> mappedValue = property.map(String::valueOf, Integer::parseInt);
+        mappedValue.setValue("456");
+        assertThat(property.getValue()).isEqualTo(456);
+    }
 }
