@@ -27,8 +27,12 @@ import java.util.Set;
 /**
  * An {@link ObservableValue} that is computed dynamically from a set of other {@link ObservableValue}s. A special
  * function is used to compute the value and this function is invoked any time any of the other values change.
+ * <p>
+ * The difference between this class and {@link CombinedValue} is that this class works with observable values of
+ * different types whereas the computed value works with observable values of the same type.
  *
  * @param <T> the value type.
+ * @see CombinedValue
  */
 public class ComputedValue<T> extends AbstractComputedValue<T> {
 
@@ -52,7 +56,7 @@ public class ComputedValue<T> extends AbstractComputedValue<T> {
      * @param valueSupplier the function that will be used to compute the value, never {@code null}.
      * @param dependencies  the observable values that this computed value depends on, never {@code null} but must contain at least one value.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "WeakerAccess"})
     public ComputedValue(@Nonnull SerializableSupplier<T> valueSupplier, @Nonnull Collection<? extends ObservableValue> dependencies) {
         this.valueSupplier = Objects.requireNonNull(valueSupplier, "valueSupplier must not be null");
         Objects.requireNonNull(dependencies, "dependencies must not be null");

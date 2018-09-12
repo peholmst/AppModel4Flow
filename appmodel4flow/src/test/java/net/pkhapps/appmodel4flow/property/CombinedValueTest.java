@@ -16,6 +16,7 @@
 
 package net.pkhapps.appmodel4flow.property;
 
+import net.pkhapps.appmodel4flow.property.support.Combiners;
 import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -23,30 +24,31 @@ import java.util.concurrent.atomic.AtomicReference;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Unit test for {@link ComputedValue}.
+ * Unit test for {@link CombinedValue}.
  */
 @SuppressWarnings("Convert2Diamond") // IntelliJ does not work properly with the 'var' keyword and the diamond operator.
-public class ComputedValueTest {
+public class CombinedValueTest {
 
     @Test
-    public void initialComputedValue() {
-        var firstName = new DefaultProperty<>("Joe");
-        var lastName = new DefaultProperty<>("Cool");
-        var computed = new ComputedValue<>(() -> String.format("%s %s", firstName.getValue(), lastName.getValue()), firstName, lastName);
-        assertThat(computed.getValue()).isEqualTo("Joe Cool");
+    public void initialCombinedValue() {
+        var value1 = new DefaultObservableValue<String>("Hello");
+        var value2 = new DefaultObservableValue<String>();
+        var combined = new CombinedValue<>(Combiners.joinStrings(","), value1, value2);
+        assertThat(combined.getValue()).isEqualTo("Hello,null");
     }
 
     @Test
-    public void computedValueChangesWhenDependencyIsChanged() {
-        DefaultProperty<String> firstName = new DefaultProperty<>("Joe");
-        DefaultProperty<String> lastName = new DefaultProperty<>("Cool");
-        var computed = new ComputedValue<String>(() -> String.format("%s %s", firstName.getValue(), lastName.getValue()), firstName, lastName);
+    public void combinedValueChangesWhenDependencyIsChanged() {
+        var value1 = new DefaultObservableValue<String>("Hello");
+        var value2 = new DefaultObservableValue<String>();
+        var combined = new CombinedValue<String>(Combiners.joinStrings(","), value1, value2);
         AtomicReference<ObservableValue.ValueChangeEvent<String>> event = new AtomicReference<>();
-        computed.addValueChangeListener(event::set);
+        combined.addValueChangeListener(event::set);
 
-        lastName.setValue("Smith");
-        assertThat(computed.getValue()).isEqualTo("Joe Smith");
-        assertThat(event.get().getOldValue()).isEqualTo("Joe Cool");
-        assertThat(event.get().getValue()).isEqualTo("Joe Smith");
+        value2.setValue("World");
+
+        assertThat(combined.getValue()).isEqualTo("Hello,World");
+        assertThat(event.get().getOldValue()).isEqualTo("Hello,null");
+        assertThat(event.get().getValue()).isEqualTo("Hello,World");
     }
 }

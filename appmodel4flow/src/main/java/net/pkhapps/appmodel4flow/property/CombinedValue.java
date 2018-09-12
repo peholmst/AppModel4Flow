@@ -20,28 +20,49 @@ import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.function.SerializableFunction;
 
 import javax.annotation.Nonnull;
-import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Stream;
 
 /**
- * TODO Document and test me!
+ * An {@link ObservableValue} that is computed dynamically by combining the values of a set of other
+ * {@link ObservableValue}s of the same type. A special combiner function is invoked to compute the value every time
+ * any of the other values change.
+ * <p>
+ * The difference between this class and {@link ComputedValue} is that this class works with observable values of the
+ * same type whereas the computed value works with observable values of different types.
  *
- * @param <T>
+ * @param <T> the value type.
+ * @see ComputedValue
  */
 public class CombinedValue<T> extends AbstractComputedValue<T> {
 
-    private final Collection<ObservableValue<T>> dependencies;
+    private final List<ObservableValue<T>> dependencies;
     private final SerializableFunction<Stream<T>, T> combiner;
     private final SerializableConsumer<ValueChangeEvent<T>> dependencyValueChangeListener = (event) -> updateCachedValue();
 
+    /**
+     * Creates a new {@code CombinedValue}.
+     *
+     * @param combiner     the function to use to compute the value, never {@code null}.
+     * @param dependencies the observable values that will form the combined value, never {@code null} but must contain
+     *                     at least one value.
+     */
     @SafeVarargs
-    public CombinedValue(@Nonnull SerializableFunction<Stream<T>, T> combiner, @Nonnull ObservableValue<T>... dependencies) {
-        this(combiner, Set.of(dependencies));
+    public CombinedValue(@Nonnull SerializableFunction<Stream<T>, T> combiner,
+                         @Nonnull ObservableValue<T>... dependencies) {
+        this(combiner, List.of(dependencies));
     }
 
-    public CombinedValue(@Nonnull SerializableFunction<Stream<T>, T> combiner, @Nonnull Collection<ObservableValue<T>> dependencies) {
+    /**
+     * Creates a new {@code CombinedValue}.
+     *
+     * @param combiner     the function to use to compute the value, never {@code null}.
+     * @param dependencies the observable values that will form the combined value, never {@code null} but must contain
+     *                     at least one value.
+     */
+    public CombinedValue(@Nonnull SerializableFunction<Stream<T>, T> combiner,
+                         @Nonnull List<ObservableValue<T>> dependencies) {
         this.combiner = Objects.requireNonNull(combiner, "combiner must not be null");
         Objects.requireNonNull(dependencies, "dependencies must not be null");
         if (dependencies.size() == 0) {

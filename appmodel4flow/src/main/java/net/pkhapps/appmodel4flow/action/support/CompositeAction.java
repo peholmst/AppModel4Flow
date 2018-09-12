@@ -66,7 +66,7 @@ public class CompositeAction extends ActionWithoutResult {
         if (actions.isEmpty()) {
             throw new IllegalArgumentException("The actions list must contain at least one action");
         }
-        var isPerformableCollection = actions.stream().map(Action::isPerformable).collect(Collectors.toSet());
+        var isPerformableCollection = actions.stream().map(Action::isPerformable).collect(Collectors.toList());
         return new CombinedValue<>(Combiners.allTrue(), isPerformableCollection);
     }
 
