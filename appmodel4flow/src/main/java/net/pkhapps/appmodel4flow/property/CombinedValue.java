@@ -33,16 +33,16 @@ import java.util.stream.Stream;
 public class CombinedValue<T> extends AbstractComputedValue<T> {
 
     private final Collection<ObservableValue<T>> dependencies;
-    private final SerializableFunction<Stream<T>, T> combinator;
+    private final SerializableFunction<Stream<T>, T> combiner;
     private final SerializableConsumer<ValueChangeEvent<T>> dependencyValueChangeListener = (event) -> updateCachedValue();
 
     @SafeVarargs
-    public CombinedValue(@Nonnull SerializableFunction<Stream<T>, T> combinator, @Nonnull ObservableValue<T>... dependencies) {
-        this(combinator, Set.of(dependencies));
+    public CombinedValue(@Nonnull SerializableFunction<Stream<T>, T> combiner, @Nonnull ObservableValue<T>... dependencies) {
+        this(combiner, Set.of(dependencies));
     }
 
-    public CombinedValue(@Nonnull SerializableFunction<Stream<T>, T> combinator, @Nonnull Collection<ObservableValue<T>> dependencies) {
-        this.combinator = Objects.requireNonNull(combinator, "combinator must not be null");
+    public CombinedValue(@Nonnull SerializableFunction<Stream<T>, T> combiner, @Nonnull Collection<ObservableValue<T>> dependencies) {
+        this.combiner = Objects.requireNonNull(combiner, "combiner must not be null");
         Objects.requireNonNull(dependencies, "dependencies must not be null");
         if (dependencies.size() == 0) {
             throw new IllegalArgumentException("Need at least one dependency");
@@ -56,7 +56,7 @@ public class CombinedValue<T> extends AbstractComputedValue<T> {
     @Override
     protected T computeValue() {
         var values = dependencies.stream().map(ObservableValue::getValue);
-        return combinator.apply(values);
+        return combiner.apply(values);
     }
 
     @Override

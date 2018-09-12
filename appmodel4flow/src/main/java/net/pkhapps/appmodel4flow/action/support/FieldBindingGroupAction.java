@@ -21,7 +21,7 @@ import net.pkhapps.appmodel4flow.action.ActionWithoutResult;
 import net.pkhapps.appmodel4flow.binding.FieldBindingGroup;
 import net.pkhapps.appmodel4flow.property.CombinedValue;
 import net.pkhapps.appmodel4flow.property.ObservableValue;
-import net.pkhapps.appmodel4flow.property.support.Combinators;
+import net.pkhapps.appmodel4flow.property.support.Combiners;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;
@@ -52,7 +52,7 @@ public class FieldBindingGroupAction extends ActionWithoutResult {
 
     private static ObservableValue<Boolean> createIsPerformable(FieldBindingGroup fieldBinder) {
         Objects.requireNonNull(fieldBinder, "fieldBindingGroup must not be null");
-        return new CombinedValue<>(Combinators.allTrue(),
+        return new CombinedValue<>(Combiners.allTrue(),
                 fieldBinder.isDirty(), fieldBinder.isPresentationValid(), fieldBinder.isModelValid());
     }
 

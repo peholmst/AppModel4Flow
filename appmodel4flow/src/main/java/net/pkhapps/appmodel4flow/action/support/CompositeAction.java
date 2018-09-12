@@ -20,7 +20,7 @@ import net.pkhapps.appmodel4flow.action.Action;
 import net.pkhapps.appmodel4flow.action.ActionWithoutResult;
 import net.pkhapps.appmodel4flow.property.CombinedValue;
 import net.pkhapps.appmodel4flow.property.ObservableValue;
-import net.pkhapps.appmodel4flow.property.support.Combinators;
+import net.pkhapps.appmodel4flow.property.support.Combiners;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
@@ -67,7 +67,7 @@ public class CompositeAction extends ActionWithoutResult {
             throw new IllegalArgumentException("The actions list must contain at least one action");
         }
         var isPerformableCollection = actions.stream().map(Action::isPerformable).collect(Collectors.toSet());
-        return new CombinedValue<>(Combinators.allTrue(), isPerformableCollection);
+        return new CombinedValue<>(Combiners.allTrue(), isPerformableCollection);
     }
 
     @Override
