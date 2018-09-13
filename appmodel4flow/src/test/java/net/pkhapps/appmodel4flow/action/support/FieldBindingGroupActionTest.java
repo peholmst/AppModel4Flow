@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package net.pkhapps.appmodel4flow.incubator.context;
+package net.pkhapps.appmodel4flow.action.support;
 
 /**
- * Unit test for {@link DefaultContext}.
+ * Unit test for {@link FieldBindingGroupAction}.
  */
-public class DefaultContextTest {
+public class FieldBindingGroupActionTest {
     // TODO Implement me
 }

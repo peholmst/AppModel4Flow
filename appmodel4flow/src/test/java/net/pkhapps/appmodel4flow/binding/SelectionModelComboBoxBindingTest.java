@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package net.pkhapps.appmodel4flow.incubator.context;
+package net.pkhapps.appmodel4flow.binding;
 
 /**
- * Unit test for {@link DefaultContext}.
+ * Unit test for {@link SelectionModelComboBoxBinding}.
  */
-public class DefaultContextTest {
-    // TODO Implement me
+public class SelectionModelComboBoxBindingTest {
+    // TODO Implement me!
 }
