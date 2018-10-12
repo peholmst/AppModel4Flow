@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package net.pkhapps.appmodel4flow.binding;
+package net.pkhapps.appmodel4flow.binding.group;
 
 import com.vaadin.flow.shared.Registration;
 import org.junit.Test;

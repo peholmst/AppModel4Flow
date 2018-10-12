@@ -21,10 +21,14 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.data.converter.Converter;
+import com.vaadin.flow.function.SerializableRunnable;
 import com.vaadin.flow.shared.Registration;
 import net.pkhapps.appmodel4flow.action.Action;
+import net.pkhapps.appmodel4flow.action.ActionWithoutResult;
 import net.pkhapps.appmodel4flow.action.support.CompositeAction;
 import net.pkhapps.appmodel4flow.binding.*;
+import net.pkhapps.appmodel4flow.binding.group.BindingGroup;
+import net.pkhapps.appmodel4flow.binding.group.FieldBindingGroup;
 import net.pkhapps.appmodel4flow.property.ObservableValue;
 import net.pkhapps.appmodel4flow.property.Property;
 import net.pkhapps.appmodel4flow.selection.DefaultSelectionModel;
@@ -120,6 +124,18 @@ public final class AppModel {
     @Nonnull
     public static Action<?> compose(@Nonnull Action<?>... actions) {
         return new CompositeAction(actions);
+    }
+
+
+    /**
+     * TODO document me
+     *
+     * @param command
+     * @return
+     */
+    @Nonnull
+    public static Action<Void> asAction(@Nonnull SerializableRunnable command) {
+        return new ActionWithoutResult(command);
     }
 
 

@@ -16,6 +16,8 @@
 
 package net.pkhapps.appmodel4flow.action.support;
 
+import net.pkhapps.appmodel4flow.binding.group.support.FieldBindingGroupAction;
+
 /**
  * Unit test for {@link FieldBindingGroupAction}.
  */

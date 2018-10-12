@@ -61,6 +61,7 @@ public class CompositeAction extends ActionWithoutResult {
         this(Arrays.asList(actions));
     }
 
+    @Nonnull
     private static ObservableValue<Boolean> combinedIsPerformable(@Nonnull Collection<Action<?>> actions) {
         Objects.requireNonNull(actions, "actions must not be null");
         if (actions.isEmpty()) {

@@ -33,27 +33,27 @@ class ContactModel implements Serializable {
             firstName, lastName);
 
     @Nonnull
-    Property<String> getFirstName() {
+    Property<String> firstName() {
         return firstName;
     }
 
     @Nonnull
-    Property<String> getLastName() {
+    Property<String> lastName() {
         return lastName;
     }
 
     @Nonnull
-    Property<String> getEmail() {
+    Property<String> email() {
         return email;
     }
 
     @Nonnull
-    ObservableValue<String> getFullName() {
+    ObservableValue<String> fullName() {
         return fullName;
     }
 
     @Nonnull
-    ObservableValue<UUID> getUuid() {
+    ObservableValue<UUID> uuid() {
         return uuid;
     }
 

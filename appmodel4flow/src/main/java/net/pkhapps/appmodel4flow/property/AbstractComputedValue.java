@@ -16,6 +16,7 @@
 
 package net.pkhapps.appmodel4flow.property;
 
+import javax.annotation.concurrent.NotThreadSafe;
 import java.util.Objects;
 
 /**
@@ -24,6 +25,7 @@ import java.util.Objects;
  *
  * @param <T> the type of the computed value.
  */
+@NotThreadSafe
 public abstract class AbstractComputedValue<T> extends AbstractObservableValue<T> {
 
     private T cachedValue;

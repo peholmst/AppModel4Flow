@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package net.pkhapps.appmodel4flow.action.support;
+package net.pkhapps.appmodel4flow.binding.group.support;
 
 import com.vaadin.flow.function.SerializableRunnable;
 import net.pkhapps.appmodel4flow.action.ActionWithoutResult;
-import net.pkhapps.appmodel4flow.binding.FieldBindingGroup;
+import net.pkhapps.appmodel4flow.binding.group.FieldBindingGroup;
 import net.pkhapps.appmodel4flow.property.CombinedValue;
 import net.pkhapps.appmodel4flow.property.ObservableValue;
 import net.pkhapps.appmodel4flow.property.support.Combiners;

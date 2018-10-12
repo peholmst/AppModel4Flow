@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package net.pkhapps.appmodel4flow.binding;
+package net.pkhapps.appmodel4flow.binding.group;
 
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.converter.StringToIntegerConverter;
 import com.vaadin.flow.data.validator.StringLengthValidator;
+import net.pkhapps.appmodel4flow.binding.ObservableValueFieldBinding;
+import net.pkhapps.appmodel4flow.binding.PropertyFieldBinding;
 import net.pkhapps.appmodel4flow.property.DefaultProperty;
 import org.junit.Before;
 import org.junit.Test;

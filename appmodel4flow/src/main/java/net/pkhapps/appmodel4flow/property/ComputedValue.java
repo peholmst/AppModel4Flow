@@ -20,6 +20,7 @@ import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.function.SerializableSupplier;
 
 import javax.annotation.Nonnull;
+import javax.annotation.concurrent.NotThreadSafe;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
@@ -34,6 +35,7 @@ import java.util.Set;
  * @param <T> the value type.
  * @see CombinedValue
  */
+@NotThreadSafe
 public class ComputedValue<T> extends AbstractComputedValue<T> {
 
     private final Collection<? extends ObservableValue> dependencies;

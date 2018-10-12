@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package net.pkhapps.appmodel4flow.binding;
+package net.pkhapps.appmodel4flow.binding.group;
 
 import com.vaadin.flow.data.binder.Result;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.shared.Registration;
+import net.pkhapps.appmodel4flow.binding.FieldBinding;
+import net.pkhapps.appmodel4flow.binding.TwoWayFieldBinding;
 import net.pkhapps.appmodel4flow.property.DefaultObservableValue;
 import net.pkhapps.appmodel4flow.property.ObservableValue;
 import net.pkhapps.appmodel4flow.property.Property;

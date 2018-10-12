@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package net.pkhapps.appmodel4flow.binding;
+package net.pkhapps.appmodel4flow.incubator.binding;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.function.SerializableConsumer;
