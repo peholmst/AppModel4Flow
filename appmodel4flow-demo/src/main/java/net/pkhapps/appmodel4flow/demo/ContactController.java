@@ -18,10 +18,7 @@ package net.pkhapps.appmodel4flow.demo;
 
 import com.vaadin.flow.data.provider.ListDataProvider;
 import net.pkhapps.appmodel4flow.AppModel;
-import net.pkhapps.appmodel4flow.action.AbstractAction;
 import net.pkhapps.appmodel4flow.action.Action;
-import net.pkhapps.appmodel4flow.action.ActionWithoutResult;
-import net.pkhapps.appmodel4flow.property.ObservableValue;
 import net.pkhapps.appmodel4flow.selection.Selection;
 import net.pkhapps.appmodel4flow.selection.SelectionModel;
 
@@ -36,20 +33,9 @@ class ContactController implements Serializable {
     private final SelectionModel<Contact> contactSelectionModel = AppModel.newSelectionModel();
     private final List<Contact> contacts = new ArrayList<>();
     private final ListDataProvider<Contact> contactDataProvider = new ListDataProvider<>(contacts);
-    private final Action<Void> createContactAction = new ContactDialogAction() {
-
-        @Override
-        protected void doPerformWithoutResult() {
-            openDialog(new Contact());
-        }
-    };
-    private final Action<Void> editSelectedContactAction = new ContactDialogAction(contactSelectionModel.map(Selection::hasValue)) {
-
-        @Override
-        protected void doPerformWithoutResult() {
-            contactSelectionModel.getSelection().getFirst().ifPresent(this::openDialog);
-        }
-    };
+    private final Action<Void> createContactAction = AppModel.asAction(this::createContact);
+    private final Action<Void> editSelectedContactAction = AppModel.asAction(
+            contactSelectionModel.map(Selection::hasValue), this::editSelectedContact);
 
     ContactController() {
         contacts.add(new Contact("Joe", "Cool", "joecool@foo.bar"));
@@ -67,13 +53,7 @@ class ContactController implements Serializable {
 
     @Nonnull
     Action<Void> editContactAction(Contact contact) {
-        return new ContactDialogAction() {
-
-            @Override
-            protected void doPerformWithoutResult() {
-                openDialog(contact);
-            }
-        };
+        return AppModel.asAction(() -> openDialog(contact));
     }
 
     @Nonnull
@@ -83,18 +63,7 @@ class ContactController implements Serializable {
 
     @Nonnull
     Action<Contact> saveContactAction(Contact contact) {
-        return new AbstractAction<>() {
-            @Override
-            protected Contact doPerform() {
-                if (contact.getUuid() == null) {
-                    contact.setUuid(UUID.randomUUID());
-                }
-                contacts.removeIf(existing -> existing.getUuid().equals(contact.getUuid()));
-                contacts.add(contact.clone());
-                contactDataProvider.refreshAll();
-                return contact;
-            }
-        };
+        return AppModel.asAction(() -> saveContact(contact));
     }
 
     @Nonnull
@@ -107,18 +76,26 @@ class ContactController implements Serializable {
         return contactDataProvider;
     }
 
-    abstract class ContactDialogAction extends ActionWithoutResult {
+    private void createContact() {
+        openDialog(new Contact());
+    }
 
-        public ContactDialogAction() {
-        }
+    private void editSelectedContact() {
+        contactSelectionModel.getSelection().getFirst().ifPresent(this::openDialog);
+    }
 
-        public ContactDialogAction(@Nonnull ObservableValue<Boolean> isPerformable) {
-            super(isPerformable);
-        }
+    private void openDialog(Contact contact) {
+        var dialog = new ContactDialog(this, contact);
+        dialog.open();
+    }
 
-        void openDialog(Contact contact) {
-            var dialog = new ContactDialog(ContactController.this, contact);
-            dialog.open();
+    private Contact saveContact(Contact contact) {
+        if (contact.getUuid() == null) {
+            contact.setUuid(UUID.randomUUID());
         }
+        contacts.removeIf(existing -> existing.getUuid().equals(contact.getUuid()));
+        contacts.add(contact.clone());
+        contactDataProvider.refreshAll();
+        return contact;
     }
 }

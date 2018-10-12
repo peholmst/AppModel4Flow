@@ -22,7 +22,9 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.data.converter.Converter;
 import com.vaadin.flow.function.SerializableRunnable;
+import com.vaadin.flow.function.SerializableSupplier;
 import com.vaadin.flow.shared.Registration;
+import net.pkhapps.appmodel4flow.action.AbstractAction;
 import net.pkhapps.appmodel4flow.action.Action;
 import net.pkhapps.appmodel4flow.action.ActionWithoutResult;
 import net.pkhapps.appmodel4flow.action.support.CompositeAction;
@@ -35,6 +37,7 @@ import net.pkhapps.appmodel4flow.selection.DefaultSelectionModel;
 import net.pkhapps.appmodel4flow.selection.SelectionModel;
 
 import javax.annotation.Nonnull;
+import java.util.Objects;
 
 /**
  * A utility class for making it easier to work with AppModel4Flow. There is nothing you can do with this class that you
@@ -138,6 +141,56 @@ public final class AppModel {
         return new ActionWithoutResult(command);
     }
 
+    /**
+     * TODO document me
+     *
+     * @param isPerformable
+     * @param command
+     * @return
+     */
+    @Nonnull
+    public static Action<Void> asAction(@Nonnull ObservableValue<Boolean> isPerformable,
+                                        @Nonnull SerializableRunnable command) {
+        return new ActionWithoutResult(isPerformable, command);
+    }
+
+    /**
+     * TODO document me
+     *
+     * @param command
+     * @param <T>
+     * @return
+     */
+    @Nonnull
+    public static <T> Action<T> asAction(@Nonnull SerializableSupplier<T> command) {
+        Objects.requireNonNull(command, "command must not be null");
+        return new AbstractAction<>() {
+            @Override
+            protected T doPerform() {
+                return command.get();
+            }
+        };
+    }
+
+    /**
+     * TODO document me
+     *
+     * @param isPerformable
+     * @param command
+     * @param <T>
+     * @return
+     */
+    @Nonnull
+    public static <T> Action<T> asAction(@Nonnull ObservableValue<Boolean> isPerformable,
+                                         @Nonnull SerializableSupplier<T> command) {
+        Objects.requireNonNull(command, "command must not be null");
+        return new AbstractAction<>(isPerformable) {
+            @Override
+            protected T doPerform() {
+                return command.get();
+            }
+        };
+    }
 
     /**
      * Binds the given model and field together using a one-way binding where the field is read-only.
