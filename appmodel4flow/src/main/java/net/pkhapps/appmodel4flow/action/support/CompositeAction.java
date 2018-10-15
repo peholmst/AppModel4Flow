@@ -16,6 +16,7 @@
 
 package net.pkhapps.appmodel4flow.action.support;
 
+import lombok.ToString;
 import net.pkhapps.appmodel4flow.action.Action;
 import net.pkhapps.appmodel4flow.action.ActionWithoutResult;
 import net.pkhapps.appmodel4flow.property.CombinedValue;
@@ -37,6 +38,7 @@ import java.util.stream.Collectors;
  * state, the composite action will also change its state.
  */
 @NotThreadSafe
+@ToString(callSuper = true)
 public class CompositeAction extends ActionWithoutResult {
 
     private final List<Action<?>> actions;
@@ -74,10 +76,5 @@ public class CompositeAction extends ActionWithoutResult {
     @Override
     protected void doPerformWithoutResult() {
         actions.forEach(Action::perform);
-    }
-
-    @Override
-    public String toString() {
-        return String.format("%s@%x[actions=%s]", getClass().getSimpleName(), hashCode(), actions);
     }
 }

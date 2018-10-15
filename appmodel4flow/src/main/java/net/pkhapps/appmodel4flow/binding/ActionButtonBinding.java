@@ -19,10 +19,9 @@ package net.pkhapps.appmodel4flow.binding;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.shared.Registration;
+import lombok.extern.slf4j.Slf4j;
 import net.pkhapps.appmodel4flow.action.Action;
 import net.pkhapps.appmodel4flow.property.ObservableValue;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
@@ -35,9 +34,9 @@ import java.util.Objects;
  * binding is no longer needed to avoid memory leaks.
  */
 @NotThreadSafe
+@Slf4j
 public class ActionButtonBinding implements Serializable, Registration {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ActionButtonBinding.class);
     private final Action<?> action;
     private final Button button;
     private final Registration buttonRegistration;
@@ -65,7 +64,7 @@ public class ActionButtonBinding implements Serializable, Registration {
     }
 
     private void onButtonClick(ClickEvent<Button> event) {
-        LOGGER.trace("Performing action {} after click on button {}", action, button);
+        log.trace("Performing action {} after click on button {}", action, button);
         action.perform();
     }
 
@@ -75,7 +74,7 @@ public class ActionButtonBinding implements Serializable, Registration {
 
     private void updateButtonState() {
         var performable = action.isPerformable().getValue();
-        LOGGER.trace("Setting enabled state of button {} to {}", button, performable);
+        log.trace("Setting enabled state of button {} to {}", button, performable);
         button.setEnabled(performable);
     }
 }

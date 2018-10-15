@@ -18,6 +18,7 @@ package net.pkhapps.appmodel4flow.action;
 
 import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.shared.Registration;
+import lombok.ToString;
 import net.pkhapps.appmodel4flow.property.ObservableValue;
 
 import javax.annotation.Nonnull;
@@ -72,6 +73,7 @@ public interface Action<OUTPUT> extends Serializable {
      */
     @SuppressWarnings("WeakerAccess")
     @Immutable
+    @ToString
     class PerformEvent<OUTPUT> implements Serializable {
 
         private final Action<OUTPUT> action;
@@ -105,11 +107,6 @@ public interface Action<OUTPUT> extends Serializable {
          */
         public OUTPUT getOutput() {
             return output;
-        }
-
-        @Override
-        public String toString() {
-            return String.format("%s[action=%s, output=%s]", getClass().getSimpleName(), getAction(), output);
         }
     }
 }

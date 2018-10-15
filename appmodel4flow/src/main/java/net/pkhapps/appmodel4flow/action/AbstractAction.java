@@ -18,11 +18,11 @@ package net.pkhapps.appmodel4flow.action;
 
 import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.shared.Registration;
+import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 import net.pkhapps.appmodel4flow.property.DefaultObservableValue;
 import net.pkhapps.appmodel4flow.property.ObservableValue;
 import net.pkhapps.appmodel4flow.util.ListenerCollection;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
@@ -35,9 +35,10 @@ import java.util.Objects;
  * @param <OUTPUT> the output type of the action, can be {@link Void} for actions that don't return any output.
  */
 @NotThreadSafe
+@Slf4j
+@ToString(of = "isPerformable")
 public abstract class AbstractAction<OUTPUT> implements Action<OUTPUT> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Action.class);
     private final ObservableValue<Boolean> isPerformable;
     private ListenerCollection<PerformEvent<OUTPUT>> performListeners;
 
@@ -67,16 +68,16 @@ public abstract class AbstractAction<OUTPUT> implements Action<OUTPUT> {
                 final var output = doPerform();
                 if (performListeners != null) {
                     final PerformEvent<OUTPUT> event = new PerformEvent<>(this, output);
-                    LOGGER.debug("Firing event {}", event);
+                    log.debug("Firing event {}", event);
                     performListeners.fireEvent(event);
                 }
                 return output;
             } catch (RuntimeException ex) {
-                LOGGER.error("An error occurred while performing action " + this, ex);
+                log.error("An error occurred while performing action " + this, ex);
                 throw ex;
             }
         } else {
-            LOGGER.warn("Tried to perform action {} even though it is not performable", this);
+            log.warn("Tried to perform action {} even though it is not performable", this);
             throw new IllegalStateException("The action is not performable");
         }
     }

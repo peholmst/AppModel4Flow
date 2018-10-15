@@ -18,6 +18,7 @@ package net.pkhapps.appmodel4flow.property;
 
 import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.function.SerializableSupplier;
+import lombok.ToString;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
@@ -36,6 +37,7 @@ import java.util.Set;
  * @see CombinedValue
  */
 @NotThreadSafe
+@ToString(of = "dependencies")
 public class ComputedValue<T> extends AbstractComputedValue<T> {
 
     private final Collection<? extends ObservableValue> dependencies;
@@ -73,10 +75,5 @@ public class ComputedValue<T> extends AbstractComputedValue<T> {
     @Override
     protected T computeValue() {
         return valueSupplier.get();
-    }
-
-    @Override
-    public String toString() {
-        return String.format("%s@%x[dependencies=%s]", getClass().getSimpleName(), hashCode(), dependencies);
     }
 }

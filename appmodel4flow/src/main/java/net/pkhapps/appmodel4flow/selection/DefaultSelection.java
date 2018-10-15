@@ -16,6 +16,9 @@
 
 package net.pkhapps.appmodel4flow.selection;
 
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 import java.util.*;
@@ -29,6 +32,8 @@ import java.util.stream.Stream;
  * @param <T> the type of the items in the selection.
  */
 @Immutable
+@ToString
+@EqualsAndHashCode
 public class DefaultSelection<T> implements Selection<T> {
 
     private final List<T> items;
@@ -104,21 +109,5 @@ public class DefaultSelection<T> implements Selection<T> {
                 return iterator.next();
             }
         };
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getClass(), items);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null || obj.getClass() != getClass()) {
-            return false;
-        } else if (obj == this) {
-            return true;
-        }
-        var other = (DefaultSelection) obj;
-        return Objects.equals(items, other.items);
     }
 }

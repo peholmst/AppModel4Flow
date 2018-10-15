@@ -16,6 +16,8 @@
 
 package net.pkhapps.appmodel4flow.property;
 
+import lombok.ToString;
+
 import javax.annotation.concurrent.NotThreadSafe;
 import java.util.Objects;
 
@@ -28,6 +30,7 @@ import java.util.Objects;
  */
 @NotThreadSafe
 @SuppressWarnings("WeakerAccess")
+@ToString
 public class DefaultObservableValue<T> extends AbstractObservableValue<T> {
 
     private T value;
@@ -68,10 +71,5 @@ public class DefaultObservableValue<T> extends AbstractObservableValue<T> {
     @Override
     public boolean isEmpty() {
         return value == null;
-    }
-
-    @Override
-    public String toString() {
-        return String.format("%s@%x[value=%s]", getClass().getSimpleName(), hashCode(), value);
     }
 }

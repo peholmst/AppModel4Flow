@@ -17,6 +17,7 @@
 package net.pkhapps.appmodel4flow.action;
 
 import com.vaadin.flow.function.SerializableRunnable;
+import lombok.ToString;
 import net.pkhapps.appmodel4flow.property.ObservableValue;
 
 import javax.annotation.Nonnull;
@@ -28,15 +29,29 @@ import java.util.Objects;
  * does not introduce any new features.
  */
 @NotThreadSafe
+@ToString(callSuper = true)
 public class ActionWithoutResult extends AbstractAction<Void> {
 
     private final SerializableRunnable command;
+    private static final SerializableRunnable DEFAULT_COMMAND = new SerializableRunnable() {
+
+        @Override
+        public void run() {
+            throw new UnsupportedOperationException("doPerformWithoutResult has not been overridden");
+        }
+
+        @Override
+        public String toString() {
+            return "N/A";
+        }
+    };
 
     /**
      * Default constructor that requires the subclass to override {@link #doPerformWithoutResult()}.
      */
+    @SuppressWarnings("WeakerAccess")
     public ActionWithoutResult() {
-        this(createDefaultCommand());
+        this(DEFAULT_COMMAND);
     }
 
     /**
@@ -56,7 +71,7 @@ public class ActionWithoutResult extends AbstractAction<Void> {
      * @param isPerformable the observable value that determines whether this action is performable or not, never {@code null}.
      */
     public ActionWithoutResult(@Nonnull ObservableValue<Boolean> isPerformable) {
-        this(isPerformable, createDefaultCommand());
+        this(isPerformable, DEFAULT_COMMAND);
     }
 
     /**
@@ -71,12 +86,6 @@ public class ActionWithoutResult extends AbstractAction<Void> {
         this.command = Objects.requireNonNull(command, "command must not be null");
     }
 
-    private static SerializableRunnable createDefaultCommand() {
-        return () -> {
-            throw new UnsupportedOperationException("doPerformWithoutResult has not been overridden");
-        };
-    }
-
     @Override
     protected Void doPerform() {
         doPerformWithoutResult();
@@ -88,14 +97,5 @@ public class ActionWithoutResult extends AbstractAction<Void> {
      */
     protected void doPerformWithoutResult() {
         command.run();
-    }
-
-    @Override
-    public String toString() {
-        if (command == null) {
-            return String.format("%s@%x[overridden method]", getClass().getSimpleName(), hashCode());
-        } else {
-            return String.format("%s@%x[command=%s]", getClass().getSimpleName(), hashCode(), command);
-        }
     }
 }

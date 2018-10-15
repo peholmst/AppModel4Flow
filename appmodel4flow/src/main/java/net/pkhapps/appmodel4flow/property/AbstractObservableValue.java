@@ -19,6 +19,7 @@ package net.pkhapps.appmodel4flow.property;
 import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.function.SerializableFunction;
 import com.vaadin.flow.shared.Registration;
+import lombok.ToString;
 import net.pkhapps.appmodel4flow.util.ListenerCollection;
 
 import javax.annotation.Nonnull;
@@ -93,6 +94,7 @@ public abstract class AbstractObservableValue<T> implements ObservableValue<T> {
         }
     }
 
+    @ToString(of = "sourceValue")
     private static class MappedObservableValue<E, T> extends AbstractObservableValue<E> {
 
         private final ObservableValue<T> sourceValue;

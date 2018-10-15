@@ -17,6 +17,7 @@
 package net.pkhapps.appmodel4flow.property;
 
 import com.vaadin.flow.function.SerializableFunction;
+import lombok.ToString;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
@@ -30,6 +31,7 @@ import java.util.Objects;
  */
 @SuppressWarnings({"unused", "WeakerAccess"})
 @NotThreadSafe
+@ToString(callSuper = true)
 public class DefaultProperty<T> extends DefaultObservableValue<T> implements Property<T> {
 
     private final DefaultObservableValue<Boolean> dirty = new DefaultObservableValue<>(false);

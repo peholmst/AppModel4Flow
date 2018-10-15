@@ -19,6 +19,7 @@ package net.pkhapps.appmodel4flow.property;
 import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.function.SerializableFunction;
 import com.vaadin.flow.shared.Registration;
+import lombok.ToString;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
@@ -107,6 +108,7 @@ public interface ObservableValue<T> extends Serializable {
      */
     @SuppressWarnings("WeakerAccess")
     @Immutable
+    @ToString
     class ValueChangeEvent<T> implements Serializable {
         private final ObservableValue<T> sender;
         private final T oldValue;
@@ -144,11 +146,6 @@ public interface ObservableValue<T> extends Serializable {
          */
         public T getValue() {
             return value;
-        }
-
-        @Override
-        public String toString() {
-            return String.format("%s[sender=%s, oldValue=%s, value=%s]", getClass().getSimpleName(), sender, oldValue, value);
         }
     }
 }
