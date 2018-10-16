@@ -18,7 +18,6 @@ package net.pkhapps.appmodel4flow.action;
 
 import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.shared.Registration;
-import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import net.pkhapps.appmodel4flow.property.DefaultObservableValue;
 import net.pkhapps.appmodel4flow.property.ObservableValue;
@@ -36,7 +35,6 @@ import java.util.Objects;
  */
 @NotThreadSafe
 @Slf4j
-@ToString(of = "isPerformable")
 public abstract class AbstractAction<OUTPUT> implements Action<OUTPUT> {
 
     private final ObservableValue<Boolean> isPerformable;
@@ -134,5 +132,10 @@ public abstract class AbstractAction<OUTPUT> implements Action<OUTPUT> {
         IsPerformableValue() {
             super(true);
         }
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s(isPerformable=%s)", getClass().getSimpleName(), isPerformable());
     }
 }

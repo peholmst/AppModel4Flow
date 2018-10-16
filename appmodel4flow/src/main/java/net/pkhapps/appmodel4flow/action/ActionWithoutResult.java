@@ -17,7 +17,6 @@
 package net.pkhapps.appmodel4flow.action;
 
 import com.vaadin.flow.function.SerializableRunnable;
-import lombok.ToString;
 import net.pkhapps.appmodel4flow.property.ObservableValue;
 
 import javax.annotation.Nonnull;
@@ -29,7 +28,6 @@ import java.util.Objects;
  * does not introduce any new features.
  */
 @NotThreadSafe
-@ToString(callSuper = true)
 public class ActionWithoutResult extends AbstractAction<Void> {
 
     private final SerializableRunnable command;
@@ -97,5 +95,10 @@ public class ActionWithoutResult extends AbstractAction<Void> {
      */
     protected void doPerformWithoutResult() {
         command.run();
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s(isPerformable=%s, command=%s)", getClass().getSimpleName(), isPerformable(), command);
     }
 }
