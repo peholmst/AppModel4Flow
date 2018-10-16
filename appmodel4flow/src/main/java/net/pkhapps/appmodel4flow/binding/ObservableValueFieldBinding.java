@@ -44,6 +44,8 @@ import java.util.Objects;
 @NotThreadSafe
 public class ObservableValueFieldBinding<MODEL, PRESENTATION> implements FieldBinding<MODEL, PRESENTATION> {
 
+    private static final long serialVersionUID = 1L;
+
     private final ObservableValue<MODEL> model;
     private final HasValue<? extends HasValue.ValueChangeEvent<PRESENTATION>, PRESENTATION> field;
     private final Converter<PRESENTATION, MODEL> converter;
@@ -163,6 +165,8 @@ public class ObservableValueFieldBinding<MODEL, PRESENTATION> implements FieldBi
      */
     @ThreadSafe
     public static class PassThroughConverter<T> implements Converter<T, T> {
+
+        private static final long serialVersionUID = 1L;
 
         @Override
         public Result<T> convertToModel(T value, ValueContext context) {

@@ -20,6 +20,9 @@ import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.shared.Registration;
 import org.junit.Test;
 
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -68,4 +71,73 @@ public class ListenerCollectionTest {
         assertThat(collection.containsListeners()).isFalse();
     }
 
+    @Test
+    public void serializeAndDeserializeWithWeakListeners() throws Exception {
+        var testObject = new SerializationTestObject();
+
+        testObject.fireEvent("before");
+        assertThat(testObject.receivedEvents).containsExactlyInAnyOrder("weak:before", "strong:before");
+
+        var bos = new ByteArrayOutputStream();
+        var oos = new ObjectOutputStream(bos);
+        oos.writeObject(testObject);
+
+        var bis = new ByteArrayInputStream(bos.toByteArray());
+        var ois = new ObjectInputStream(bis);
+        var testObjectAfterSerialization = (SerializationTestObject) ois.readObject();
+
+        testObjectAfterSerialization.fireEvent("after");
+        assertThat(testObjectAfterSerialization.receivedEvents).containsExactlyInAnyOrder("weak:before",
+                "strong:before", "weak:after", "strong:after");
+
+        testObjectAfterSerialization.unregister();
+        testObjectAfterSerialization.fireEvent("after unregistration");
+
+        assertThat(testObjectAfterSerialization.receivedEvents).contains("weak:after unregistration");
+        assertThat(testObjectAfterSerialization.receivedEvents).doesNotContain("strong:after unregistration");
+    }
+
+    @Test
+    public void serializeAndDeserializeWithoutListeners() throws Exception {
+        // This is just checking that the serialization and deserializing works properly when there are no weak
+        // listeners.
+        var bos = new ByteArrayOutputStream();
+        var oos = new ObjectOutputStream(bos);
+        oos.writeObject(new ListenerCollection<>());
+
+        var bis = new ByteArrayInputStream(bos.toByteArray());
+        var ois = new ObjectInputStream(bis);
+        assertThat(ois.readObject()).isInstanceOf(ListenerCollection.class);
+
+    }
+
+    private static class SerializationTestObject implements Serializable {
+
+        final List<String> receivedEvents = new ArrayList<>();
+
+        private final SerializableConsumer<String> weakListener = this::weakListener;
+        private final ListenerCollection<String> listenerCollection = new ListenerCollection<>();
+        private final Registration listenerRegistration;
+
+        SerializationTestObject() {
+            listenerCollection.addWeakListener(weakListener);
+            listenerRegistration = listenerCollection.addListener(this::listener);
+        }
+
+        private void weakListener(String s) {
+            receivedEvents.add("weak:" + s);
+        }
+
+        private void listener(String s) {
+            receivedEvents.add("strong:" + s);
+        }
+
+        void unregister() {
+            listenerRegistration.remove();
+        }
+
+        void fireEvent(String event) {
+            listenerCollection.fireEvent(event);
+        }
+    }
 }

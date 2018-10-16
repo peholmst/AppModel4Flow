@@ -37,6 +37,8 @@ import java.util.Objects;
 @Slf4j
 public class ActionButtonBinding implements Serializable, Registration {
 
+    private static final long serialVersionUID = 1L;
+
     private final Action<?> action;
     private final Button button;
     private final Registration buttonRegistration;

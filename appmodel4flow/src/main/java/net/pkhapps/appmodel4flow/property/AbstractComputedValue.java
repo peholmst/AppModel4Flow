@@ -17,6 +17,7 @@
 package net.pkhapps.appmodel4flow.property;
 
 import javax.annotation.concurrent.NotThreadSafe;
+import java.io.*;
 import java.util.Objects;
 
 /**
@@ -28,7 +29,26 @@ import java.util.Objects;
 @NotThreadSafe
 public abstract class AbstractComputedValue<T> extends AbstractObservableValue<T> {
 
-    private T cachedValue;
+    private static final long serialVersionUID = 1L;
+
+    private transient T cachedValue;
+
+    private void writeObject(ObjectOutputStream out) throws IOException {
+        out.defaultWriteObject();
+        if (cachedValue instanceof Serializable) {
+            out.writeObject(cachedValue);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.readObject();
+        try {
+            cachedValue = (T) in.readObject();
+        } catch (OptionalDataException ex) {
+            // Ignore it
+        }
+    }
 
     /**
      * Recomputes and updates the cached value. If this results in a change of the value, an event is

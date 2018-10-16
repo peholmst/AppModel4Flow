@@ -37,6 +37,8 @@ import java.util.Objects;
 @Slf4j
 public abstract class AbstractAction<OUTPUT> implements Action<OUTPUT> {
 
+    private static final long serialVersionUID = 1L;
+
     private final ObservableValue<Boolean> isPerformable;
     private ListenerCollection<PerformEvent<OUTPUT>> performListeners;
 
@@ -129,6 +131,9 @@ public abstract class AbstractAction<OUTPUT> implements Action<OUTPUT> {
     }
 
     private static class IsPerformableValue extends DefaultObservableValue<Boolean> {
+
+        private static final long serialVersionUID = 1L;
+
         IsPerformableValue() {
             super(true);
         }

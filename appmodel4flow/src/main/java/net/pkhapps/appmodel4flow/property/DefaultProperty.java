@@ -34,6 +34,8 @@ import java.util.Objects;
 @ToString(callSuper = true)
 public class DefaultProperty<T> extends DefaultObservableValue<T> implements Property<T> {
 
+    private static final long serialVersionUID = 1L;
+
     private final DefaultObservableValue<Boolean> dirty = new DefaultObservableValue<>(false);
     private final DefaultObservableValue<Boolean> readOnly = new DefaultObservableValue<>(false);
     private T cleanValue;

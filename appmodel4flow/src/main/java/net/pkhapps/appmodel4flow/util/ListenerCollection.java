@@ -22,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
-import java.io.Serializable;
+import java.io.*;
 import java.util.*;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -34,9 +34,32 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 @Slf4j
 public class ListenerCollection<EVENT> implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+
     private final ReentrantReadWriteLock listenerLock = new ReentrantReadWriteLock();
     private Set<SerializableConsumer<EVENT>> listeners;
-    private Map<SerializableConsumer<EVENT>, Void> weakListeners;
+    private transient Map<SerializableConsumer<EVENT>, Void> weakListeners;
+
+    private void writeObject(ObjectOutputStream out) throws IOException {
+        out.defaultWriteObject();
+        if (weakListeners != null) {
+            out.writeObject(new HashSet<>(weakListeners.keySet()));
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        try {
+            Set<SerializableConsumer<EVENT>> weakListeners = (Set<SerializableConsumer<EVENT>>) in.readObject();
+            if (weakListeners.size() > 0) {
+                this.weakListeners = new WeakHashMap<>();
+                weakListeners.forEach(listener -> this.weakListeners.put(listener, null));
+            }
+        } catch (OptionalDataException ex) {
+            // Ignore it
+        }
+    }
 
     /**
      * Fires the given event to all registered listeners.

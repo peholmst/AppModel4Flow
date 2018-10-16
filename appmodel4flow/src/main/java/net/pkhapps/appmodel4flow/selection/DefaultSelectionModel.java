@@ -33,6 +33,8 @@ import java.util.Collection;
 @NotThreadSafe
 public class DefaultSelectionModel<T> extends DefaultObservableValue<Selection<T>> implements SelectionModel<T> {
 
+    private static final long serialVersionUID = 1L;
+
     public DefaultSelectionModel() {
         super(new DefaultSelection<>());
     }

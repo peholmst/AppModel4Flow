@@ -46,6 +46,8 @@ import java.util.stream.Collectors;
 public class PropertyFieldBinding<MODEL, PRESENTATION> extends ObservableValueFieldBinding<MODEL, PRESENTATION>
         implements TwoWayFieldBinding<MODEL, PRESENTATION> {
 
+    private static final long serialVersionUID = 1L;
+
     private final Registration propertyReadOnlyRegistration;
     private final Registration fieldValueRegistration;
     private SerializableConsumer<Result<MODEL>> converterResultHandler;

@@ -34,6 +34,8 @@ import java.util.Objects;
 @NotThreadSafe
 public abstract class AbstractObservableValue<T> implements ObservableValue<T> {
 
+    private static final long serialVersionUID = 1L;
+
     private ListenerCollection<ValueChangeEvent<T>> valueChangeEventListeners;
 
     @Nonnull
@@ -97,6 +99,8 @@ public abstract class AbstractObservableValue<T> implements ObservableValue<T> {
     @ToString(of = "sourceValue")
     private static class MappedObservableValue<E, T> extends AbstractObservableValue<E> {
 
+        private static final long serialVersionUID = 1L;
+
         private final ObservableValue<T> sourceValue;
         private final SerializableFunction<T, E> mapFunction;
         private final SerializableConsumer<ValueChangeEvent<T>> sourceValueListener = this::onSourceValueChangeEvent;
@@ -134,6 +138,8 @@ public abstract class AbstractObservableValue<T> implements ObservableValue<T> {
 
     private static class MappedWritableObservableValue<E, T> extends MappedObservableValue<E, T>
             implements WritableObservableValue<E> {
+
+        private static final long serialVersionUID = 1L;
 
         private final SerializableFunction<E, T> writeMapFunction;
 

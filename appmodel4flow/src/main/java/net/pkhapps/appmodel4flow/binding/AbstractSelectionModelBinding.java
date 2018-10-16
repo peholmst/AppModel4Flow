@@ -35,6 +35,8 @@ import java.util.Objects;
 @SuppressWarnings("WeakerAccess")
 public abstract class AbstractSelectionModelBinding<T> implements Serializable, Registration {
 
+    private static final long serialVersionUID = 1L;
+
     private final SelectionModel<T> selectionModel;
     private Registration selectionModelRegistration;
     private Registration componentRegistration;

@@ -30,6 +30,8 @@ import java.util.Objects;
 @NotThreadSafe
 public class ActionWithoutResult extends AbstractAction<Void> {
 
+    private static final long serialVersionUID = 1L;
+
     private final SerializableRunnable command;
     private static final SerializableRunnable DEFAULT_COMMAND = new SerializableRunnable() {
 

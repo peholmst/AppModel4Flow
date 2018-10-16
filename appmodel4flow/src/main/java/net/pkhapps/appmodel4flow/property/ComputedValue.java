@@ -40,6 +40,8 @@ import java.util.Set;
 @ToString(of = "dependencies")
 public class ComputedValue<T> extends AbstractComputedValue<T> {
 
+    private static final long serialVersionUID = 1L;
+
     private final Collection<? extends ObservableValue> dependencies;
     private final SerializableSupplier<T> valueSupplier;
     private final SerializableConsumer<ValueChangeEvent> dependencyValueChangeListener = (event) -> updateCachedValue();

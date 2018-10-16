@@ -110,6 +110,9 @@ public interface ObservableValue<T> extends Serializable {
     @Immutable
     @ToString
     class ValueChangeEvent<T> implements Serializable {
+
+        private static final long serialVersionUID = 1L;
+
         private final ObservableValue<T> sender;
         private final T oldValue;
         private final T value;

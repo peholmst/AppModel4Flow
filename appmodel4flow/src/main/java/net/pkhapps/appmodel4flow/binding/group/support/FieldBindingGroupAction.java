@@ -31,6 +31,8 @@ import java.util.Objects;
  */
 public class FieldBindingGroupAction extends ActionWithoutResult {
 
+    private static final long serialVersionUID = 1L;
+
     private final FieldBindingGroup fieldBindingGroup;
 
     /**

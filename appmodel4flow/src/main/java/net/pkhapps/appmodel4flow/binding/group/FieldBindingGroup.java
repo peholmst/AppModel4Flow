@@ -43,6 +43,8 @@ import java.util.stream.Stream;
 @NotThreadSafe
 public class FieldBindingGroup extends BindingGroup {
 
+    private static final long serialVersionUID = 1L;
+
     private final DefaultObservableValue<Boolean> dirty = new DefaultObservableValue<>(false);
     private final DefaultObservableValue<Boolean> presentationValid = new DefaultObservableValue<>(true);
     private final DefaultObservableValue<Boolean> modelValid = new DefaultObservableValue<>(true);

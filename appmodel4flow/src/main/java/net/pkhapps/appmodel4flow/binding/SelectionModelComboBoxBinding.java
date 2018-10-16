@@ -36,6 +36,8 @@ import java.util.Objects;
 @NotThreadSafe
 public class SelectionModelComboBoxBinding<T> extends AbstractSelectionModelBinding<T> {
 
+    private static final long serialVersionUID = 1L;
+
     private final ComboBox<T> comboBox;
 
     private boolean selectionUpdateInProgress = false;

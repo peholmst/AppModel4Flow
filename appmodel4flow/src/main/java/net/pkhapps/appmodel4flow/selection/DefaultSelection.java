@@ -36,6 +36,8 @@ import java.util.stream.Stream;
 @EqualsAndHashCode
 public class DefaultSelection<T> implements Selection<T> {
 
+    private static final long serialVersionUID = 1L;
+
     private final List<T> items;
 
     /**

@@ -41,6 +41,8 @@ import java.util.stream.Collectors;
 @ToString(callSuper = true)
 public class CompositeAction extends ActionWithoutResult {
 
+    private static final long serialVersionUID = 1L;
+
     private final List<Action<?>> actions;
 
     /**

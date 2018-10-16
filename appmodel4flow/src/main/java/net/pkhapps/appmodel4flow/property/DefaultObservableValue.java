@@ -33,6 +33,8 @@ import java.util.Objects;
 @ToString
 public class DefaultObservableValue<T> extends AbstractObservableValue<T> {
 
+    private static final long serialVersionUID = 1L;
+
     private T value;
 
     /**

@@ -35,6 +35,8 @@ import java.util.Objects;
 @NotThreadSafe
 public class SelectionModelGridBinding<T> extends AbstractSelectionModelBinding<T> {
 
+    private static final long serialVersionUID = 1L;
+
     private final Grid<T> grid;
 
     private boolean selectionUpdateInProgress = false;

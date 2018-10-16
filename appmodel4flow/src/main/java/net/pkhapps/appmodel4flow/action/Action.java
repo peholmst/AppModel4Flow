@@ -76,6 +76,8 @@ public interface Action<OUTPUT> extends Serializable {
     @ToString
     class PerformEvent<OUTPUT> implements Serializable {
 
+        private static final long serialVersionUID = 1L;
+
         private final Action<OUTPUT> action;
         private final OUTPUT output;
 

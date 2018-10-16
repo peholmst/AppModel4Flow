@@ -41,6 +41,8 @@ import java.util.stream.Stream;
 @ToString(of = "dependencies")
 public class CombinedValue<T> extends AbstractComputedValue<T> {
 
+    private static final long serialVersionUID = 1L;
+
     private final List<ObservableValue<T>> dependencies;
     private final SerializableFunction<Stream<T>, T> combiner;
     private final SerializableConsumer<ValueChangeEvent<T>> dependencyValueChangeListener = (event) -> updateCachedValue();
