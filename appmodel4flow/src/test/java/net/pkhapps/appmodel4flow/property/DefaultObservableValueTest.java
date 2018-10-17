@@ -32,7 +32,6 @@ public class DefaultObservableValueTest {
         DefaultObservableValue<String> value = new DefaultObservableValue<>();
         assertThat(value.isEmpty()).isTrue();
         assertThat(value.getValue()).isNull();
-        assertThat(value.getOptionalValue()).isEmpty();
     }
 
     @Test
@@ -40,7 +39,6 @@ public class DefaultObservableValueTest {
         DefaultObservableValue<String> value = new DefaultObservableValue<>("hello");
         assertThat(value.hasValue()).isTrue();
         assertThat(value.getValue()).isEqualTo("hello");
-        assertThat(value.getOptionalValue()).contains("hello");
     }
 
     @Test
