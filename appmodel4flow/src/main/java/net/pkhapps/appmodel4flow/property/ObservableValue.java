@@ -22,6 +22,7 @@ import com.vaadin.flow.shared.Registration;
 import lombok.ToString;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import java.io.Serializable;
 import java.util.Objects;
@@ -42,13 +43,25 @@ public interface ObservableValue<T> extends Serializable {
     T getValue();
 
     /**
-     * Returns whether this object is empty or contains a value. Implementations are free to decide when the object
-     * is empty (e.g. a {@code null} value, an empty string or empty collection, etc.).
+     * Returns whether this object is empty or contains a value.
      *
      * @return true if there is no value, false if there is one.
      * @see #hasValue()
      */
-    boolean isEmpty();
+    default boolean isEmpty() {
+        return isEmpty(getValue());
+    }
+
+    /**
+     * Checks whether the given value is considered empty or not. By default, only {@code null} is considered empty.
+     * Implementations are free to decide when the object is empty (e.g. an empty string or empty collection, etc.).
+     *
+     * @param value the value to check.
+     * @return true if the value is considered empty, false if not.
+     */
+    default boolean isEmpty(@Nullable T value) {
+        return value == null;
+    }
 
     /**
      * Returns whether this object has a value or is empty. This is the opposite of {@link #isEmpty()} and is provided
@@ -91,6 +104,27 @@ public interface ObservableValue<T> extends Serializable {
     <E> ObservableValue<E> map(@Nonnull SerializableFunction<T, E> mapFunction);
 
     /**
+     * Maps this observable value to an observable value with a different type, using a function that takes this
+     * {@code ObservableValue} instance and produces another {@link ObservableValue} instance. This gives the function
+     * full control of the returned instance as opposed to {@link #map(SerializableFunction)} which is implementation
+     * specific.
+     * <p>
+     * The name is inspired by the {@code flatMap} methods found in {@code Optional} and {@code Stream}, even though
+     * they are semantically slightly different.
+     *
+     * @param mapFunction the function to use when converting this {@code ObservableValue} to the mapped
+     *                    {@code ObservableValue}, never {@code null}.
+     * @param <E>         the type of the mapped observable value.
+     * @return an observable value that is backed by this observable value but has a different type, never {@code null}.
+     */
+    @Nonnull
+    default <E> ObservableValue<E> flatMap(@Nonnull SerializableFunction<ObservableValue<T>,
+            ObservableValue<E>> mapFunction) {
+        Objects.requireNonNull(mapFunction, "mapFunction must not be null");
+        return mapFunction.apply(this);
+    }
+
+    /**
      * Event fired by a {@link ObservableValue} when the value changes.
      *
      * @param <T> the value type.
@@ -106,7 +140,7 @@ public interface ObservableValue<T> extends Serializable {
         private final T oldValue;
         private final T value;
 
-        public ValueChangeEvent(@Nonnull ObservableValue<T> sender, T oldValue, T value) {
+        public ValueChangeEvent(@Nonnull ObservableValue<T> sender, @Nullable T oldValue, @Nullable T value) {
             this.sender = Objects.requireNonNull(sender, "sender must not be null");
             this.oldValue = oldValue;
             this.value = value;
@@ -127,6 +161,7 @@ public interface ObservableValue<T> extends Serializable {
          *
          * @return the old value, may be {@code null}.
          */
+        @Nullable
         public T getOldValue() {
             return oldValue;
         }
@@ -136,6 +171,7 @@ public interface ObservableValue<T> extends Serializable {
          *
          * @return the new value, may be {@code null}.
          */
+        @Nullable
         public T getValue() {
             return value;
         }

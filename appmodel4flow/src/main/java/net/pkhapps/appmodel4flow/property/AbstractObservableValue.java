@@ -129,11 +129,6 @@ public abstract class AbstractObservableValue<T> implements ObservableValue<T> {
         public E getValue() {
             return mapValue(sourceValue.getValue());
         }
-
-        @Override
-        public boolean isEmpty() {
-            return sourceValue.isEmpty();
-        }
     }
 
     private static class MappedWritableObservableValue<E, T> extends MappedObservableValue<E, T>

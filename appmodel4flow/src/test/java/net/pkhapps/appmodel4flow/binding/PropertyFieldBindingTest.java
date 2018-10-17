@@ -41,13 +41,28 @@ public class PropertyFieldBindingTest {
 
     @Before
     public void setUp() {
-        field = new TextField();
+        field = new TextField() {
+            private boolean requiredVisible = false;
+
+            @Override
+            public void setRequiredIndicatorVisible(boolean requiredIndicatorVisible) {
+                // Need to override because the real method requires access to the current Page.
+                requiredVisible = requiredIndicatorVisible;
+            }
+
+            @Override
+            public boolean isRequiredIndicatorVisible() {
+                return requiredVisible;
+            }
+        };
         model = new DefaultProperty<>();
         binding = new PropertyFieldBinding<>(model, field, new StringToIntegerConverter("converterError"));
     }
 
     @Test
     public void initialStateAfterCreation() {
+        assertThat(model.isEmpty()).isTrue();
+        assertThat(model.isReadOnly().getValue()).isFalse();
         assertThat(field.getValue()).isEmpty();
         assertThat(field.isReadOnly()).isFalse();
         assertThat(binding.isModelValid().getValue()).isTrue();
@@ -138,5 +153,66 @@ public class PropertyFieldBindingTest {
         field.setValue("110");
         assertThat(model.isEmpty()).isTrue();
         assertThat(binding.isModelValid().getValue()).isFalse();
+    }
+
+    @Test
+    public void asRequired_initialState_noErrorsReportedBeforeUserHasTouchedTheField() {
+        var resultHandler = new AtomicReference<Collection<ValidationResult>>();
+        binding.withValidationResultHandler(resultHandler::set);
+        binding.asRequired("reqError");
+
+        assertThat(model.isEmpty()).isTrue();
+        assertThat(field.isRequiredIndicatorVisible()).isTrue();
+        assertThat(field.isEmpty()).isTrue();
+        assertThat(resultHandler.get()).isNull();
+        assertThat(binding.isModelValid().getValue()).isTrue();
+        assertThat(binding.isPresentationValid().getValue()).isTrue();
+    }
+
+    @Test
+    public void asRequired_userHasLeftTheFieldEmpty_validationErrorIsReported() {
+        var resultHandler = new AtomicReference<Collection<ValidationResult>>();
+        binding.withValidationResultHandler(resultHandler::set);
+        binding.asRequired("reqError");
+
+        field.setValue("110");
+
+        assertThat(model.isEmpty()).isFalse();
+
+        field.setValue("");
+
+        assertThat(model.isEmpty()).isTrue();
+        assertThat(binding.isModelValid().getValue()).isFalse();
+        assertThat(resultHandler.get()).isNotEmpty();
+        assertThat(resultHandler.get()).anyMatch(r -> r.isError() && r.getErrorMessage().equals("reqError"));
+    }
+
+    @Test
+    public void asRequired_userCorrectedEmptyValue_validationErrorIsRemoved() {
+        var resultHandler = new AtomicReference<Collection<ValidationResult>>();
+        binding.withValidationResultHandler(resultHandler::set);
+        binding.asRequired("reqError");
+        field.setValue("110");
+        field.setValue("");
+        field.setValue("123");
+
+        assertThat(model.isEmpty()).isFalse();
+        assertThat(binding.isModelValid().getValue()).isTrue();
+        assertThat(resultHandler.get()).isNotEmpty();
+        assertThat(resultHandler.get()).noneMatch(ValidationResult::isError);
+    }
+
+    @Test
+    public void validateModel_requiredValueThatHasNotBeenChangedYet_validationErrorIsReported() {
+        var resultHandler = new AtomicReference<Collection<ValidationResult>>();
+        binding.withValidationResultHandler(resultHandler::set);
+        binding.asRequired("reqError");
+
+        binding.validateModel();
+
+        assertThat(model.isEmpty()).isTrue();
+        assertThat(binding.isModelValid().getValue()).isFalse();
+        assertThat(resultHandler.get()).isNotEmpty();
+        assertThat(resultHandler.get()).anyMatch(r -> r.isError() && r.getErrorMessage().equals("reqError"));
     }
 }

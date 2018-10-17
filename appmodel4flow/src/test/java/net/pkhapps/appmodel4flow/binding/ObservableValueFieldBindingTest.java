@@ -51,6 +51,16 @@ public class ObservableValueFieldBindingTest {
     }
 
     @Test
+    public void initialStateAfterCreationWhenModelContainsAnExistingValue() {
+        model = new DefaultObservableValue<>("hello");
+        field = new TextField();
+        binding = new ObservableValueFieldBinding<>(model, field, new ObservableValueFieldBinding.PassThroughConverter<>());
+        assertThat(field.getValue()).isEqualTo("hello");
+        assertThat(binding.isModelValid().getValue()).isTrue();
+        assertThat(binding.isPresentationValid().getValue()).isTrue();
+    }
+
+    @Test
     public void setFieldValue_nothingHappensToModel() {
         field.setValue("hello");
         assertThat(model.getValue()).isNull();

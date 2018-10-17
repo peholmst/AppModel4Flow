@@ -46,7 +46,7 @@ public abstract class AbstractComputedValue<T> extends AbstractObservableValue<T
         try {
             cachedValue = (T) in.readObject();
         } catch (OptionalDataException ex) {
-            // Ignore it
+            cachedValue = computeValue();
         }
     }
 
@@ -73,10 +73,5 @@ public abstract class AbstractComputedValue<T> extends AbstractObservableValue<T
     @Override
     public T getValue() {
         return cachedValue;
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return cachedValue == null;
     }
 }

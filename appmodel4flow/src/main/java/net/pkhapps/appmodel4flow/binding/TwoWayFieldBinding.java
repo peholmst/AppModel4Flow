@@ -24,6 +24,7 @@ import com.vaadin.flow.function.SerializableSupplier;
 import net.pkhapps.appmodel4flow.property.Property;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -51,7 +52,8 @@ public interface TwoWayFieldBinding<MODEL, PRESENTATION> extends FieldBinding<MO
      * @see com.vaadin.flow.data.converter.Converter
      */
     @Nonnull
-    TwoWayFieldBinding<MODEL, PRESENTATION> withConverterResultHandler(SerializableConsumer<Result<MODEL>> converterResultHandler);
+    TwoWayFieldBinding<MODEL, PRESENTATION> withConverterResultHandler(
+            @Nullable SerializableConsumer<Result<MODEL>> converterResultHandler);
 
     /**
      * Configures the binding to validate the model value using the given validator. It is possible to specify
@@ -73,7 +75,8 @@ public interface TwoWayFieldBinding<MODEL, PRESENTATION> extends FieldBinding<MO
      * @see Validator
      */
     @Nonnull
-    TwoWayFieldBinding<MODEL, PRESENTATION> withValidationResultHandler(SerializableConsumer<Collection<ValidationResult>> validationResultHandler);
+    TwoWayFieldBinding<MODEL, PRESENTATION> withValidationResultHandler(
+            @Nullable SerializableConsumer<Collection<ValidationResult>> validationResultHandler);
 
     /**
      * By default, the binding will write model values to the underlying model even if they don't pass
@@ -88,7 +91,8 @@ public interface TwoWayFieldBinding<MODEL, PRESENTATION> extends FieldBinding<MO
     /**
      * Marks the field as required using the specified error message supplier.
      *
-     * @param errorMessageSupplier the supplier to use for getting the error message to report if the field is empty, never {@code null}.
+     * @param errorMessageSupplier the supplier to use for getting the error message to report if the field is empty,
+     *                             never {@code null}.
      * @return this binding, to allow for method chaining.
      */
     @Nonnull
@@ -118,4 +122,8 @@ public interface TwoWayFieldBinding<MODEL, PRESENTATION> extends FieldBinding<MO
         return asRequired("Please provide a value");
     }
 
+    /**
+     * Forces the binding to invoke any validators on the current model value, updating {@link #isModelValid()}.
+     */
+    void validateModel();
 }

@@ -49,7 +49,8 @@ public interface FieldBinding<MODEL, PRESENTATION> extends Serializable, Registr
 
     /**
      * Returns whether the presentation value is valid. If the presentation value is not valid, it means the
-     * value in the UI could not be converted to the value needed by the model.
+     * value in the UI could not be converted to the value needed by the model. This value is always true initially,
+     * after the binding has been made but before any changes have been made to the field or the model.
      *
      * @return true if the presentation is valid, false if it is not.
      * @see #isModelValid()
@@ -60,7 +61,9 @@ public interface FieldBinding<MODEL, PRESENTATION> extends Serializable, Registr
     /**
      * Returns whether the model value is valid or not. If the model value is not valid, it means the value in the UI
      * was successfully converted to a value needed by the model, but did not pass through some implementation specific
-     * validation mechanism.
+     * validation mechanism. This value is always true initially, after the binding has been made but before any changes
+     * have been made to the field or the model, regardless of what the actual model value is. This is because this flag
+     * is controlled by the binding, based on any input that the user enters into the field.
      *
      * @return true if the model is valid, false if it is not.
      * @see #isPresentationValid()

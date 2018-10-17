@@ -69,9 +69,4 @@ public class DefaultObservableValue<T> extends AbstractObservableValue<T> {
             fireValueChangeEvent(old, value);
         }
     }
-
-    @Override
-    public boolean isEmpty() {
-        return value == null;
-    }
 }

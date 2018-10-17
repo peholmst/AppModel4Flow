@@ -27,6 +27,7 @@ import com.vaadin.flow.shared.Registration;
 import net.pkhapps.appmodel4flow.property.Property;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -83,16 +84,10 @@ public class PropertyFieldBinding<MODEL, PRESENTATION> extends ObservableValueFi
     }
 
     private void updatePropertyValue() {
-        if (requiredErrorMessageSupplier != null && getField().isEmpty()) {
-            // TODO Write test for this and make sure it works properly (don't show any errors until the user has actually changed anything).
-            setPresentationValid(false);
-            handleConverterResult(Result.error(requiredErrorMessageSupplier.get()));
-        } else {
-            var result = getConverter().convertToModel(getField().getValue(), createValueContext());
-            setPresentationValid(!result.isError());
-            result.ifOk(this::writePropertyValue);
-            handleConverterResult(result);
-        }
+        var result = getConverter().convertToModel(getField().getValue(), createValueContext());
+        setPresentationValid(!result.isError());
+        result.ifOk(this::writePropertyValue);
+        handleConverterResult(result);
     }
 
     private void handleConverterResult(@Nonnull Result<MODEL> result) {
@@ -101,21 +96,15 @@ public class PropertyFieldBinding<MODEL, PRESENTATION> extends ObservableValueFi
         }
     }
 
-    private void writePropertyValue(MODEL value) {
-        if (validators.size() > 0) {
-            var valueContext = createValueContext();
-            var validationResults = validators.stream().map(validator -> validator.apply(value, valueContext)).collect(Collectors.toSet());
-            var hasErrors = validationResults.stream().anyMatch(ValidationResult::isError);
-            setModelValid(!hasErrors);
-            handleValidationResults(validationResults);
-            if (hasErrors && !writeInvalidModelValuesEnabled) {
-                return;
-            }
+    private void writePropertyValue(@Nullable MODEL value) {
+        validate(value);
+        if (!isModelValid().getValue() && !writeInvalidModelValuesEnabled) {
+            return;
         }
         getModel().setValue(value);
     }
 
-    private void handleValidationResults(Collection<ValidationResult> results) {
+    private void handleValidationResults(@Nonnull Collection<ValidationResult> results) {
         if (validationResultHandler != null) {
             validationResultHandler.accept(results);
         }
@@ -131,14 +120,14 @@ public class PropertyFieldBinding<MODEL, PRESENTATION> extends ObservableValueFi
 
     @Nonnull
     @Override
-    public TwoWayFieldBinding<MODEL, PRESENTATION> withConverterResultHandler(SerializableConsumer<Result<MODEL>> converterResultHandler) {
+    public TwoWayFieldBinding<MODEL, PRESENTATION> withConverterResultHandler(@Nullable SerializableConsumer<Result<MODEL>> converterResultHandler) {
         this.converterResultHandler = converterResultHandler;
         return this;
     }
 
     @Nonnull
     @Override
-    public TwoWayFieldBinding<MODEL, PRESENTATION> withValidationResultHandler(SerializableConsumer<Collection<ValidationResult>> validationResultHandler) {
+    public TwoWayFieldBinding<MODEL, PRESENTATION> withValidationResultHandler(@Nullable SerializableConsumer<Collection<ValidationResult>> validationResultHandler) {
         this.validationResultHandler = validationResultHandler;
         return this;
     }
@@ -153,9 +142,41 @@ public class PropertyFieldBinding<MODEL, PRESENTATION> extends ObservableValueFi
     @Nonnull
     @Override
     public TwoWayFieldBinding<MODEL, PRESENTATION> asRequired(@Nonnull SerializableSupplier<String> errorMessageSupplier) {
+        boolean alreadyMarkedAsRequired = this.requiredErrorMessageSupplier != null;
         this.requiredErrorMessageSupplier = Objects.requireNonNull(errorMessageSupplier, "errorMessageSupplier must not be null");
         getField().setRequiredIndicatorVisible(true);
+        if (!alreadyMarkedAsRequired) { // In case somebody would call this method to change the error message supplier.
+            validators.add(createRequiredValidator());
+        }
         return this;
+    }
+
+    @Nonnull
+    private Validator<MODEL> createRequiredValidator() {
+        return (value, context) -> {
+            if (getModel().isEmpty(value)) {
+                return ValidationResult.error(requiredErrorMessageSupplier.get());
+            } else {
+                return ValidationResult.ok();
+            }
+        };
+    }
+
+    @Override
+    public void validateModel() {
+        validate(getModel().getValue());
+    }
+
+    private void validate(@Nullable MODEL value) {
+        if (validators.size() > 0) {
+            var valueContext = createValueContext();
+            var validationResults = validators.stream().map(validator -> validator.apply(value, valueContext)).collect(Collectors.toSet());
+            var hasErrors = validationResults.stream().anyMatch(ValidationResult::isError);
+            setModelValid(!hasErrors);
+            handleValidationResults(validationResults);
+        } else {
+            setModelValid(true);
+        }
     }
 
     @Override
