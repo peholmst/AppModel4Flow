@@ -18,11 +18,13 @@ package net.pkhapps.appmodel4flow.property;
 
 import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.function.SerializableFunction;
+import com.vaadin.flow.function.SerializablePredicate;
 import com.vaadin.flow.shared.Registration;
 import lombok.ToString;
 import net.pkhapps.appmodel4flow.util.ListenerCollection;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
 import java.util.Objects;
 
@@ -37,6 +39,35 @@ public abstract class AbstractObservableValue<T> implements ObservableValue<T> {
     private static final long serialVersionUID = 1L;
 
     private ListenerCollection<ValueChangeEvent<T>> valueChangeEventListeners;
+    private SerializablePredicate<T> isEmpty;
+
+    @SuppressWarnings("WeakerAccess")
+    protected AbstractObservableValue() {
+    }
+
+    @Override
+    public boolean isEmpty(@Nullable T value) {
+        if (value == null) {
+            return true;
+        } else {
+            return isEmpty != null && isEmpty.test(value);
+        }
+    }
+
+    /**
+     * Specifies a predicate that will be used to check whether a non-{@code null} value can also be considered an
+     * {@link #isEmpty(Object) empty} value. If not set, only {@code null}s will be considered
+     * empty values.
+     *
+     * @param emptyCheck the predicate to use, never {@code null}.
+     * @return this {@code ObservableValue}, to allow for method chaining. Superclasses probably want to override to
+     * return the correct type.
+     */
+    @Nonnull
+    protected AbstractObservableValue<T> withEmptyCheck(@Nonnull SerializablePredicate<T> emptyCheck) {
+        this.isEmpty = emptyCheck;
+        return this;
+    }
 
     @Nonnull
     @Override

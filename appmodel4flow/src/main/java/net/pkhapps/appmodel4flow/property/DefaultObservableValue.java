@@ -16,8 +16,10 @@
 
 package net.pkhapps.appmodel4flow.property;
 
+import com.vaadin.flow.function.SerializablePredicate;
 import lombok.ToString;
 
+import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
 import java.util.Objects;
 
@@ -50,6 +52,12 @@ public class DefaultObservableValue<T> extends AbstractObservableValue<T> {
      */
     public DefaultObservableValue(T value) {
         this.value = value;
+    }
+
+    @Nonnull
+    @Override
+    public DefaultObservableValue<T> withEmptyCheck(@Nonnull SerializablePredicate<T> emptyCheck) {
+        return (DefaultObservableValue<T>) super.withEmptyCheck(emptyCheck);
     }
 
     @Override

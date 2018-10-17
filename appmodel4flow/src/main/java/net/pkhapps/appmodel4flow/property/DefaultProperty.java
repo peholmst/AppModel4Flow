@@ -17,6 +17,7 @@
 package net.pkhapps.appmodel4flow.property;
 
 import com.vaadin.flow.function.SerializableFunction;
+import com.vaadin.flow.function.SerializablePredicate;
 import lombok.ToString;
 
 import javax.annotation.Nonnull;
@@ -54,6 +55,12 @@ public class DefaultProperty<T> extends DefaultObservableValue<T> implements Pro
     public DefaultProperty(T value) {
         super(value);
         this.cleanValue = value;
+    }
+
+    @Nonnull
+    @Override
+    public DefaultProperty<T> withEmptyCheck(@Nonnull SerializablePredicate<T> emptyCheck) {
+        return (DefaultProperty<T>) super.withEmptyCheck(emptyCheck);
     }
 
     @Override

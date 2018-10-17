@@ -74,4 +74,14 @@ public class DefaultObservableValueTest {
         assertThat(event.get().getOldValue()).isEqualTo("123");
         assertThat(event.get().getValue()).isEqualTo("456");
     }
+
+    @Test
+    public void withEmptyCheck() {
+        DefaultObservableValue<String> value = new DefaultObservableValue<String>().withEmptyCheck(String::isEmpty);
+        assertThat(value.isEmpty()).isTrue();
+        assertThat(value.getValue()).isNull();
+        value.setValue("");
+        assertThat(value.isEmpty()).isTrue();
+        assertThat(value.getValue()).isEmpty();
+    }
 }

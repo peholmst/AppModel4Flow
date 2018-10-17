@@ -25,9 +25,9 @@ import java.util.UUID;
 class ContactModel implements Serializable {
 
     private final DefaultObservableValue<UUID> uuid = new DefaultObservableValue<>();
-    private final DefaultProperty<String> firstName = new DefaultProperty<>();
-    private final DefaultProperty<String> lastName = new DefaultProperty<>();
-    private final DefaultProperty<String> email = new DefaultProperty<>();
+    private final DefaultProperty<String> firstName = new DefaultProperty<String>().withEmptyCheck(String::isEmpty);
+    private final DefaultProperty<String> lastName = new DefaultProperty<String>().withEmptyCheck(String::isEmpty);
+    private final DefaultProperty<String> email = new DefaultProperty<String>().withEmptyCheck(String::isEmpty);
     private final ComputedValue<String> fullName = new ComputedValue<>(
             () -> String.format("%s %s", firstName.getValue(), lastName.getValue()),
             firstName, lastName);
