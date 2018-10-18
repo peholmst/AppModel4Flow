@@ -203,8 +203,7 @@ public final class AppModel {
     @Nonnull
     public static <T> FieldBinding<T, T> bindOneWay(@Nonnull ObservableValue<T> model,
                                                     @Nonnull HasValue<? extends HasValue.ValueChangeEvent<T>, T> field) {
-        return new ObservableValueFieldBinding<>(model, field,
-                new ObservableValueFieldBinding.PassThroughConverter<>());
+        return new ObservableValueFieldBinding<>(model, field, Converter.identity());
     }
 
     /**
@@ -236,7 +235,7 @@ public final class AppModel {
     @Nonnull
     public static <T> TwoWayFieldBinding<T, T> bind(@Nonnull Property<T> model,
                                                     @Nonnull HasValue<? extends HasValue.ValueChangeEvent<T>, T> field) {
-        return new PropertyFieldBinding<>(model, field, new ObservableValueFieldBinding.PassThroughConverter<>());
+        return new PropertyFieldBinding<>(model, field, Converter.identity());
     }
 
     /**

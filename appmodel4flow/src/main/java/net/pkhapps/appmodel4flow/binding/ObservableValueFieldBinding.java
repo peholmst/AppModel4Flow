@@ -19,7 +19,6 @@ package net.pkhapps.appmodel4flow.binding;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.data.binder.Result;
 import com.vaadin.flow.data.binder.ValueContext;
 import com.vaadin.flow.data.converter.Converter;
 import com.vaadin.flow.shared.Registration;
@@ -28,7 +27,6 @@ import net.pkhapps.appmodel4flow.property.ObservableValue;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
-import javax.annotation.concurrent.ThreadSafe;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -148,6 +146,11 @@ public class ObservableValueFieldBinding<MODEL, PRESENTATION> implements FieldBi
         return modelValid;
     }
 
+    @Override
+    public void validateModel() {
+        // NOP, subclasses should override.
+    }
+
     /**
      * Sets the value of the {@link #isModelValid()} () presentationValid} flag.
      *
@@ -155,27 +158,5 @@ public class ObservableValueFieldBinding<MODEL, PRESENTATION> implements FieldBi
      */
     protected void setModelValid(boolean modelValid) {
         this.modelValid.setValue(modelValid);
-    }
-
-    /**
-     * A special implementation of {@link Converter} to be used when the presentation and model values are of the same
-     * type.
-     *
-     * @param <T> the type of the presentation and model values.
-     */
-    @ThreadSafe
-    public static class PassThroughConverter<T> implements Converter<T, T> {
-
-        private static final long serialVersionUID = 1L;
-
-        @Override
-        public Result<T> convertToModel(T value, ValueContext context) {
-            return Result.ok(value);
-        }
-
-        @Override
-        public T convertToPresentation(T value, ValueContext context) {
-            return value;
-        }
     }
 }

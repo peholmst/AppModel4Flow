@@ -64,7 +64,18 @@ public class BindingGroup implements Serializable {
      * Calls the {@link Registration#remove() remove} method of each binding and removes them from this group.
      */
     public void dispose() {
-        bindings.forEach(Registration::remove);
+        bindings.forEach(this::dispose);
         bindings.clear();
+    }
+
+    /**
+     * Disposes the given binding by calling {@link Registration#remove()} on it. Subclasses may also do other clean up
+     * operations.
+     *
+     * @param binding the binding to dispose of, never {@code null}.
+     */
+    protected void dispose(@Nonnull Registration binding) {
+        Objects.requireNonNull(binding, "binding must not be null");
+        binding.remove();
     }
 }

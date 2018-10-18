@@ -21,12 +21,14 @@ import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.shared.Registration;
 import net.pkhapps.appmodel4flow.binding.FieldBinding;
+import net.pkhapps.appmodel4flow.binding.PropertyFieldBinding;
 import net.pkhapps.appmodel4flow.binding.TwoWayFieldBinding;
 import net.pkhapps.appmodel4flow.property.DefaultObservableValue;
 import net.pkhapps.appmodel4flow.property.ObservableValue;
 import net.pkhapps.appmodel4flow.property.Property;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
 import java.io.Serializable;
 import java.util.Collection;
@@ -34,10 +36,9 @@ import java.util.stream.Stream;
 
 /**
  * Extended version of {@link BindingGroup} especially designed for {@link FieldBinding}s and {@link TwoWayFieldBinding}s.
- * It provides features for handling {@link #withConverterResultHandler(ConverterResultHandler) converter results} and
- * {@link #withValidationResultHandler(ValidationResultHandler) validation results} in one place and also collectively
- * tracks the status of the {@link Property#isDirty() dirty}, {@link FieldBinding#isPresentationValid() presentationValid}
- * and {@link FieldBinding#isModelValid() modelValid} flags.
+ * It provides features for handling {@link #withBindingResultHandler(BindingResultHandler) binding results}
+ * in one place and also collectively tracks the status of the {@link Property#isDirty() dirty},
+ * {@link FieldBinding#isPresentationValid() presentationValid} and {@link FieldBinding#isModelValid() modelValid} flags.
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
 @NotThreadSafe
@@ -51,23 +52,21 @@ public class FieldBindingGroup extends BindingGroup {
     private final SerializableConsumer<ObservableValue.ValueChangeEvent<Boolean>> dirtyListener = (event) -> updateDirtyFlag();
     private final SerializableConsumer<ObservableValue.ValueChangeEvent<Boolean>> modelValidListener = (event) -> updateModelValidFlag();
     private final SerializableConsumer<ObservableValue.ValueChangeEvent<Boolean>> presentationValidListener = (event) -> updatePresentationValidFlag();
-    private ConverterResultHandler converterResultHandler;
-    private ValidationResultHandler validationResultHandler;
+    private BindingResultHandler bindingResultHandler = new DefaultBindingResultHandler();
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This method will automatically invoke the {@link FieldBinding#validateModel()} method on all bindings that
+     * implement the {@link FieldBinding} interface, to make sure the {@link #isModelValid()} flag is correct at
+     * all times.
+     */
     @Nonnull
     @Override
     public FieldBindingGroup withBinding(@Nonnull Registration binding) {
-        if (binding instanceof TwoWayFieldBinding) {
-            var twoWayFieldBinding = (TwoWayFieldBinding<?, ?>) binding;
-            twoWayFieldBinding.withConverterResultHandler(result -> handleConverterResult(twoWayFieldBinding, result));
-            twoWayFieldBinding.withValidationResultHandler(results -> handleValidationResult(twoWayFieldBinding, results));
-            twoWayFieldBinding.getModel().isDirty().addWeakValueChangeListener(dirtyListener);
-            if (twoWayFieldBinding.getModel().isDirty().getValue()) {
-                dirty.setValue(true);
-            }
-        }
         if (binding instanceof FieldBinding) {
             var fieldBinding = (FieldBinding<?, ?>) binding;
+            fieldBinding.validateModel();
             fieldBinding.isModelValid().addWeakValueChangeListener(modelValidListener);
             if (!fieldBinding.isModelValid().getValue()) {
                 modelValid.setValue(false);
@@ -77,7 +76,23 @@ public class FieldBindingGroup extends BindingGroup {
                 presentationValid.setValue(false);
             }
         }
+        if (binding instanceof TwoWayFieldBinding) {
+            var twoWayFieldBinding = (TwoWayFieldBinding<?, ?>) binding;
+            twoWayFieldBinding.withBindingResultHandler(this::handleBindingResult);
+            twoWayFieldBinding.getModel().isDirty().addWeakValueChangeListener(dirtyListener);
+            if (twoWayFieldBinding.getModel().isDirty().getValue()) {
+                dirty.setValue(true);
+            }
+        }
         return (FieldBindingGroup) super.withBinding(binding);
+    }
+
+    @Override
+    protected void dispose(@Nonnull Registration binding) {
+        super.dispose(binding);
+        if (binding instanceof TwoWayFieldBinding) {
+            ((TwoWayFieldBinding<?, ?>) binding).withBindingResultHandler(null);
+        }
     }
 
     /**
@@ -156,73 +171,44 @@ public class FieldBindingGroup extends BindingGroup {
 
     /**
      * Specifies a result handler that is used to collectively handle all
-     * {@link TwoWayFieldBinding#withConverterResultHandler(SerializableConsumer) converter results} coming from the
-     * bindings.
+     * {@link TwoWayFieldBinding#withBindingResultHandler(TwoWayFieldBinding.BindingResultHandler) binding results} coming from the
+     * bindings. By default, a {@link DefaultBindingResultHandler} is used. It can be disabled by passing in
+     * {@code null}.
      *
-     * @param converterResultHandler the result handler or {@code null} to use none.
+     * @param bindingResultHandler the result handler or {@code null} to use none.
      * @return this field binding group, to allow for method chaining.
      */
     @Nonnull
-    public FieldBindingGroup withConverterResultHandler(ConverterResultHandler converterResultHandler) {
-        this.converterResultHandler = converterResultHandler;
+    public FieldBindingGroup withBindingResultHandler(@Nullable BindingResultHandler bindingResultHandler) {
+        this.bindingResultHandler = bindingResultHandler;
         return this;
     }
 
-    /**
-     * Specifies a result handler that is used to collectively handle all
-     * {@link TwoWayFieldBinding#withValidationResultHandler(SerializableConsumer) validation results} coming from the
-     * bindings.
-     *
-     * @param validationResultHandler the result handler or {@code null} to use none.
-     * @return this field binding group, to allow for method chaining.
-     */
-    @Nonnull
-    public FieldBindingGroup withValidationResultHandler(ValidationResultHandler validationResultHandler) {
-        this.validationResultHandler = validationResultHandler;
-        return this;
-    }
-
-    private void handleConverterResult(@Nonnull TwoWayFieldBinding<?, ?> binding, Result<?> result) {
-        if (converterResultHandler != null) {
-            converterResultHandler.handleConverterResult(binding, result);
-        }
-    }
-
-    private void handleValidationResult(@Nonnull TwoWayFieldBinding<?, ?> binding,
-                                        @Nonnull Collection<ValidationResult> results) {
-        if (validationResultHandler != null) {
-            validationResultHandler.handleValidationResult(binding, results);
+    private <MODEL, PRESENTATION> void handleBindingResult(@Nonnull PropertyFieldBinding<MODEL, PRESENTATION> binding,
+                                                           @Nonnull Result<MODEL> conversionResult,
+                                                           @Nonnull Collection<ValidationResult> validationResults) {
+        if (bindingResultHandler != null) {
+            bindingResultHandler.handleBindingResult(binding, conversionResult, validationResults);
         }
     }
 
     /**
-     * Functional interface for {@link FieldBindingGroup#withConverterResultHandler(ConverterResultHandler) converter result handlers}.
+     * Functional interface for collectively handling the validation results of all bindings in a
+     * {@link FieldBindingGroup}. This interface is almost identical to {@link TwoWayFieldBinding.BindingResultHandler}
+     * with the exception of the generics.
      */
     @FunctionalInterface
-    public interface ConverterResultHandler extends Serializable {
+    interface BindingResultHandler extends Serializable {
 
         /**
-         * Handles the specified converter result.
+         * Called whenever a value conversion or a value validation has taken place inside a binding.
          *
-         * @param binding the binding that invoked the converter, never {@code null}.
-         * @param result  the result of the {@link com.vaadin.flow.data.converter.Converter converter}.
+         * @param binding           the binding that invoked the handler, never {@code null}.
+         * @param conversionResult  the conversion result when converting from presentation to model, never {@code null}.
+         * @param validationResults the validation results, if any, when validating the converted model value, never {@code null}.
          */
-        void handleConverterResult(@Nonnull TwoWayFieldBinding<?, ?> binding, Result<?> result);
-    }
-
-    /**
-     * Functional interface for {@link FieldBindingGroup#withValidationResultHandler(ValidationResultHandler) validation result handlers}.
-     */
-    @FunctionalInterface
-    public interface ValidationResultHandler extends Serializable {
-
-        /**
-         * Handles the specified validation result.
-         *
-         * @param binding the binding that invoked the validators, never {@code null}.
-         * @param results the results of the {@link com.vaadin.flow.data.binder.Validator validators}.
-         */
-        void handleValidationResult(@Nonnull TwoWayFieldBinding<?, ?> binding,
-                                    @Nonnull Collection<ValidationResult> results);
+        void handleBindingResult(@Nonnull PropertyFieldBinding<?, ?> binding,
+                                 @Nonnull Result<?> conversionResult,
+                                 @Nonnull Collection<ValidationResult> validationResults);
     }
 }

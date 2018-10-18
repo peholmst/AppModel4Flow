@@ -17,6 +17,7 @@
 package net.pkhapps.appmodel4flow.binding;
 
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.converter.Converter;
 import net.pkhapps.appmodel4flow.property.DefaultObservableValue;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,7 +37,7 @@ public class ObservableValueFieldBindingTest {
     public void setUp() {
         field = new TextField();
         model = new DefaultObservableValue<>();
-        binding = new ObservableValueFieldBinding<>(model, field, new ObservableValueFieldBinding.PassThroughConverter<>());
+        binding = new ObservableValueFieldBinding<>(model, field, Converter.identity());
     }
 
     @Test
@@ -54,7 +55,7 @@ public class ObservableValueFieldBindingTest {
     public void initialStateAfterCreationWhenModelContainsAnExistingValue() {
         model = new DefaultObservableValue<>("hello");
         field = new TextField();
-        binding = new ObservableValueFieldBinding<>(model, field, new ObservableValueFieldBinding.PassThroughConverter<>());
+        binding = new ObservableValueFieldBinding<>(model, field, Converter.identity());
         assertThat(field.getValue()).isEqualTo("hello");
         assertThat(binding.isModelValid().getValue()).isTrue();
         assertThat(binding.isPresentationValid().getValue()).isTrue();

@@ -19,9 +19,9 @@ package net.pkhapps.appmodel4flow.binding.group;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.ValidationResult;
+import com.vaadin.flow.data.converter.Converter;
 import com.vaadin.flow.data.converter.StringToIntegerConverter;
 import com.vaadin.flow.data.validator.StringLengthValidator;
-import net.pkhapps.appmodel4flow.binding.ObservableValueFieldBinding;
 import net.pkhapps.appmodel4flow.binding.PropertyFieldBinding;
 import net.pkhapps.appmodel4flow.property.DefaultProperty;
 import org.junit.Before;
@@ -55,10 +55,10 @@ public class FieldBindingGroupTest {
         booleanProperty = new DefaultProperty<>(false);
 
         group = new FieldBindingGroup();
-        group.withBinding(new PropertyFieldBinding<>(stringProperty, stringField, new ObservableValueFieldBinding.PassThroughConverter<>())
+        group.withBinding(new PropertyFieldBinding<>(stringProperty, stringField, Converter.identity())
                 .withValidator(new StringLengthValidator("lengthError", 3, 10)));
         group.withBinding(new PropertyFieldBinding<>(integerProperty, integerField, new StringToIntegerConverter("intConversionError")));
-        group.withBinding(new PropertyFieldBinding<>(booleanProperty, booleanField, new ObservableValueFieldBinding.PassThroughConverter<>()));
+        group.withBinding(new PropertyFieldBinding<>(booleanProperty, booleanField, Converter.identity()));
     }
 
     @Test
@@ -91,9 +91,9 @@ public class FieldBindingGroupTest {
     @Test
     public void converterResultHandler_error() {
         var handlerInvoked = new AtomicBoolean(false);
-        group.withConverterResultHandler((binding, result) -> {
+        group.withBindingResultHandler((binding, conversionResult, validationResults) -> {
             assertThat(binding.getModel()).isSameAs(integerProperty);
-            assertThat(result.isError()).isTrue();
+            assertThat(conversionResult.isError()).isTrue();
             handlerInvoked.set(true);
         });
         integerField.setValue("this is not a number");
@@ -103,9 +103,9 @@ public class FieldBindingGroupTest {
     @Test
     public void converterResultHandler_success() {
         var handlerInvoked = new AtomicBoolean(false);
-        group.withConverterResultHandler((binding, result) -> {
+        group.withBindingResultHandler((binding, conversionResult, validationResults) -> {
             assertThat(binding.getModel()).isSameAs(integerProperty);
-            assertThat(result.isError()).isFalse();
+            assertThat(conversionResult.isError()).isFalse();
             handlerInvoked.set(true);
         });
         integerField.setValue("123");
@@ -115,9 +115,9 @@ public class FieldBindingGroupTest {
     @Test
     public void validationResultHandler_error() {
         var handlerInvoked = new AtomicBoolean(false);
-        group.withValidationResultHandler((binding, results) -> {
+        group.withBindingResultHandler((binding, conversionResult, validationResults) -> {
             assertThat(binding.getModel()).isSameAs(stringProperty);
-            assertThat(results).anyMatch(ValidationResult::isError);
+            assertThat(validationResults).anyMatch(ValidationResult::isError);
             handlerInvoked.set(true);
         });
         stringField.setValue("ts");
@@ -127,9 +127,9 @@ public class FieldBindingGroupTest {
     @Test
     public void validationResultHandler_success() {
         var handlerInvoked = new AtomicBoolean(false);
-        group.withValidationResultHandler((binding, results) -> {
+        group.withBindingResultHandler((binding, conversionResult, validationResults) -> {
             assertThat(binding.getModel()).isSameAs(stringProperty);
-            assertThat(results).noneMatch(ValidationResult::isError);
+            assertThat(validationResults).noneMatch(ValidationResult::isError);
             handlerInvoked.set(true);
         });
         stringField.setValue("proper");

@@ -21,7 +21,6 @@ import com.vaadin.flow.data.binder.Result;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.binder.Validator;
 import com.vaadin.flow.data.converter.Converter;
-import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.function.SerializableSupplier;
 import com.vaadin.flow.shared.Registration;
 import net.pkhapps.appmodel4flow.property.Property;
@@ -29,10 +28,7 @@ import net.pkhapps.appmodel4flow.property.Property;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -51,11 +47,12 @@ public class PropertyFieldBinding<MODEL, PRESENTATION> extends ObservableValueFi
 
     private final Registration propertyReadOnlyRegistration;
     private final Registration fieldValueRegistration;
-    private SerializableConsumer<Result<MODEL>> converterResultHandler;
-    private SerializableConsumer<Collection<ValidationResult>> validationResultHandler;
+    private BindingResultHandler<MODEL, PRESENTATION> bindingResultHandler;
     private boolean writeInvalidModelValuesEnabled = true;
     private final List<Validator<MODEL>> validators = new ArrayList<>();
     private SerializableSupplier<String> requiredErrorMessageSupplier;
+    private Result<MODEL> conversionResult;
+    private Collection<ValidationResult> validationResults;
 
     /**
      * Creates a new {@code PropertyFieldBinding}.
@@ -68,6 +65,8 @@ public class PropertyFieldBinding<MODEL, PRESENTATION> extends ObservableValueFi
                                 @Nonnull HasValue<? extends HasValue.ValueChangeEvent<PRESENTATION>, PRESENTATION> field,
                                 @Nonnull Converter<PRESENTATION, MODEL> converter) {
         super(model, field, converter);
+        conversionResult = Result.ok(model.getValue());
+        validationResults = Collections.emptyList();
         propertyReadOnlyRegistration = model.isReadOnly().addValueChangeListener(event -> updateFieldReadOnlyState());
         fieldValueRegistration = field.addValueChangeListener(event -> updatePropertyValue());
         updateFieldReadOnlyState();
@@ -85,28 +84,33 @@ public class PropertyFieldBinding<MODEL, PRESENTATION> extends ObservableValueFi
 
     private void updatePropertyValue() {
         var result = getConverter().convertToModel(getField().getValue(), createValueContext());
-        setPresentationValid(!result.isError());
+        setConversionResult(result);
         result.ifOk(this::writePropertyValue);
-        handleConverterResult(result);
+        notifyBindingResultHandler();
     }
 
-    private void handleConverterResult(@Nonnull Result<MODEL> result) {
-        if (converterResultHandler != null) {
-            converterResultHandler.accept(result);
-        }
+    private void setConversionResult(@Nonnull Result<MODEL> conversionResult) {
+        this.conversionResult = conversionResult;
+        setPresentationValid(!conversionResult.isError());
+    }
+
+    private void setValidationResults(@Nonnull Collection<ValidationResult> validationResults) {
+        this.validationResults = Set.copyOf(validationResults);
+        var hasErrors = validationResults.stream().anyMatch(ValidationResult::isError);
+        setModelValid(!hasErrors);
     }
 
     private void writePropertyValue(@Nullable MODEL value) {
-        validate(value);
+        validate(value, true);
         if (!isModelValid().getValue() && !writeInvalidModelValuesEnabled) {
             return;
         }
         getModel().setValue(value);
     }
 
-    private void handleValidationResults(@Nonnull Collection<ValidationResult> results) {
-        if (validationResultHandler != null) {
-            validationResultHandler.accept(results);
+    private void notifyBindingResultHandler() {
+        if (bindingResultHandler != null) {
+            bindingResultHandler.handleBindingResult(this, conversionResult, validationResults);
         }
     }
 
@@ -120,15 +124,9 @@ public class PropertyFieldBinding<MODEL, PRESENTATION> extends ObservableValueFi
 
     @Nonnull
     @Override
-    public TwoWayFieldBinding<MODEL, PRESENTATION> withConverterResultHandler(@Nullable SerializableConsumer<Result<MODEL>> converterResultHandler) {
-        this.converterResultHandler = converterResultHandler;
-        return this;
-    }
-
-    @Nonnull
-    @Override
-    public TwoWayFieldBinding<MODEL, PRESENTATION> withValidationResultHandler(@Nullable SerializableConsumer<Collection<ValidationResult>> validationResultHandler) {
-        this.validationResultHandler = validationResultHandler;
+    public TwoWayFieldBinding<MODEL, PRESENTATION> withBindingResultHandler(
+            @Nullable BindingResultHandler<MODEL, PRESENTATION> bindingResultHandler) {
+        this.bindingResultHandler = bindingResultHandler;
         return this;
     }
 
@@ -164,16 +162,22 @@ public class PropertyFieldBinding<MODEL, PRESENTATION> extends ObservableValueFi
 
     @Override
     public void validateModel() {
-        validate(getModel().getValue());
+        validate(getModel().getValue(), false);
     }
 
-    private void validate(@Nullable MODEL value) {
+    @Override
+    public void validateModelAndHandleResults() {
+        validate(getModel().getValue(), true);
+    }
+
+    private void validate(@Nullable MODEL value, boolean notifyBindingResultHandler) {
         if (validators.size() > 0) {
             var valueContext = createValueContext();
             var validationResults = validators.stream().map(validator -> validator.apply(value, valueContext)).collect(Collectors.toSet());
-            var hasErrors = validationResults.stream().anyMatch(ValidationResult::isError);
-            setModelValid(!hasErrors);
-            handleValidationResults(validationResults);
+            setValidationResults(validationResults);
+            if (notifyBindingResultHandler) {
+                notifyBindingResultHandler();
+            }
         } else {
             setModelValid(true);
         }

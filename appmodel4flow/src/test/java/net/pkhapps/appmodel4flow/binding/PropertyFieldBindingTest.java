@@ -25,8 +25,8 @@ import net.pkhapps.appmodel4flow.property.DefaultProperty;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.annotation.Nonnull;
 import java.util.Collection;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -91,18 +91,18 @@ public class PropertyFieldBindingTest {
 
     @Test
     public void setFieldValue_valueIsValid_handlerIsInvoked() {
-        var resultHandler = new AtomicReference<Result<Integer>>();
-        binding.withConverterResultHandler(resultHandler::set);
+        var resultHandler = new ResultHandlerMock<Integer, String>();
+        binding.withBindingResultHandler(resultHandler);
         field.setValue("123");
-        assertThat(resultHandler.get().isError()).isFalse();
+        assertThat(resultHandler.conversionResult.isError()).isFalse();
     }
 
     @Test
     public void setFieldValue_valueIsInvalid_handlerIsInvoked() {
-        var resultHandler = new AtomicReference<Result<Integer>>();
-        binding.withConverterResultHandler(resultHandler::set);
+        var resultHandler = new ResultHandlerMock<Integer, String>();
+        binding.withBindingResultHandler(resultHandler);
         field.setValue("this is not a number");
-        assertThat(resultHandler.get().isError()).isTrue();
+        assertThat(resultHandler.conversionResult.isError()).isTrue();
     }
 
     @Test
@@ -122,11 +122,11 @@ public class PropertyFieldBindingTest {
 
     @Test
     public void setFieldValue_validatorPresentAndPasses_handlerIsInvoked() {
-        var resultHandler = new AtomicReference<Collection<ValidationResult>>();
-        binding.withValidationResultHandler(resultHandler::set);
+        var resultHandler = new ResultHandlerMock<Integer, String>();
+        binding.withBindingResultHandler(resultHandler);
         binding.withValidator(new IntegerRangeValidator("intError", 0, 100));
         field.setValue("50");
-        assertThat(resultHandler.get()).noneMatch(ValidationResult::isError);
+        assertThat(resultHandler.validationResults).noneMatch(ValidationResult::isError);
     }
 
     @Test
@@ -139,11 +139,11 @@ public class PropertyFieldBindingTest {
 
     @Test
     public void setFieldValue_validatorPresentAndBlocks_handlerIsInvoked() {
-        var resultHandler = new AtomicReference<Collection<ValidationResult>>();
-        binding.withValidationResultHandler(resultHandler::set);
+        var resultHandler = new ResultHandlerMock<Integer, String>();
+        binding.withBindingResultHandler(resultHandler);
         binding.withValidator(new IntegerRangeValidator("intError", 0, 100));
         field.setValue("110");
-        assertThat(resultHandler.get()).allMatch(ValidationResult::isError);
+        assertThat(resultHandler.validationResults).allMatch(ValidationResult::isError);
     }
 
     @Test
@@ -157,22 +157,22 @@ public class PropertyFieldBindingTest {
 
     @Test
     public void asRequired_initialState_noErrorsReportedBeforeUserHasTouchedTheField() {
-        var resultHandler = new AtomicReference<Collection<ValidationResult>>();
-        binding.withValidationResultHandler(resultHandler::set);
+        var resultHandler = new ResultHandlerMock<Integer, String>();
+        binding.withBindingResultHandler(resultHandler);
         binding.asRequired("reqError");
 
         assertThat(model.isEmpty()).isTrue();
         assertThat(field.isRequiredIndicatorVisible()).isTrue();
         assertThat(field.isEmpty()).isTrue();
-        assertThat(resultHandler.get()).isNull();
+        assertThat(resultHandler.invocationCount).isZero();
         assertThat(binding.isModelValid().getValue()).isTrue();
         assertThat(binding.isPresentationValid().getValue()).isTrue();
     }
 
     @Test
     public void asRequired_userHasLeftTheFieldEmpty_validationErrorIsReported() {
-        var resultHandler = new AtomicReference<Collection<ValidationResult>>();
-        binding.withValidationResultHandler(resultHandler::set);
+        var resultHandler = new ResultHandlerMock<Integer, String>();
+        binding.withBindingResultHandler(resultHandler);
         binding.asRequired("reqError");
 
         field.setValue("110");
@@ -183,14 +183,14 @@ public class PropertyFieldBindingTest {
 
         assertThat(model.isEmpty()).isTrue();
         assertThat(binding.isModelValid().getValue()).isFalse();
-        assertThat(resultHandler.get()).isNotEmpty();
-        assertThat(resultHandler.get()).anyMatch(r -> r.isError() && r.getErrorMessage().equals("reqError"));
+        assertThat(resultHandler.validationResults).isNotEmpty();
+        assertThat(resultHandler.validationResults).anyMatch(r -> r.isError() && r.getErrorMessage().equals("reqError"));
     }
 
     @Test
     public void asRequired_userCorrectedEmptyValue_validationErrorIsRemoved() {
-        var resultHandler = new AtomicReference<Collection<ValidationResult>>();
-        binding.withValidationResultHandler(resultHandler::set);
+        var resultHandler = new ResultHandlerMock<Integer, String>();
+        binding.withBindingResultHandler(resultHandler);
         binding.asRequired("reqError");
         field.setValue("110");
         field.setValue("");
@@ -198,21 +198,66 @@ public class PropertyFieldBindingTest {
 
         assertThat(model.isEmpty()).isFalse();
         assertThat(binding.isModelValid().getValue()).isTrue();
-        assertThat(resultHandler.get()).isNotEmpty();
-        assertThat(resultHandler.get()).noneMatch(ValidationResult::isError);
+        assertThat(resultHandler.validationResults).isNotEmpty();
+        assertThat(resultHandler.validationResults).noneMatch(ValidationResult::isError);
     }
 
     @Test
-    public void validateModel_requiredValueThatHasNotBeenChangedYet_validationErrorIsReported() {
-        var resultHandler = new AtomicReference<Collection<ValidationResult>>();
-        binding.withValidationResultHandler(resultHandler::set);
+    public void validateModel_requiredValueThatHasNotBeenChangedYet_flagIsUpdatedButErrorIsNotReported() {
+        var resultHandler = new ResultHandlerMock<Integer, String>();
+        binding.withBindingResultHandler(resultHandler);
         binding.asRequired("reqError");
 
         binding.validateModel();
 
         assertThat(model.isEmpty()).isTrue();
         assertThat(binding.isModelValid().getValue()).isFalse();
-        assertThat(resultHandler.get()).isNotEmpty();
-        assertThat(resultHandler.get()).anyMatch(r -> r.isError() && r.getErrorMessage().equals("reqError"));
+        assertThat(resultHandler.conversionResult).isNull();
+    }
+
+    @Test
+    public void validateModelAndHandleResults_requiredValueThatHasNotBeenChangedYet_validationErrorIsReported() {
+        var resultHandler = new ResultHandlerMock<Integer, String>();
+        binding.withBindingResultHandler(resultHandler);
+        binding.asRequired("reqError");
+
+        binding.validateModelAndHandleResults();
+
+        assertThat(model.isEmpty()).isTrue();
+        assertThat(binding.isModelValid().getValue()).isFalse();
+        assertThat(resultHandler.validationResults).isNotEmpty();
+        assertThat(resultHandler.validationResults).anyMatch(r -> r.isError() && r.getErrorMessage().equals("reqError"));
+    }
+
+    @Test
+    public void remove_changesToFieldAreNoLongerPropagatedToModel() {
+        binding.remove();
+        field.setValue("110");
+        assertThat(model.isEmpty()).isTrue();
+    }
+
+    @Test
+    public void remove_changesToModelAreNoLongerPropagatedToField() {
+        binding.remove();
+        model.setValue(123);
+        assertThat(field.getValue()).isEmpty();
+    }
+
+    static class ResultHandlerMock<MODEL, PRESENTATION> implements TwoWayFieldBinding.BindingResultHandler<MODEL, PRESENTATION> {
+
+        int invocationCount = 0;
+        PropertyFieldBinding<MODEL, PRESENTATION> binding;
+        Result<MODEL> conversionResult;
+        Collection<ValidationResult> validationResults;
+
+        @Override
+        public void handleBindingResult(@Nonnull PropertyFieldBinding<MODEL, PRESENTATION> binding,
+                                        @Nonnull Result<MODEL> conversionResult,
+                                        @Nonnull Collection<ValidationResult> validationResults) {
+            invocationCount++;
+            this.binding = binding;
+            this.conversionResult = conversionResult;
+            this.validationResults = validationResults;
+        }
     }
 }

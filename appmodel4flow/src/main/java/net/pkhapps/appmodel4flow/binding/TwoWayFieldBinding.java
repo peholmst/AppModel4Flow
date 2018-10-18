@@ -19,12 +19,12 @@ package net.pkhapps.appmodel4flow.binding;
 import com.vaadin.flow.data.binder.Result;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.binder.Validator;
-import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.function.SerializableSupplier;
 import net.pkhapps.appmodel4flow.property.Property;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -43,21 +43,9 @@ public interface TwoWayFieldBinding<MODEL, PRESENTATION> extends FieldBinding<MO
     Property<MODEL> getModel();
 
     /**
-     * Configures the binding to invoke the given handler whenever a conversion from field to model is performed.
-     * The result handler can be used to e.g. show error messages or clear them. The {@link #isPresentationValid()} flag
-     * will be updated regardless of the presence of a handler.
-     *
-     * @param converterResultHandler the result handler or {@code null} (the default) if none is needed.
-     * @return this binding, to allow for method chaining.
-     * @see com.vaadin.flow.data.converter.Converter
-     */
-    @Nonnull
-    TwoWayFieldBinding<MODEL, PRESENTATION> withConverterResultHandler(
-            @Nullable SerializableConsumer<Result<MODEL>> converterResultHandler);
-
-    /**
      * Configures the binding to validate the model value using the given validator. It is possible to specify
-     * multiple validators by calling this method multiple times.
+     * multiple validators by calling this method multiple times. If you want to invoke the validator manually before
+     * the user has changed the field, call {@link #validateModel()} or {@link #validateModelAndHandleResults()}.
      *
      * @param validator the validator to use, never {@code null}.
      * @return this binding, to allow for method chaining.
@@ -66,17 +54,17 @@ public interface TwoWayFieldBinding<MODEL, PRESENTATION> extends FieldBinding<MO
     TwoWayFieldBinding<MODEL, PRESENTATION> withValidator(@Nonnull Validator<MODEL> validator);
 
     /**
-     * Configures the binding to invoke the given handler whenever a validation of a model value is performed.
-     * The result handler can be used to e.g. show error messages or clear them. The {@link #isModelValid()} flag will
-     * be updated regardless of the presence of a handler.
+     * Specifies a {@link BindingResultHandler} that is used to handle validation and conversion errors. This makes
+     * it possible to give more detailed feedback to the user than simply relying on the {@link #isModelValid()}
+     * and {@link #isPresentationValid()} flags. These flags will still be updated accordingly even when there is no
+     * binding result handler.
      *
-     * @param validationResultHandler the result handler or {@code null} (the default) if none is needed.
+     * @param bindingResultHandler the binding result handler to use, or {@code null} to not use any handler.
      * @return this binding, to allow for method chaining.
-     * @see Validator
      */
     @Nonnull
-    TwoWayFieldBinding<MODEL, PRESENTATION> withValidationResultHandler(
-            @Nullable SerializableConsumer<Collection<ValidationResult>> validationResultHandler);
+    TwoWayFieldBinding<MODEL, PRESENTATION> withBindingResultHandler(
+            @Nullable BindingResultHandler<MODEL, PRESENTATION> bindingResultHandler);
 
     /**
      * By default, the binding will write model values to the underlying model even if they don't pass
@@ -89,7 +77,9 @@ public interface TwoWayFieldBinding<MODEL, PRESENTATION> extends FieldBinding<MO
     TwoWayFieldBinding<MODEL, PRESENTATION> withWriteInvalidModelValuesDisabled();
 
     /**
-     * Marks the field as required using the specified error message supplier.
+     * Marks the field as required using the specified error message supplier. If you want to invoke the required value
+     * check manually before the user has changed the field, call {@link #validateModel()} or
+     * {@link #validateModelAndHandleResults()}.
      *
      * @param errorMessageSupplier the supplier to use for getting the error message to report if the field is empty,
      *                             never {@code null}.
@@ -99,7 +89,9 @@ public interface TwoWayFieldBinding<MODEL, PRESENTATION> extends FieldBinding<MO
     TwoWayFieldBinding<MODEL, PRESENTATION> asRequired(@Nonnull SerializableSupplier<String> errorMessageSupplier);
 
     /**
-     * Marks the field as required using the specified error message.
+     * Marks the field as required using the specified error message. If you want to invoke the required value
+     * check manually before the user has changed the field, call {@link #validateModel()} or
+     * {@link #validateModelAndHandleResults()}.
      *
      * @param errorMessage the error message to report if the field is empty, never {@code null}.
      * @return this binding, to allow for method chaining.
@@ -109,7 +101,6 @@ public interface TwoWayFieldBinding<MODEL, PRESENTATION> extends FieldBinding<MO
         Objects.requireNonNull(errorMessage, "errorMessage must not be null");
         return asRequired(() -> errorMessage);
     }
-
 
     /**
      * Marks the field as required using a default error message.
@@ -123,7 +114,27 @@ public interface TwoWayFieldBinding<MODEL, PRESENTATION> extends FieldBinding<MO
     }
 
     /**
-     * Forces the binding to invoke any validators on the current model value, updating {@link #isModelValid()}.
+     * Does the same as {@link #validateModel()} but reports the results to the
+     * {@link #withBindingResultHandler(BindingResultHandler) binding result handler}.
      */
-    void validateModel();
+    void validateModelAndHandleResults();
+
+    /**
+     * Functional interface for the {@link #withBindingResultHandler(BindingResultHandler) binding result handler}
+     * that can be used to update the user interface in case of conversion or validation errors.
+     */
+    @FunctionalInterface
+    interface BindingResultHandler<MODEL, PRESENTATION> extends Serializable {
+
+        /**
+         * Called whenever a value conversion or a value validation has taken place inside a binding.
+         *
+         * @param binding           the binding that invoked the handler, never {@code null}.
+         * @param conversionResult  the conversion result when converting from presentation to model, never {@code null}.
+         * @param validationResults the validation results, if any, when validating the converted model value, never {@code null}.
+         */
+        void handleBindingResult(@Nonnull PropertyFieldBinding<MODEL, PRESENTATION> binding,
+                                 @Nonnull Result<MODEL> conversionResult,
+                                 @Nonnull Collection<ValidationResult> validationResults);
+    }
 }

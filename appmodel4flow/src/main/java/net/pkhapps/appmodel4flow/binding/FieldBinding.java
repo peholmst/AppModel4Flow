@@ -67,9 +67,16 @@ public interface FieldBinding<MODEL, PRESENTATION> extends Serializable, Registr
      *
      * @return true if the model is valid, false if it is not.
      * @see #isPresentationValid()
+     * @see #validateModel()
      */
     @Nonnull
     ObservableValue<Boolean> isModelValid();
+
+    /**
+     * Invokes an implementation specific validation mechanism on the current model value, updating
+     * {@link #isModelValid()}.
+     */
+    void validateModel();
 
     /**
      * Breaks the binding, removing any listeners registered with the model and/or the UI field.
