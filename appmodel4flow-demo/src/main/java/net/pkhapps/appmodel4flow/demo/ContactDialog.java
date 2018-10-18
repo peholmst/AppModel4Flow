@@ -59,8 +59,6 @@ class ContactDialog extends Dialog {
 
         contactModel.read(contact);
 
-        // TODO Create default result handler implementations that are useable in most situations
-
         var commitAction = new FieldBindingGroupAction(binder, () -> contactModel.write(contact));
         var closeAction = AppModel.asAction(this::close);
         var saveAction = AppModel.compose(commitAction, contactController.saveContactAction(contact), closeAction);

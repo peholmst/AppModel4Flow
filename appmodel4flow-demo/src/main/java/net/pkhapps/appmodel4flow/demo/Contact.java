@@ -16,9 +16,14 @@
 
 package net.pkhapps.appmodel4flow.demo;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.io.Serializable;
 import java.util.UUID;
 
+@Getter
+@Setter
 public class Contact implements Serializable, Cloneable {
 
     private UUID uuid;
@@ -26,46 +31,14 @@ public class Contact implements Serializable, Cloneable {
     private String lastName;
     private String email;
 
-    public Contact() {
+    Contact() {
     }
 
-    public Contact(String firstName, String lastName, String email) {
+    Contact(String firstName, String lastName, String email) {
         this.uuid = UUID.randomUUID();
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public UUID getUuid() {
-        return uuid;
-    }
-
-    public void setUuid(UUID uuid) {
-        this.uuid = uuid;
     }
 
     @Override
