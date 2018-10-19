@@ -435,6 +435,10 @@ class AppModelFieldBindingExample {
 }
 ```
 
+### Component Bindings
+
+To do
+
 ### Binding Groups
 
 To do

@@ -2,7 +2,11 @@ AppModel4Flow
 =============
 
 AppModel4Flow is a library designed to make it easier to build complex user interfaces using server-side Java and the
-Vaadin platform. The primary idea is to separate the "model" from the "presentation" and use bindings to bind these two
+Vaadin platform. With complex user interfaces, I mean user interfaces where you have to be able to present and interact 
+with the same data through different views and in different ways, or where the the user interface changes depending
+on what options the user selects, or where the user interface is backed by a complex model and not just a simple POJO.
+
+The primary idea is to separate the "model" from the "presentation" and use bindings to bind these two
 together. The idea is not to hide the UI implementation from the model - AppModel4Flow is very much aware of Vaadin and 
 it would not be usable with any other UI framework.
 

@@ -16,6 +16,9 @@
 
 package net.pkhapps.appmodel4flow;
 
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.HasEnabled;
+import com.vaadin.flow.component.HasText;
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -256,5 +259,50 @@ public final class AppModel {
                                                        @Nonnull HasValue<? extends HasValue.ValueChangeEvent<P>, P> field,
                                                        @Nonnull Converter<P, M> converter) {
         return new PropertyFieldBinding<>(model, field, converter);
+    }
+
+    /**
+     * Binds the given model to the {@link Component#setVisible(boolean) visible} property of the given component
+     * using a one-way binding so that when the model changes, the component is shown or hidden.
+     *
+     * @param model       the model, never {@code null}.
+     * @param component   the component, never {@code null}.
+     * @param <COMPONENT> the type of the component.
+     * @return the binding, never {@code null}.
+     */
+    @Nonnull
+    public static <COMPONENT extends Component> Registration bindVisible(@Nonnull ObservableValue<Boolean> model,
+                                                                         @Nonnull COMPONENT component) {
+        return new ComponentBinding<>(model, component, Component::setVisible);
+    }
+
+    /**
+     * Binds the given model to the {@link HasEnabled#setEnabled(boolean) enabled} property of the given component
+     * using a one-way binding so that when the model changes, the component is enabled or disabled.
+     *
+     * @param model       the model, never {@code null}.
+     * @param component   the component, never {@code null}.
+     * @param <COMPONENT> the type of the component.
+     * @return the binding, never {@code null}.
+     */
+    @Nonnull
+    public static <COMPONENT extends Component & HasEnabled> Registration bindEnabled(@Nonnull ObservableValue<Boolean> model,
+                                                                                      @Nonnull COMPONENT component) {
+        return new ComponentBinding<>(model, component, HasEnabled::setEnabled);
+    }
+
+    /**
+     * Binds the given model to the {@link HasText#setText(String) text} property of the given component
+     * using a one-way binding so that when the model changes, the component's text is updated.
+     *
+     * @param model       the model, never {@code null}.
+     * @param component   the component, never {@code null}.
+     * @param <COMPONENT> the type of the component.
+     * @return the binding, never {@code null}.
+     */
+    @Nonnull
+    public static <COMPONENT extends Component & HasText> Registration bindText(@Nonnull ObservableValue<String> model,
+                                                                                @Nonnull COMPONENT component) {
+        return new ComponentBinding<>(model, component, HasText::setText);
     }
 }
