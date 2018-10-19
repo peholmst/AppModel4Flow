@@ -289,7 +289,7 @@ element does not change the state of the action.
 
 Currently there is only an action binding for 
 [Button](src/main/java/net/pkhapps/appmodel4flow/binding/ActionButtonBinding.java). I plan to make more bindings as
-more suitable UI elements are added to Vaadin Platform.
+more suitable UI elements are added to the Vaadin platform.
 
 The [AppModel](src/main/java/net/pkhapps/appmodel4flow/AppModel.java) class contains helper methods for easily creating
 action bindings. For example:
@@ -323,7 +323,7 @@ model and vice versa.
 Currently there are selection bindings for
 [Grid](src/main/java/net/pkhapps/appmodel4flow/binding/SelectionModelGridBinding.java) and
 [ComboBox](src/main/java/net/pkhapps/appmodel4flow/binding/SelectionModelComboBoxBinding.java). I plan to make more 
-bindings as more suitable UI elements are added to Vaadin Platform.
+bindings as more suitable UI elements are added to the Vaadin platform.
 
 The [AppModel](src/main/java/net/pkhapps/appmodel4flow/AppModel.java) class contains helper methods for easily creating
 selection bindings. For example:
