@@ -144,7 +144,11 @@ public abstract class AbstractObservableValue<T> implements ObservableValue<T> {
         }
 
         private void onSourceValueChangeEvent(ValueChangeEvent<T> event) {
-            fireValueChangeEvent(mapValue(event.getOldValue()), mapValue(event.getValue()));
+            var oldValue = mapValue(event.getOldValue());
+            var newValue = mapValue(event.getValue());
+            if (!Objects.equals(oldValue, newValue)) {
+                fireValueChangeEvent(oldValue, newValue);
+            }
         }
 
         private E mapValue(T original) {
