@@ -246,6 +246,27 @@ to be seen. If you try it out, please let me know what you think!
 
 ## Selections
 
+A selection represents a set of items that the user has selected.
+* A selection can be empty, contain one item or contain multiple items.
+* The [Selection](src/main/java/net/pkhapps/appmodel4flow/selection/Selection.java) interface defines the selection and
+[DefaultSelection](src/main/java/net/pkhapps/appmodel4flow/selection/DefaultSelection.java) implements it.
+* A selection is `Iterable` which means you can use it in `for` loops. 
+* Selections are *immutable* and we will shortly return to why this is important.
+
+Selections are contained and managed by a 
+[SelectionModel](src/main/java/net/pkhapps/appmodel4flow/selection/SelectionModel.java). This model contains methods
+for retrieving and clearing the selection and for selecting one or multiple items. However, the selection model is also
+a `WritableObservableValue`. This means that all the features of observable values are automatically available in the
+selection model as well, including value mapping. This is demonstrated in the code example in the previous section
+(about actions and `AppModel`).
+ 
+This is the reason why `Selection`s must be immutable. You have to replace an immutable selection if you want to change
+it, which in turn will notify any listeners of the `SelectionModel`. If the selection was mutable, the model would not
+know about any changes made to it and would thus not be able to inform any listeners.
+
+The `SelectionModel` interface is implemented by 
+[DefaultSelectionModel](src/main/java/net/pkhapps/appmodel4flow/selection/DefaultSelectionModel.java).
+ 
 ## Bindings
 
 ## All together now
