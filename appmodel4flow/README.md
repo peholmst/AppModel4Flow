@@ -127,7 +127,9 @@ value.
 a combiner function that accepts a stream of values from the dependencies and produces the computed value. This is 
 useful when you want to combine values of the same type into one computed value. The 
 [Combiners](src/main/java/net/pkhapps/appmodel4flow/property/support/Combiners.java) class contains some combiner
-functions for use with boolean and string dependencies. Check it out if you want to know more.
+functions for use with boolean and string dependencies. Check it out if you want to know more. Also note that only
+non-empty values will be passed to the combiner function. If all dependencies are empty, the combiner function will
+receive an empty stream.
 
 Computed and combined values are always read only since it would not make any sense to explicitly set their values.
 

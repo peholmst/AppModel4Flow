@@ -29,7 +29,8 @@ import java.util.stream.Stream;
 /**
  * An {@link ObservableValue} that is computed dynamically by combining the values of a set of other
  * {@link ObservableValue}s of the same type. A special combiner function is invoked to compute the value every time
- * any of the other values change.
+ * any of the other values change. <em>Only {@link ObservableValue#hasValue() non-empty} values will be passed to the
+ * combiner function.</em>
  * <p>
  * The difference between this class and {@link ComputedValue} is that this class works with observable values of the
  * same type whereas the computed value works with observable values of different types.
@@ -82,7 +83,7 @@ public class CombinedValue<T> extends AbstractComputedValue<T> {
 
     @Override
     protected T computeValue() {
-        var values = dependencies.stream().map(ObservableValue::getValue);
+        var values = dependencies.stream().filter(ObservableValue::hasValue).map(ObservableValue::getValue);
         return combiner.apply(values);
     }
 }

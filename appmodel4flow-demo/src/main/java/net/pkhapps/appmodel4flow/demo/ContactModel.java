@@ -17,6 +17,7 @@
 package net.pkhapps.appmodel4flow.demo;
 
 import net.pkhapps.appmodel4flow.property.*;
+import net.pkhapps.appmodel4flow.property.support.Combiners;
 
 import javax.annotation.Nonnull;
 import java.io.Serializable;
@@ -28,8 +29,7 @@ class ContactModel implements Serializable {
     private final DefaultProperty<String> firstName = new DefaultProperty<String>().withEmptyCheck(String::isEmpty);
     private final DefaultProperty<String> lastName = new DefaultProperty<String>().withEmptyCheck(String::isEmpty);
     private final DefaultProperty<String> email = new DefaultProperty<String>().withEmptyCheck(String::isEmpty);
-    private final ComputedValue<String> fullName = new ComputedValue<>(
-            () -> String.format("%s %s", firstName.getValue(), lastName.getValue()),
+    private final CombinedValue<String> fullName = new CombinedValue<>(Combiners.joinStrings(" "),
             firstName, lastName);
 
     @Nonnull

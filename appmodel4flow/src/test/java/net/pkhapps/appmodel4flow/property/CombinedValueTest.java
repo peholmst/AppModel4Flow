@@ -34,7 +34,7 @@ public class CombinedValueTest {
         var value1 = new DefaultObservableValue<String>("Hello");
         var value2 = new DefaultObservableValue<String>();
         var combined = new CombinedValue<>(Combiners.joinStrings(","), value1, value2);
-        assertThat(combined.getValue()).isEqualTo("Hello,null");
+        assertThat(combined.getValue()).isEqualTo("Hello");
     }
 
     @Test
@@ -48,7 +48,7 @@ public class CombinedValueTest {
         value2.setValue("World");
 
         assertThat(combined.getValue()).isEqualTo("Hello,World");
-        assertThat(event.get().getOldValue()).isEqualTo("Hello,null");
+        assertThat(event.get().getOldValue()).isEqualTo("Hello");
         assertThat(event.get().getValue()).isEqualTo("Hello,World");
     }
 }
