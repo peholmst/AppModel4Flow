@@ -105,6 +105,42 @@
                     </ignoredUnusedDeclaredDependencies>
                 </configuration>
             </plugin>
+            <plugin>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <source>${java.version}</source>
+                    <encoding>UTF-8</encoding>
+                    <additionalOptions>
+                        <additionalOption>-html5</additionalOption>
+                        <!-- For some reason, the <links> maven option does not work so we have to do it like this instead -->
+                        <additionalOption>-link https://docs.oracle.com/javase/${java.version}/docs/api/
+                        </additionalOption>
+                        <additionalOption>-link https://vaadin.com/api/platform/${vaadin.version}/</additionalOption>
+                    </additionalOptions>
+                    <failOnWarnings>true</failOnWarnings>
+                    <bottom>
+                        <![CDATA[Copyright &#169; 2018 the original authors (see <a href="https://github.com/peholmst/AppModel4Flow/blob/master/pom.xml">project POM file</a>). Licensed under the <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0</a>.]]></bottom>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 </project>
