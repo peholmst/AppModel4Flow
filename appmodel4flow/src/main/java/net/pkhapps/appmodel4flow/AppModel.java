@@ -131,10 +131,10 @@ public final class AppModel {
 
 
     /**
-     * TODO document me
+     * Creates a new {@link Action} that is always performable and that will execute the given command when performed.
      *
-     * @param command
-     * @return
+     * @param command the command to execute when the action is performed, never {@code null}.
+     * @return the action, never {@code null}.
      */
     @Nonnull
     public static Action<Void> asAction(@Nonnull SerializableRunnable command) {
@@ -142,11 +142,11 @@ public final class AppModel {
     }
 
     /**
-     * TODO document me
+     * Creates a new {@link Action} that will execute the given command when performed.
      *
-     * @param isPerformable
-     * @param command
-     * @return
+     * @param isPerformable an observable value used to determine when the action is performable, never {@code null}.
+     * @param command       the command to execute when the action is performed, never {@code null}.
+     * @return the action, never {@code null}.
      */
     @Nonnull
     public static Action<Void> asAction(@Nonnull ObservableValue<Boolean> isPerformable,
@@ -155,11 +155,12 @@ public final class AppModel {
     }
 
     /**
-     * TODO document me
+     * Creates a new {@link Action} that is always performable and that will execute the given command when performed
+     * and return the result of the command.
      *
-     * @param command
-     * @param <T>
-     * @return
+     * @param command the command to execute when the action is performed, never {@code null}.
+     * @param <T>     the type of the result of the command.
+     * @return the action, never {@code null}.
      */
     @Nonnull
     public static <T> Action<T> asAction(@Nonnull SerializableSupplier<T> command) {
@@ -173,12 +174,13 @@ public final class AppModel {
     }
 
     /**
-     * TODO document me
+     * Creates a new {@link Action} that will execute the given command when performed and return the result of the
+     * command.
      *
-     * @param isPerformable
-     * @param command
-     * @param <T>
-     * @return
+     * @param isPerformable an observable value used to determine when the action is performable, never {@code null}.
+     * @param command       the command to execute when the action is performed, never {@code null}.
+     * @param <T>           the type of the result of the command.
+     * @return the action, never {@code null}.
      */
     @Nonnull
     public static <T> Action<T> asAction(@Nonnull ObservableValue<Boolean> isPerformable,
