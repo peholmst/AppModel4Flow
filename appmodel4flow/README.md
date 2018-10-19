@@ -198,6 +198,52 @@ In this case, both `null`s and empty strings will be considered empty.
 
 ## Actions
 
+An action is essentially an object-representation of a stateful function that can - but is not required to - return
+a result. Since the function is stateful, it knows whether it can be performed or not. This is very useful for e.g. 
+enabling or disabling UI elements such as buttons. It is also possible to register listeners that get notified whenever
+an action is performed.
+
+The action is defined in the [Action](src/main/java/net/pkhapps/appmodel4flow/action/Action.java) interface:
+- The type of the action output is defined as a generic parameter. For actions that do not return any result, use `Void`.
+- The *performable* flag is exposed as an `ObservableValue`.
+- Perform listeners can be registered using either strong or weak listeners.
+
+### Implementing Actions
+
+In most cases you don't want to implement the `Action` interface directly. Instead, you want to extend the 
+[AbstractAction](src/main/java/net/pkhapps/appmodel4flow/action/AbstractAction.java) class and implement the 
+`doPerform()` method. When it comes to controlling the *performable* flag, you have a few options. You can either 
+control the flag internally from inside the action or you can pass in an external `ObservableValue` and let the action
+delegate to that. Both approaches have their pros and cons:
+- Controlling the flag internally makes the action more self-contained and independent, but requires more coding.
+- Controlling the flag externally is especially useful if the action depends on the existence of e.g. a selection in the
+user interface, but can also make the action more fragile.
+
+For actions that don't return any results, you can use 
+[ActionWithoutResult](src/main/java/net/pkhapps/appmodel4flow/action/ActionWithoutResult.java). This is a concrete class
+that can be instantiated using a lambda or method pointer that will be executed when the action is performed. However,
+you can also extend and implement `doPerform()` if you want to.
+
+Finally, the [AppModel](src/main/java/net/pkhapps/appmodel4flow/AppModel.java) class contains helper methods for easily 
+creating actions using lambdas and/or method pointers. For example:
+```java
+class AppModelActionExample {
+    final SelectionModel<Contact> contactSelectionModel = AppModel.newSelectionModel();
+    final Action<Void> editSelectedContactAction = AppModel.asAction(
+                contactSelectionModel.map(Selection::hasValue), 
+                this::editSelectedContact);
+    
+    private void editSelectedContact(Contact contact) {
+        // Do something.
+    }
+}
+```
+Here, the `editSelectedContactAction` will be performable whenever the `contactSelectionModel` is non-empty and it will
+invoke the `editSelectedContact(..)` method when performed.
+
+The intention behind the `AppModel` class is to make the code more fluent but whether that's actually the case remains 
+to be seen. If you try it out, please let me know what you think!
+
 ## Selections
 
 ## Bindings
