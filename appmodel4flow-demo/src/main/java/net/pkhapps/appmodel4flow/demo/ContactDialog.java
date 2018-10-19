@@ -18,6 +18,7 @@ package net.pkhapps.appmodel4flow.demo;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -47,12 +48,19 @@ class ContactDialog extends Dialog {
         var email = new TextField("E-mail");
         binder.withBinding(AppModel.bind(contactModel.email(), email).asRequired("Please enter an e-mail address"));
 
+        var visibleWhenDirty = new Span("I'm only visible when the form is dirty");
+        binder.withBinding(AppModel.bindVisible(binder.isDirty(), visibleWhenDirty));
+
+        var validationStatus = new Span("");
+        binder.withBinding(AppModel.bindText(binder.isModelValid().map(valid -> "isModelValid: " + valid), validationStatus));
+
         Button save = new Button("Save");
         save.getElement().getThemeList().set("primary", true);
 
         Button cancel = new Button("Cancel");
 
-        VerticalLayout formLayout = new VerticalLayout(uuid, firstName, lastName, fullName, email, new HorizontalLayout(save, cancel));
+        VerticalLayout formLayout = new VerticalLayout(uuid, firstName, lastName, fullName, email, visibleWhenDirty,
+                validationStatus, new HorizontalLayout(save, cancel));
         formLayout.setPadding(false);
 
         add(formLayout);
