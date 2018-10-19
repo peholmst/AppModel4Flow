@@ -269,4 +269,172 @@ The `SelectionModel` interface is implemented by
  
 ## Bindings
 
-## All together now
+Observable values, properties, actions and selections are not really useful by themselves. They only become useful when
+they are bound to UI elements, allowing the user to interact with them. This is where bindings come in. 
+
+Before we move on to the details it is important to note that all bindings implement the Vaadin `Registration` 
+interface which defines a single `remove()` method. This method is used to break the binding and free any resources when
+the binding is no longer needed. Remember to call this method to avoid memory leaks, or make sure that the bindings and 
+the participating objects are in the same scope.
+
+### Action Bindings
+
+Action bindings are the simplest ones. An action binding does the following:
+- Whenever the action is performable, the bound UI element is enabled.
+- Whenever the action is not performable, the bound UI element is disabled.
+- Whenever the user invokes the UI element, the action is performed.
+
+I consider action bindings to be *one-way* bindings since the action changes the state of the UI element, but the UI
+element does not change the state of the action.
+
+Currently there is only an action binding for 
+[Button](src/main/java/net/pkhapps/appmodel4flow/binding/ActionButtonBinding.java). I plan to make more bindings as
+more suitable UI elements are added to Vaadin Platform.
+
+The [AppModel](src/main/java/net/pkhapps/appmodel4flow/AppModel.java) class contains helper methods for easily creating
+action bindings. For example:
+```java
+class AppModelActionBindingExample {
+    
+    private Button saveButton;
+    private Button cancelButton;
+
+    private Action<Void> saveAction;
+    private Action<Void> closeAction;
+    
+    public void init() {
+        // Create the actions and buttons
+        // ...
+        AppModel.bind(saveAction, saveButton);
+        AppModel.bind(closeAction, cancelButton);
+    }    
+}
+```
+
+### Selection Bindings
+
+Selection bindings are also quite simple. A selection binding does the following:
+- Whenever the selection is changed, the bound UI element is updated accordingly.
+- Whenever the user changes the selection in the bound UI element, the selection model is updated.
+
+As you can see, a selection binding is a *two-way* binding where the UI element can change the state of the selection
+model and vice versa.
+
+Currently there are selection bindings for
+[Grid](src/main/java/net/pkhapps/appmodel4flow/binding/SelectionModelGridBinding.java) and
+[ComboBox](src/main/java/net/pkhapps/appmodel4flow/binding/SelectionModelComboBoxBinding.java). I plan to make more 
+bindings as more suitable UI elements are added to Vaadin Platform.
+
+The [AppModel](src/main/java/net/pkhapps/appmodel4flow/AppModel.java) class contains helper methods for easily creating
+selection bindings. For example:
+```java
+class AppModelSelectionBindingExample {
+    
+    private Grid<Contact> contactGrid;
+    private ComboBox<Contact> contactComboBox;
+    private SelectionModel<Contact> contactSelectionModel;
+    
+    public void init() {
+        // Create the grid, combo box and selection model
+        // ...
+        AppModel.bind(contactSelectionModel, contactGrid);
+        AppModel.bind(contactSelectionModel, contactComboBox);
+    }    
+}
+```
+
+Please note that in this example, both the combo box and the grid are bound to the same model. This means that if you
+select an item in the combo box, the grid will update its selection and vice versa.
+
+### Field Bindings
+
+Field bindings are used to bind observable values and properties to UI fields. They are the most complex bindings since 
+they can be either one-way or two-way. Two-way bindings also include include conversion and validation. 
+To explain what this is, we need to introduce some new terminology:
+
+* A field binding's *model* is the `Property` or `ObservableValue`.
+* A field binding's *presentation* is the UI element - any component that implements the Vaadin `HasValue` interface.
+
+One-way bindings implement the [FieldBinding](src/main/java/net/pkhapps/appmodel4flow/binding/FieldBinding.java)
+interface and two-way bindings implement the 
+[TwoWayFieldBinding](src/main/java/net/pkhapps/appmodel4flow/binding/TwoWayFieldBinding.java) interface. The default
+implementations are 
+[ObservableValueFieldBinding](src/main/java/net/pkhapps/appmodel4flow/binding/ObservableValueFieldBinding.java) and
+[PropertyFieldBinding](src/main/java/net/pkhapps/appmodel4flow/binding/PropertyFieldBinding.java)
+
+A one-way binding will update the presentation whenever the model is changed but not the other way around. A
+two-way binding will also update the model whenever the presentation is changed. This makes things interesting.
+
+#### Conversion
+
+The first thing we need to notice is that the model and the presentation may have different types. Thus, a Vaadin 
+`Converter` is needed to convert between these two (when the types are the same, we use an *identity* converter).
+
+However, if the user input is incorrect, the conversion is not successful and at this point we end up with a situation
+in which the model and the presentation are not in sync. To be able to detect this, a field binding has a 
+*presentation valid* flag. When this flag is true, the presentation value has successfully been converted to a model
+value. When it is false, the UI field contains incorrect input that can't be converted.
+
+#### Validation
+
+The second thing we need to notice is that even though a presentation value can be successfully converted to a model 
+value, it may still be invalid in some context. Thus, we can add Vaadin `Validators` to validate the model value. If 
+the validators pass all is well, but what happens if there is an error? To be able to detect this, a field binding has
+a *model valid* flag. When this flag is true, the model value has passed validation. When it is false, at least one
+validator has rejected the value.
+
+By default, invalid model values will still be written to the model. You can change this by calling the 
+`withWriteInvalidModelValuesDisabled` method of the `TwoWayFieldBinding` interface. The method is named like this 
+because it is intended to be used in a fluent chained method call when the binding is first created.
+
+#### Required Fields
+
+Two-way field bindings can be marked as required, meaning the user has to provide a value. In practice, this is 
+implemented as a special validator that consults with the `WritableObservableValue` whether the provided value is to
+be considered empty or not. It is important to note that required value checks are performed on the model value, not
+on the presentation value. Remember this when dealing with string fields, since Vaadin text fields will not return
+nulls but empty strings when they are empty (you may now want to revisit the section about empty observable values).
+
+The error message to show when a required field is missing can be either a static string or a supplier function that
+returns the error message.
+
+#### Error Reporting
+
+From a UX point of view, the *presentation valid* and *model valid* flags are not enough ("There's something wrong with
+your input but I'm not going to tell you what it is!"). We need a way of giving better feedback to the user about what
+went wrong. For this, you can use a `BindingResultHandler`. This handler will be called whenever there is a value 
+conversion or validation. Both successful and failed conversions and validations will be reported so that you can
+either show or hide error messages to the user. You specify a binding result handler by calling the 
+`withBindingResultHandler` method of the `TwoWayFieldBinding` interface.
+
+#### Examples
+
+Now when we (hopefully) have a better idea of how field bindings work, let's have a look at some code examples. Again,
+these examples use the helper methods of the [AppModel](src/main/java/net/pkhapps/appmodel4flow/AppModel.java) class:
+```java
+class AppModelFieldBindingExample {
+    
+    private Property<String> firstName;
+    private Property<String> lastName;
+    private ObservableValue<String> fullName; // Combined value
+    private Property<Integer> age;
+    
+    public void init() { 
+        var firstNameField = new TextField("First name");
+        AppModel.bind(firstName, firstNameField).asRequired("Please enter a first name");
+        
+        var lastNameField = new TextField("Last name");
+        AppModel.bind(lastName, lastNameField).asRequired("Please enter a last name");
+        
+        var fullNameField = new TextField("Full name");
+        AppModel.bindOneWay(fullName, fullNameField);
+        
+        var ageField = new TextField("Age");
+        AppModel.bind(age, ageField, new StringToIntegerConverter("Please enter a valid age"));
+    }
+}
+```
+
+### Binding Groups
+
+To do
