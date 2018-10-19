@@ -24,11 +24,17 @@ import net.pkhapps.appmodel4flow.property.ObservableValue;
 import net.pkhapps.appmodel4flow.property.support.Combiners;
 
 import javax.annotation.Nonnull;
+import javax.annotation.concurrent.NotThreadSafe;
 import java.util.Objects;
 
 /**
- * TODO Document and test me!
+ * Base class for actions that are performable when a specific {@link FieldBindingGroup} is
+ * {@link FieldBindingGroup#isDirty() dirty}, {@link FieldBindingGroup#isPresentationValid() has a valid presentation}
+ * and a valid {@link FieldBindingGroup#isModelValid() model} (in other words, whenever the field binding group contains
+ * changes that are valid).
  */
+@NotThreadSafe
+@SuppressWarnings("WeakerAccess")
 public class FieldBindingGroupAction extends ActionWithoutResult {
 
     private static final long serialVersionUID = 1L;
@@ -36,16 +42,20 @@ public class FieldBindingGroupAction extends ActionWithoutResult {
     private final FieldBindingGroup fieldBindingGroup;
 
     /**
-     * @param fieldBindingGroup
+     * Creates a new {@code FieldBindingGroupAction} that requires the subclass to override {@link #doPerformWithoutResult()}.
+     *
+     * @param fieldBindingGroup the field binding group, never {@code null}.
      */
-    public FieldBindingGroupAction(@Nonnull FieldBindingGroup fieldBindingGroup) {
+    protected FieldBindingGroupAction(@Nonnull FieldBindingGroup fieldBindingGroup) {
         super(createIsPerformable(fieldBindingGroup));
         this.fieldBindingGroup = fieldBindingGroup;
     }
 
     /**
-     * @param fieldBindingGroup
-     * @param command
+     * Creates a new {@code FieldBindingGroupAction} that executes a command when performed.
+     *
+     * @param fieldBindingGroup the field binding group, never {@code null}.
+     * @param command           the command to invoke when the action is performed, never {@code null}.
      */
     public FieldBindingGroupAction(@Nonnull FieldBindingGroup fieldBindingGroup, @Nonnull SerializableRunnable command) {
         super(createIsPerformable(fieldBindingGroup), command);
@@ -59,7 +69,9 @@ public class FieldBindingGroupAction extends ActionWithoutResult {
     }
 
     /**
-     * @return
+     * Returns the field binding group whose state determines whether this action is performable or not.
+     *
+     * @return the field binding group, never {@code null}.
      */
     @Nonnull
     protected FieldBindingGroup getFieldBindingGroup() {

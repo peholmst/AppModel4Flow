@@ -50,7 +50,7 @@ public class ActionWithoutResult extends AbstractAction<Void> {
      * Default constructor that requires the subclass to override {@link #doPerformWithoutResult()}.
      */
     @SuppressWarnings("WeakerAccess")
-    public ActionWithoutResult() {
+    protected ActionWithoutResult() {
         this(DEFAULT_COMMAND);
     }
 
