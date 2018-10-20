@@ -27,15 +27,26 @@ in mind and my hobby projects are almost always about teaching me new stuff. The
 
 I have no plans to backport this library to any older versions of Java or Vaadin.
 
-## Building
+## Maven Coordinates
 
-Eventually (when I release 1.0) I will upload this library to Maven Central but for now, you have to clone and build 
-it yourself:
+Snapshots are uploaded to [Sonatype](https://oss.sonatype.org/content/repositories/snapshots) every now and then.
+Releases are uploaded to Maven Central. My projects tend to get stuck in version 0.x since I can never decide when
+something is good enough to be released. This time I'm going to boldly go where I have not gone before and just release
+early and often. Anyway, here are the Maven coordinates:
+
+```xml
+<dependency>
+    <groupId>net.pkhapps.appmodel4flow</groupId>
+    <artifactId>appmodel4flow</artifactId>
+    <version>1.0-SNAPSHOT</version>
+</dependency>
+```
+
+## Building
 
 * Clone this repository to your local computer.
 * Make sure you have JDK 10 installed and that Maven is using it (`JAVA_HOME` should point to the JDK 10 directory).
 * Invoke `mvn clean install`.
-* Import the library into your project using these Maven coordinates: `net.pkhapps.appmodel4flow:appmodel4flow:1.0-SNAPSHOT`
 
 ## Demo Application
 
