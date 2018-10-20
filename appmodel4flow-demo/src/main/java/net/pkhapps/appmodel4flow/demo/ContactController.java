@@ -32,17 +32,22 @@ class ContactController implements Serializable {
 
     private final SelectionModel<Contact> contactSelectionModel = AppModel.newSelectionModel();
     private final List<Contact> contacts = new ArrayList<>();
-    private final ListDataProvider<Contact> contactDataProvider = new ListDataProvider<>(contacts);
+    private final ListDataProvider<Contact> contactDataProvider = new ListDataProvider<>(contacts) {
+        @Override
+        public Object getId(Contact item) {
+            return item.getUuid();
+        }
+    };
     private final Action<Void> createContactAction = AppModel.asAction(this::createContact);
     private final Action<Void> editSelectedContactAction = AppModel.asAction(
             contactSelectionModel.map(Selection::hasValue), this::editSelectedContact);
 
     ContactController() {
-        contacts.add(new Contact("Joe", "Cool", "joecool@foo.bar"));
-        contacts.add(new Contact("Maxwell", "Smart", "agent86@control.gov"));
-        contacts.add(new Contact("Alice", "Anderson", "alice@crypto.foo"));
-        contacts.add(new Contact("Bob", "Brackenreid", "bob@crypto.foo"));
-        contacts.add(new Contact("Eve", "Enemy", "eve@drevil.com"));
+        contacts.add(new Contact("Joe", "Cool", "joecool@foo.bar", 25));
+        contacts.add(new Contact("Maxwell", "Smart", "agent86@control.gov", 59));
+        contacts.add(new Contact("Alice", "Anderson", "alice@crypto.foo", 43));
+        contacts.add(new Contact("Bob", "Brackenreid", "bob@crypto.foo", 32));
+        contacts.add(new Contact("Eve", "Enemy", "eve@drevil.com", 19));
         contactDataProvider.refreshAll();
     }
 

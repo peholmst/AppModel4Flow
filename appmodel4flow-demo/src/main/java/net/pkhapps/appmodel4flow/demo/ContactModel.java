@@ -25,12 +25,20 @@ import java.util.UUID;
 
 class ContactModel implements Serializable {
 
+    // The properties are declared as final using their concrete types. However, they are all exposed to the
+    // outside world through their interfaces.
+
     private final DefaultObservableValue<UUID> uuid = new DefaultObservableValue<>();
     private final DefaultProperty<String> firstName = new DefaultProperty<String>().withEmptyCheck(String::isEmpty);
     private final DefaultProperty<String> lastName = new DefaultProperty<String>().withEmptyCheck(String::isEmpty);
     private final DefaultProperty<String> email = new DefaultProperty<String>().withEmptyCheck(String::isEmpty);
+    private final DefaultProperty<Integer> age = new DefaultProperty<>();
     private final CombinedValue<String> fullName = new CombinedValue<>(Combiners.joinStrings(" "),
             firstName, lastName);
+
+    // I don't want to use the 'get' prefix for the accessor methods when they return properties and observable values.
+    // I think the code flows better without the prefixes. This is however only my own personal opinion. You can name
+    // your methods in any way you like.
 
     @Nonnull
     Property<String> firstName() {
@@ -48,6 +56,11 @@ class ContactModel implements Serializable {
     }
 
     @Nonnull
+    Property<Integer> age() {
+        return age;
+    }
+
+    @Nonnull
     ObservableValue<String> fullName() {
         return fullName;
     }
@@ -57,11 +70,16 @@ class ContactModel implements Serializable {
         return uuid;
     }
 
+    // These methods are used to migrate data between the model and the backend data structure. In this case,
+    // Contact is just a DTO but it could also be an entity or some other object. The main point here is that the
+    // model is a part of the UI. You should not use any properties or observable values in the backend.
+
     void read(@Nonnull Contact contact) {
         uuid.setValue(contact.getUuid());
         firstName.setCleanValue(contact.getFirstName());
         lastName.setCleanValue(contact.getLastName());
         email.setCleanValue(contact.getEmail());
+        age.setCleanValue(contact.getAge());
     }
 
     void write(@Nonnull Contact contact) {
@@ -69,5 +87,6 @@ class ContactModel implements Serializable {
         contact.setFirstName(firstName.getValue());
         contact.setLastName(lastName.getValue());
         contact.setEmail(email.getValue());
+        contact.setAge(age.getValue());
     }
 }

@@ -15,33 +15,6 @@
   ~ limitations under the License.
   -->
 
-<!DOCTYPE project [
-        <!ELEMENT project (parent|modelVersion|artifactId|name|packaging|properties|dependencies|build)*>
-        <!ATTLIST project
-                xmlns CDATA #REQUIRED
-                xmlns:xsi CDATA #REQUIRED
-                xsi:schemaLocation CDATA #REQUIRED>
-        <!ELEMENT parent (artifactId|groupId|version)*>
-        <!ELEMENT artifactId (#PCDATA)>
-        <!ELEMENT groupId (#PCDATA)>
-        <!ELEMENT version (#PCDATA)>
-        <!ELEMENT modelVersion (#PCDATA)>
-        <!ELEMENT name (#PCDATA)>
-        <!ELEMENT packaging (#PCDATA)>
-        <!ELEMENT properties (failOnMissingWebXml)*>
-        <!ELEMENT failOnMissingWebXml (#PCDATA)>
-        <!ELEMENT dependencies (dependency)*>
-        <!ELEMENT dependency (groupId|artifactId|version|scope)*>
-        <!ELEMENT scope (#PCDATA)>
-        <!ELEMENT build (plugins)*>
-        <!ELEMENT plugins (plugin)*>
-        <!ELEMENT plugin (groupId|artifactId|configuration)*>
-        <!ELEMENT configuration (ignoredUsedUndeclaredDependencies|ignoredUnusedDeclaredDependencies)*>
-        <!ELEMENT ignoredUsedUndeclaredDependencies (ignoredUnusedUndeclaredDependency)*>
-        <!ELEMENT ignoredUnusedUndeclaredDependency (#PCDATA)>
-        <!ELEMENT ignoredUnusedDeclaredDependencies (ignoredUnusedDeclaredDependency)*>
-        <!ELEMENT ignoredUnusedDeclaredDependency (#PCDATA)>
-        ]>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">

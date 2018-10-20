@@ -22,6 +22,8 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.converter.StringToIntegerConverter;
+import com.vaadin.flow.data.validator.IntegerRangeValidator;
 import net.pkhapps.appmodel4flow.AppModel;
 import net.pkhapps.appmodel4flow.binding.group.support.FieldBindingGroupAction;
 
@@ -48,6 +50,11 @@ class ContactDialog extends Dialog {
         var email = new TextField("E-mail");
         binder.withBinding(AppModel.bind(contactModel.email(), email).asRequired("Please enter an e-mail address"));
 
+        var age = new TextField("Age");
+        binder.withBinding(AppModel.bind(contactModel.age(), age, new StringToIntegerConverter("Please enter a valid number"))
+                .withValidator(new IntegerRangeValidator("Age must be between 0 and 120", 0, 120))
+                .asRequired("Please enter an age"));
+
         var visibleWhenDirty = new Span("I'm only visible when the form is dirty");
         binder.withBinding(AppModel.bindVisible(binder.isDirty(), visibleWhenDirty));
 
@@ -59,8 +66,8 @@ class ContactDialog extends Dialog {
 
         Button cancel = new Button("Cancel");
 
-        VerticalLayout formLayout = new VerticalLayout(uuid, firstName, lastName, fullName, email, visibleWhenDirty,
-                validationStatus, new HorizontalLayout(save, cancel));
+        VerticalLayout formLayout = new VerticalLayout(uuid, firstName, lastName, fullName, email, age,
+                visibleWhenDirty, validationStatus, new HorizontalLayout(save, cancel));
         formLayout.setPadding(false);
 
         add(formLayout);
@@ -70,7 +77,9 @@ class ContactDialog extends Dialog {
         var commitAction = new FieldBindingGroupAction(binder, () -> contactModel.write(contact));
         var closeAction = AppModel.asAction(this::close);
         var saveAction = AppModel.compose(commitAction, contactController.saveContactAction(contact), closeAction);
-        AppModel.bind(saveAction, save);
-        AppModel.bind(closeAction, cancel);
+        binder.withBinding(AppModel.bind(saveAction, save));
+        binder.withBinding(AppModel.bind(closeAction, cancel));
+
+        addDialogCloseActionListener(event -> binder.dispose());
     }
 }
