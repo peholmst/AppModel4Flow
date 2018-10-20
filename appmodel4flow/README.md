@@ -246,6 +246,13 @@ invoke the `editSelectedContact(..)` method when performed.
 The intention behind the `AppModel` class is to make the code more fluent but whether that's actually the case remains 
 to be seen. If you try it out, please let me know what you think!
 
+### Combining Actions
+
+You can also compose multiple actions into a single action using the
+[CompositeAction](src/main/java/net/pkhapps/appmodel4flow/action/support/CompositeAction.java) class. A combined action
+is performable whenever all the individual actions are performable and when the action is performed, all the individual
+actions will be performed sequentially.
+
 ## Selections
 
 A selection represents a set of items that the user has selected.
@@ -439,7 +446,28 @@ class AppModelFieldBindingExample {
 
 ### Component Bindings
 
-To do
+Component bindings are one-way bindings that are used to bind an observable value (the "model") to any property of a 
+Vaadin component (the "component"). When the binding is created, a function is provided that will take care of 
+transferring the value from the model to the component. This is very useful for e.g. showing or hiding a component when
+the value of a boolean model changes:
+
+```java
+class ComponentBindingExample {
+    
+    private ObservableValue<Boolean> model;
+    private TextField component;
+    
+    public void init() {
+        var myBinding = new ComponentBinding<>(model, component, Component::setVisible);
+    }
+}
+```   
+
+In this example, whenever the value of `model` changes to false, the text field will become hidden and when the value 
+changes back to true, the text field will be shown.
+
+The [AppModel](src/main/java/net/pkhapps/appmodel4flow/AppModel.java) class contains helper methods for binding the 
+`enabled`, `visible` and `text` properties of common Vaadin components.
 
 ### Binding Groups
 
