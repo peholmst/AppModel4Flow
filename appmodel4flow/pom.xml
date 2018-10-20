@@ -110,16 +110,16 @@
 
     <profiles>
         <profile>
-            <id>production</id>
+            <id>release</id>
             <build>
                 <plugins>
                     <plugin>
                         <artifactId>maven-source-plugin</artifactId>
                         <executions>
                             <execution>
-                                <phase>package</phase>
+                                <id>attach-sources</id>
                                 <goals>
-                                    <goal>jar</goal>
+                                    <goal>jar-no-fork</goal>
                                 </goals>
                             </execution>
                         </executions>
@@ -143,7 +143,7 @@
                         </configuration>
                         <executions>
                             <execution>
-                                <phase>package</phase>
+                                <id>attach-javadocs</id>
                                 <goals>
                                     <goal>jar</goal>
                                 </goals>
