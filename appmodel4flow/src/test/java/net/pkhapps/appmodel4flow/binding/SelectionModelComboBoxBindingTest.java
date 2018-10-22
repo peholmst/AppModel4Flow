@@ -16,9 +16,59 @@
 
 package net.pkhapps.appmodel4flow.binding;
 
+import com.vaadin.flow.component.combobox.ComboBox;
+import net.pkhapps.appmodel4flow.selection.DefaultSelectionModel;
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * Unit test for {@link SelectionModelComboBoxBinding}.
  */
 public class SelectionModelComboBoxBindingTest {
-    // TODO Implement me!
+
+    private ComboBox<String> field;
+    private DefaultSelectionModel<String> selectionModel;
+    private SelectionModelComboBoxBinding binding;
+
+    @Before
+    public void setUp() {
+        field = new ComboBox<>("Label", "item1", "item2", "item3");
+        selectionModel = new DefaultSelectionModel<>();
+        binding = new SelectionModelComboBoxBinding<>(selectionModel, field);
+    }
+
+    @Test
+    public void modelSelectionIsReflectedInField() {
+        selectionModel.selectOne("item1");
+        assertThat(field.getValue()).isEqualTo("item1");
+    }
+
+    @Test
+    public void fieldSelectionIsReflectedInModel() {
+        field.setValue("item2");
+        assertThat(selectionModel.getSelection().getFirst()).contains("item2");
+    }
+
+    @Test
+    public void fieldSelectionIsClearedWhenModelIsCleared() {
+        selectionModel.selectOne("item1");
+        selectionModel.clear();
+        assertThat(field.getValue()).isNull();
+    }
+
+    @Test
+    public void modelIsClearedWhenFieldSelectionIsCleared() {
+        field.setValue("item2");
+        field.clear();
+        assertThat(selectionModel.getSelection()).isEmpty();
+    }
+
+    @Test
+    public void breakBinding() {
+        binding.remove();
+        field.setValue("item1");
+        assertThat(selectionModel.getSelection()).isEmpty();
+    }
 }
