@@ -56,7 +56,7 @@ public class BindingGroup implements Serializable {
      * @return the bindings, never {@code null}.
      */
     @Nonnull
-    protected Stream<Registration> getBindings() {
+    public Stream<Registration> getBindings() {
         return bindings.stream();
     }
 

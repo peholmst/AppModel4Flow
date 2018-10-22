@@ -62,10 +62,10 @@ public class FieldBindingGroupAction extends ActionWithoutResult {
         this.fieldBindingGroup = fieldBindingGroup;
     }
 
-    private static ObservableValue<Boolean> createIsPerformable(FieldBindingGroup fieldBinder) {
-        Objects.requireNonNull(fieldBinder, "fieldBindingGroup must not be null");
+    private static ObservableValue<Boolean> createIsPerformable(FieldBindingGroup fieldBindingGroup) {
+        Objects.requireNonNull(fieldBindingGroup, "fieldBindingGroup must not be null");
         return new CombinedValue<>(Combiners.allTrue(),
-                fieldBinder.isDirty(), fieldBinder.isPresentationValid(), fieldBinder.isModelValid());
+                fieldBindingGroup.isDirty(), fieldBindingGroup.isPresentationValid(), fieldBindingGroup.isModelValid());
     }
 
     /**

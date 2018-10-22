@@ -471,4 +471,22 @@ The [AppModel](src/main/java/net/pkhapps/appmodel4flow/AppModel.java) class cont
 
 ### Binding Groups
 
-To do
+Especially when building forms, you want to handle some binding properties individually collectively. Binding groups
+allows you to do this.
+
+The [BindingGroup](src/main/java/net/pkhapps/appmodel4flow/binding/group/BindingGroup.java) class is just a collection
+of bindings that allow you to dispose of all of them (i.e. break the bindings) with a single call.
+
+The [FieldBindingGroup](src/main/java/net/pkhapps/appmodel4flow/binding/group/FieldBindingGroup.java) adds some more 
+features for field bindings:
+* Centralized handling of the *dirty*, *model valid* and *presentation valid* flags. The flags are naturally exposed
+as `ObservableField`s so you can easily combine them with a `CombinedValue`, for example like this: 
+`new CombinedValue<>(Combiners.allTrue(), fbg.isDirty(), fbg.isPresentationValid(), fbg.isModelValid())`. You could then
+use this value as the *is performable* flag in an action that commits the form (there is actually already a base class
+that does this: 
+[FieldBindingGroupAction](src/main/java/net/pkhapps/appmodel4flow/binding/group/support/FieldBindingGroupAction.java)).
+* Centralized binding result handling. By default, any conversion or validation errors will be reported directly at
+the fields who caused them, if possible (the field components must have a `setErrorMessage` method and a `setInvalid` 
+method). You can also plug in your own binding result handler or disable it completely.
+
+The [demo application](../appmodel4flow-demo) shows the `FieldBindingGroup` in action.
