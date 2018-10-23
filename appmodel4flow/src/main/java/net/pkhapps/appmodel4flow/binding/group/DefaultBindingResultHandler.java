@@ -21,11 +21,11 @@ import com.vaadin.flow.data.binder.Result;
 import com.vaadin.flow.data.binder.ValidationResult;
 import lombok.extern.slf4j.Slf4j;
 import net.pkhapps.appmodel4flow.binding.PropertyFieldBinding;
+import net.pkhapps.appmodel4flow.util.MethodCache;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.concurrent.ThreadSafe;
-import java.lang.reflect.InvocationTargetException;
+import javax.annotation.concurrent.NotThreadSafe;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
@@ -33,11 +33,14 @@ import java.util.Objects;
 /**
  * Default implementation of {@link FieldBindingGroup.BindingResultHandler}.
  */
-@ThreadSafe
+@NotThreadSafe
 @Slf4j
 public class DefaultBindingResultHandler implements FieldBindingGroup.BindingResultHandler {
 
     private static final long serialVersionUID = 1L;
+
+    private final MethodCache setErrorMessageMethodCache = new MethodCache();
+    private final MethodCache setInvalidMethodCache = new MethodCache();
 
     /**
      * Clears the error message from the specified field. If the result handler does not know how to do that,
@@ -62,10 +65,9 @@ public class DefaultBindingResultHandler implements FieldBindingGroup.BindingRes
         Objects.requireNonNull(field, "field must not be null");
         Objects.requireNonNull(errorMessage, "errorMessage must not be null");
         try {
-            var setErrorMessage = field.getClass().getMethod("setErrorMessage", String.class);
-            setErrorMessage.invoke(field, errorMessage);
+            setErrorMessageMethodCache.invoke(clazz -> clazz.getMethod("setErrorMessage", String.class), field, errorMessage);
             log.trace("Set error message of {} to '{}'", field, errorMessage);
-        } catch (IllegalAccessException | IllegalArgumentException | NoSuchMethodException | SecurityException | InvocationTargetException ex) {
+        } catch (Throwable ex) {
             log.debug("Could not invoke setErrorMessage on " + field, ex);
         }
         setInvalid(field, true);
@@ -73,10 +75,9 @@ public class DefaultBindingResultHandler implements FieldBindingGroup.BindingRes
 
     private void setInvalid(@Nonnull HasValue<?, ?> field, boolean invalid) {
         try {
-            var setInvalid = field.getClass().getMethod("setInvalid", Boolean.TYPE);
-            setInvalid.invoke(field, invalid);
+            setInvalidMethodCache.invoke(clazz -> clazz.getMethod("setInvalid", Boolean.TYPE), field, invalid);
             log.trace("Set invalid flag of {} to {}", field, invalid);
-        } catch (IllegalAccessException | IllegalArgumentException | NoSuchMethodException | SecurityException | InvocationTargetException ex) {
+        } catch (Throwable ex) {
             log.debug("Could not invoke setInvalid on " + field, ex);
         }
     }
