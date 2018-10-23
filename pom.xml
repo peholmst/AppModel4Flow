@@ -23,9 +23,20 @@
     <groupId>net.pkhapps.appmodel4flow</groupId>
     <artifactId>appmodel4flow-master</artifactId>
     <name>AppModel4Flow Master POM</name>
+    <description>
+        An application model library for the Vaadin platform (Vaadin 11+), making it possible to separate the
+        presentation and the model in the UI layer.
+    </description>
+    <url>https://github.com/peholmst/AppModel4Flow</url>
     <version>1.0.0</version>
-
     <packaging>pom</packaging>
+
+    <licenses>
+        <license>
+            <name>Apache License 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
+        </license>
+    </licenses>
 
     <developers>
         <developer>
@@ -33,6 +44,12 @@
             <email>petter@vaadin.com</email>
         </developer>
     </developers>
+
+    <scm>
+        <url>https://github.com/peholmst/AppModel4Flow</url>
+        <connection>scm:git:git@github.com:peholmst/AppModel4Flow.git</connection>
+        <developerConnection>scm:git:git@github.com:peholmst/AppModel4Flow.git</developerConnection>
+    </scm>
 
     <modules>
         <module>appmodel4flow</module>
