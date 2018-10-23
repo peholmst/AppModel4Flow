@@ -17,7 +17,7 @@ accessed by the outside world through interfaces that expose different levels of
 case. There are three interfaces in the interface hierarchy:
 
 * [ObservableValue](src/main/java/net/pkhapps/appmodel4flow/property/ObservableValue.java): This is the base interface
-that contains methods for retreiving the value and registering listeners. It is not possible to change the value.
+that contains methods for retrieving the value and registering listeners. It is not possible to change the value.
 * [WritableObservableValue](src/main/java/net/pkhapps/appmodel4flow/property/WritableObservableValue.java): This 
 interface adds support for changing the value through the interface.
 * [Property](src/main/java/net/pkhapps/appmodel4flow/property/Property.java): This interface adds additional flags, such
