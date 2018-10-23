@@ -16,9 +16,44 @@
 
 package net.pkhapps.appmodel4flow.binding;
 
+import com.vaadin.flow.component.textfield.TextField;
+import net.pkhapps.appmodel4flow.property.DefaultObservableValue;
+import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * Unit test for {@link ComponentBinding}.
  */
+@SuppressWarnings("Convert2Diamond") // var and <> seems to produce a raw variable without generics
 public class ComponentBindingTest {
-    // TODO Implement me!
+
+    @Test
+    public void modelStateIsTransferredWhenBindingIsCreated() {
+        var component = new TextField();
+        var model = new DefaultObservableValue<Boolean>(true);
+        new ComponentBinding<>(model, component, TextField::setReadOnly);
+        assertThat(component.isReadOnly()).isTrue();
+    }
+
+    @Test
+    public void componentIsUpdatedWhenModelIsChanged() {
+        var component = new TextField();
+        var model = new DefaultObservableValue<Boolean>(false);
+        new ComponentBinding<>(model, component, TextField::setReadOnly);
+        assertThat(component.isReadOnly()).isFalse();
+        model.setValue(true);
+        assertThat(component.isReadOnly()).isTrue();
+    }
+
+    @Test
+    public void breakBinding() {
+        var component = new TextField();
+        var model = new DefaultObservableValue<Boolean>(true);
+        var binding = new ComponentBinding<>(model, component, TextField::setReadOnly);
+        model.setValue(false);
+        binding.remove();
+        model.setValue(true);
+        assertThat(component.isReadOnly()).isFalse();
+    }
 }

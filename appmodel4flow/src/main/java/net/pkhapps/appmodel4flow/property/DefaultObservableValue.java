@@ -39,6 +39,8 @@ public class DefaultObservableValue<T> extends AbstractObservableValue<T> {
 
     private T value;
 
+    private transient boolean updatingValue = false;
+
     /**
      * Creates a new, empty {@code DefaultObservableValue}.
      */
@@ -72,9 +74,16 @@ public class DefaultObservableValue<T> extends AbstractObservableValue<T> {
      */
     public void setValue(T value) {
         if (!Objects.equals(this.value, value)) {
-            var old = this.value;
-            this.value = value;
-            fireValueChangeEvent(old, value);
+            try {
+                if (!updatingValue) {
+                    updatingValue = true;
+                    var old = this.value;
+                    this.value = value;
+                    fireValueChangeEvent(old, value);
+                }
+            } finally {
+                updatingValue = false;
+            }
         }
     }
 }

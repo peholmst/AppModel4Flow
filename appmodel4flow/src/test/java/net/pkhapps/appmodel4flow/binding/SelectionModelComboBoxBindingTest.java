@@ -30,7 +30,7 @@ public class SelectionModelComboBoxBindingTest {
 
     private ComboBox<String> field;
     private DefaultSelectionModel<String> selectionModel;
-    private SelectionModelComboBoxBinding binding;
+    private SelectionModelComboBoxBinding<String> binding;
 
     @Before
     public void setUp() {

@@ -19,6 +19,7 @@ package net.pkhapps.appmodel4flow.property;
 import net.pkhapps.appmodel4flow.property.support.Combiners;
 import org.junit.Test;
 
+import java.util.Collections;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,6 +29,11 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @SuppressWarnings("Convert2Diamond") // IntelliJ does not work properly with the 'var' keyword and the diamond operator.
 public class CombinedValueTest {
+
+    @Test(expected = IllegalArgumentException.class)
+    public void constructorWithNoDependencies() {
+        new CombinedValue<Boolean>(Combiners.allTrue(), Collections.emptyList());
+    }
 
     @Test
     public void initialCombinedValue() {

@@ -50,7 +50,7 @@ public class FieldBindingGroupTest {
         integerField = new TextField();
         booleanField = new Checkbox();
 
-        stringProperty = new DefaultProperty<>();
+        stringProperty = new DefaultProperty<String>().withEmptyCheck(String::isEmpty);
         integerProperty = new DefaultProperty<>();
         booleanProperty = new DefaultProperty<>(false);
 
@@ -134,5 +134,49 @@ public class FieldBindingGroupTest {
         });
         stringField.setValue("proper");
         assertThat(handlerInvoked).isTrue();
+    }
+
+    @Test
+    public void resetDirtyFlag() {
+        stringProperty.setValue("foo");
+        integerProperty.setValue(123);
+        booleanProperty.setValue(true);
+
+        assertThat(stringProperty.isDirty().getValue()).isTrue();
+        assertThat(integerProperty.isDirty().getValue()).isTrue();
+        assertThat(booleanProperty.isDirty().getValue()).isTrue();
+
+        group.resetDirtyFlag();
+
+        assertThat(stringProperty.isDirty().getValue()).isFalse();
+        assertThat(integerProperty.isDirty().getValue()).isFalse();
+        assertThat(booleanProperty.isDirty().getValue()).isFalse();
+    }
+
+    @Test
+    public void discard() {
+        stringProperty.setValue("foo");
+        integerProperty.setValue(123);
+        booleanProperty.setValue(true);
+
+        group.discard();
+
+        assertThat(stringProperty.isEmpty()).isTrue();
+        assertThat(integerProperty.isEmpty()).isTrue();
+        assertThat(booleanProperty.getValue()).isFalse();
+    }
+
+    @Test
+    public void dispose() {
+        group.dispose();
+
+        stringField.setValue("foo");
+        assertThat(stringProperty.isEmpty()).isTrue();
+
+        integerField.setValue("123");
+        assertThat(integerProperty.isEmpty()).isTrue();
+
+        booleanField.setValue(true);
+        assertThat(booleanProperty.getValue()).isFalse();
     }
 }

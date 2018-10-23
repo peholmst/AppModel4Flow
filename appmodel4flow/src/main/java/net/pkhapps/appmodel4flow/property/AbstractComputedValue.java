@@ -33,6 +33,8 @@ public abstract class AbstractComputedValue<T> extends AbstractObservableValue<T
 
     private transient T cachedValue;
 
+    private transient boolean recomputeCachedValue = false;
+
     private void writeObject(ObjectOutputStream out) throws IOException {
         out.defaultWriteObject();
         if (cachedValue instanceof Serializable) {
@@ -42,11 +44,11 @@ public abstract class AbstractComputedValue<T> extends AbstractObservableValue<T
 
     @SuppressWarnings("unchecked")
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-        in.readObject();
+        in.defaultReadObject();
         try {
             cachedValue = (T) in.readObject();
         } catch (OptionalDataException ex) {
-            cachedValue = computeValue();
+            recomputeCachedValue = true;
         }
     }
 
@@ -72,6 +74,13 @@ public abstract class AbstractComputedValue<T> extends AbstractObservableValue<T
 
     @Override
     public T getValue() {
+        if (recomputeCachedValue) {
+            try {
+                cachedValue = computeValue();
+            } finally {
+                recomputeCachedValue = false;
+            }
+        }
         return cachedValue;
     }
 }

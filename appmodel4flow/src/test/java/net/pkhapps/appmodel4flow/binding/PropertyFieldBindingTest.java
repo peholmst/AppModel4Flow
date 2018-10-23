@@ -19,6 +19,7 @@ package net.pkhapps.appmodel4flow.binding;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Result;
 import com.vaadin.flow.data.binder.ValidationResult;
+import com.vaadin.flow.data.converter.Converter;
 import com.vaadin.flow.data.converter.StringToIntegerConverter;
 import com.vaadin.flow.data.validator.IntegerRangeValidator;
 import net.pkhapps.appmodel4flow.property.DefaultProperty;
@@ -241,6 +242,17 @@ public class PropertyFieldBindingTest {
         binding.remove();
         model.setValue(123);
         assertThat(field.getValue()).isEmpty();
+    }
+
+    @Test
+    public void bugTest_nullValueNotConvertedByFieldToEmptyStringAfterDiscardingValue() {
+        var textField = new TextField();
+        var textModel = new DefaultProperty<String>();
+        assertThat(textModel.getValue()).isNull();
+        new PropertyFieldBinding<>(textModel, textField, Converter.identity());
+        textModel.setValue("Hello");
+        textModel.discard();
+        assertThat(textModel.getValue()).isNull();
     }
 
     static class ResultHandlerMock<MODEL, PRESENTATION> implements TwoWayFieldBinding.BindingResultHandler<MODEL, PRESENTATION> {

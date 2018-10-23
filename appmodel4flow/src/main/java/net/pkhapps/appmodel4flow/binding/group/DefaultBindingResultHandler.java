@@ -65,7 +65,7 @@ public class DefaultBindingResultHandler implements FieldBindingGroup.BindingRes
             setErrorMessage.invoke(field, errorMessage);
             log.trace("Set error message of {} to '{}'", field, errorMessage);
         } catch (IllegalAccessException | IllegalArgumentException | NoSuchMethodException | SecurityException | InvocationTargetException ex) {
-            log.error("Could not invoke setErrorMessage on " + field, ex);
+            log.debug("Could not invoke setErrorMessage on " + field, ex);
         }
         setInvalid(field, true);
     }
@@ -76,7 +76,7 @@ public class DefaultBindingResultHandler implements FieldBindingGroup.BindingRes
             setInvalid.invoke(field, invalid);
             log.trace("Set invalid flag of {} to {}", field, invalid);
         } catch (IllegalAccessException | IllegalArgumentException | NoSuchMethodException | SecurityException | InvocationTargetException ex) {
-            log.error("Could not invoke setInvalid on " + field, ex);
+            log.debug("Could not invoke setInvalid on " + field, ex);
         }
     }
 
