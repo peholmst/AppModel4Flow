@@ -40,7 +40,6 @@ import java.util.stream.Stream;
  * in one place and also collectively tracks the status of the {@link Property#isDirty() dirty},
  * {@link FieldBinding#isPresentationValid() presentationValid} and {@link FieldBinding#isModelValid() modelValid} flags.
  */
-@SuppressWarnings({"WeakerAccess", "unused"})
 @NotThreadSafe
 public class FieldBindingGroup extends BindingGroup {
 
@@ -108,6 +107,7 @@ public class FieldBindingGroup extends BindingGroup {
     /**
      * Invokes {@link Property#resetDirtyFlag()} for all bound properties.
      */
+    @SuppressWarnings("WeakerAccess")
     public void resetDirtyFlag() {
         getTwoWayBindings().forEach(binding -> binding.getModel().resetDirtyFlag());
     }
@@ -115,6 +115,7 @@ public class FieldBindingGroup extends BindingGroup {
     /**
      * Invokes {@link Property#discard()} for all bound properties.
      */
+    @SuppressWarnings("WeakerAccess")
     public void discard() {
         getTwoWayBindings().forEach(binding -> binding.getModel().discard());
     }
@@ -178,6 +179,7 @@ public class FieldBindingGroup extends BindingGroup {
      * @param bindingResultHandler the result handler or {@code null} to use none.
      * @return this field binding group, to allow for method chaining.
      */
+    @SuppressWarnings("WeakerAccess")
     @Nonnull
     public FieldBindingGroup withBindingResultHandler(@Nullable BindingResultHandler bindingResultHandler) {
         this.bindingResultHandler = bindingResultHandler;

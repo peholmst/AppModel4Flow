@@ -23,7 +23,6 @@ import java.util.function.Predicate;
  * Utility class with predicates primarily intended to be used by {@link Combiners}, but may be used by developers as
  * well when needed.
  */
-@SuppressWarnings("WeakerAccess")
 public final class Predicates {
 
     private Predicates() {

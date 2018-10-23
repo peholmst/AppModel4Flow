@@ -38,7 +38,6 @@ import java.util.Objects;
  * @param <MODEL>        the value type of the model.
  * @param <PRESENTATION> the value type of the field.
  */
-@SuppressWarnings("WeakerAccess")
 @NotThreadSafe
 public class ObservableValueFieldBinding<MODEL, PRESENTATION> implements FieldBinding<MODEL, PRESENTATION> {
 
@@ -87,6 +86,7 @@ public class ObservableValueFieldBinding<MODEL, PRESENTATION> implements FieldBi
      * @return the converter, never {@code null}.
      */
     @Nonnull
+    @SuppressWarnings("WeakerAccess")
     protected Converter<PRESENTATION, MODEL> getConverter() {
         return converter;
     }
@@ -105,6 +105,7 @@ public class ObservableValueFieldBinding<MODEL, PRESENTATION> implements FieldBi
      * @return the value context, never {@code null}.
      */
     @Nonnull
+    @SuppressWarnings("WeakerAccess")
     protected ValueContext createValueContext() {
         if (field instanceof Component) {
             return new ValueContext((Component) field);
@@ -136,6 +137,7 @@ public class ObservableValueFieldBinding<MODEL, PRESENTATION> implements FieldBi
      *
      * @param presentationValid the new flag value.
      */
+    @SuppressWarnings("WeakerAccess")
     protected void setPresentationValid(boolean presentationValid) {
         this.presentationValid.setValue(presentationValid);
     }
@@ -156,6 +158,7 @@ public class ObservableValueFieldBinding<MODEL, PRESENTATION> implements FieldBi
      *
      * @param modelValid the new flag value.
      */
+    @SuppressWarnings("WeakerAccess")
     protected void setModelValid(boolean modelValid) {
         this.modelValid.setValue(modelValid);
     }

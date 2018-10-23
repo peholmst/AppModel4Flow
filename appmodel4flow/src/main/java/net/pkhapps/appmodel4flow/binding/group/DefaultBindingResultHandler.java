@@ -35,7 +35,6 @@ import java.util.Objects;
  */
 @ThreadSafe
 @Slf4j
-@SuppressWarnings("WeakerAccess")
 public class DefaultBindingResultHandler implements FieldBindingGroup.BindingResultHandler {
 
     private static final long serialVersionUID = 1L;
@@ -46,6 +45,7 @@ public class DefaultBindingResultHandler implements FieldBindingGroup.BindingRes
      *
      * @param field the field whose error message should be cleared.
      */
+    @SuppressWarnings("WeakerAccess")
     protected void clearErrorMessage(HasValue<?, ?> field) {
         setInvalid(field, false);
     }
@@ -57,6 +57,7 @@ public class DefaultBindingResultHandler implements FieldBindingGroup.BindingRes
      * @param field        the field whose error message should be set.
      * @param errorMessage the error message to set.
      */
+    @SuppressWarnings("WeakerAccess")
     protected void setErrorMessage(@Nonnull HasValue<?, ?> field, @Nonnull String errorMessage) {
         Objects.requireNonNull(field, "field must not be null");
         Objects.requireNonNull(errorMessage, "errorMessage must not be null");

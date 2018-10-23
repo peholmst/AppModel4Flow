@@ -32,7 +32,6 @@ import java.util.Objects;
  * @param <T> the type of items in the UI component and selection model.
  */
 @NotThreadSafe
-@SuppressWarnings("WeakerAccess")
 public abstract class AbstractSelectionModelBinding<T> implements Serializable, Registration {
 
     private static final long serialVersionUID = 1L;
@@ -49,14 +48,17 @@ public abstract class AbstractSelectionModelBinding<T> implements Serializable, 
      *
      * @param selectionModel the selection model to bind, never {@code null}.
      */
-    public AbstractSelectionModelBinding(@Nonnull SelectionModel<T> selectionModel) {
+    @SuppressWarnings("WeakerAccess")
+    protected AbstractSelectionModelBinding(@Nonnull SelectionModel<T> selectionModel) {
         this.selectionModel = Objects.requireNonNull(selectionModel, "selectionModel must not be null");
 
         selectionModelRegistration = selectionModel.addValueChangeListener(this::onSelectionChanged);
     }
 
     private void onSelectionChanged(@Nonnull ObservableValue.ValueChangeEvent<Selection<T>> event) {
-        updateSelection(event.getValue());
+        if (event.getValue() != null) { // Should never happen but is technically possible
+            updateSelection(event.getValue());
+        }
     }
 
     /**
@@ -72,6 +74,7 @@ public abstract class AbstractSelectionModelBinding<T> implements Serializable, 
      *
      * @param componentRegistration the UI component selection listener registration, never {@code null}.
      */
+    @SuppressWarnings("WeakerAccess")
     protected final void setComponentRegistration(Registration componentRegistration) {
         this.componentRegistration = componentRegistration;
     }
@@ -82,6 +85,7 @@ public abstract class AbstractSelectionModelBinding<T> implements Serializable, 
      * @return the selection model, never {@code null}.
      */
     @Nonnull
+    @SuppressWarnings("WeakerAccess")
     protected final SelectionModel<T> getSelectionModel() {
         return selectionModel;
     }

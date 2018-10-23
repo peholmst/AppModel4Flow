@@ -31,7 +31,6 @@ import java.util.Objects;
  * @param <T> the value type.
  */
 @NotThreadSafe
-@SuppressWarnings("WeakerAccess")
 @ToString
 public class DefaultObservableValue<T> extends AbstractObservableValue<T> {
 

@@ -34,7 +34,6 @@ import java.util.Objects;
  * changes that are valid).
  */
 @NotThreadSafe
-@SuppressWarnings("WeakerAccess")
 public class FieldBindingGroupAction extends ActionWithoutResult {
 
     private static final long serialVersionUID = 1L;
@@ -73,6 +72,7 @@ public class FieldBindingGroupAction extends ActionWithoutResult {
      *
      * @return the field binding group, never {@code null}.
      */
+    @SuppressWarnings("WeakerAccess")
     @Nonnull
     protected FieldBindingGroup getFieldBindingGroup() {
         return fieldBindingGroup;

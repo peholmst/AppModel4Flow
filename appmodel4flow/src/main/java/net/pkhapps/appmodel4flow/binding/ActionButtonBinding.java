@@ -65,12 +65,12 @@ public class ActionButtonBinding implements Serializable, Registration {
         actionRegistration.remove();
     }
 
-    private void onButtonClick(ClickEvent<Button> event) {
+    private void onButtonClick(@SuppressWarnings("unused") ClickEvent<Button> event) {
         log.trace("Performing action {} after click on button {}", action, button);
         action.perform();
     }
 
-    private void onActionPerformableChange(ObservableValue.ValueChangeEvent<Boolean> event) {
+    private void onActionPerformableChange(@SuppressWarnings("unused") ObservableValue.ValueChangeEvent<Boolean> event) {
         updateButtonState();
     }
 

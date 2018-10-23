@@ -29,7 +29,6 @@ import java.util.stream.Stream;
 /**
  * Base class for a group of bindings to make it possible to perform collective operations on them.
  */
-@SuppressWarnings("WeakerAccess")
 @NotThreadSafe
 public class BindingGroup implements Serializable {
 
@@ -56,6 +55,7 @@ public class BindingGroup implements Serializable {
      * @return the bindings, never {@code null}.
      */
     @Nonnull
+    @SuppressWarnings("WeakerAccess")
     public Stream<Registration> getBindings() {
         return bindings.stream();
     }
@@ -74,6 +74,7 @@ public class BindingGroup implements Serializable {
      *
      * @param binding the binding to dispose of, never {@code null}.
      */
+    @SuppressWarnings("WeakerAccess")
     protected void dispose(@Nonnull Registration binding) {
         Objects.requireNonNull(binding, "binding must not be null");
         binding.remove();

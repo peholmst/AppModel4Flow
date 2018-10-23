@@ -26,7 +26,6 @@ import java.util.stream.Stream;
  * Utility class with different combiner functions primarily intended to be used with
  * {@link net.pkhapps.appmodel4flow.property.CombinedValue}.
  */
-@SuppressWarnings("WeakerAccess")
 public final class Combiners {
 
     private Combiners() {
@@ -50,6 +49,7 @@ public final class Combiners {
      * @return a function that returns true if at least one of the booleans in the stream is true.
      */
     @Nonnull
+    @SuppressWarnings("WeakerAccess")
     public static SerializableFunction<Stream<Boolean>, Boolean> anyTrue() {
         return values -> values.anyMatch(Predicates.isTrue());
     }
@@ -61,6 +61,7 @@ public final class Combiners {
      * @return a function that returns true if all of the booleans in the stream are false.
      */
     @Nonnull
+    @SuppressWarnings("WeakerAccess")
     public static SerializableFunction<Stream<Boolean>, Boolean> allFalse() {
         return values -> values.allMatch(Predicates.isFalse());
     }
@@ -72,6 +73,7 @@ public final class Combiners {
      * @return a function that returns true if at least one of the booleans in the stream is false.
      */
     @Nonnull
+    @SuppressWarnings("WeakerAccess")
     public static SerializableFunction<Stream<Boolean>, Boolean> anyFalse() {
         return values -> values.anyMatch(Predicates.isFalse());
     }
@@ -83,6 +85,7 @@ public final class Combiners {
      * @return a function that returns the joined string.
      */
     @Nonnull
+    @SuppressWarnings("WeakerAccess")
     public static SerializableFunction<Stream<String>, String> joinStrings() {
         return values -> values.collect(Collectors.joining());
     }

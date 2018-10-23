@@ -30,7 +30,6 @@ import java.util.Objects;
  *
  * @param <T> the value type.
  */
-@SuppressWarnings({"unused", "WeakerAccess"})
 @NotThreadSafe
 @ToString(callSuper = true)
 public class DefaultProperty<T> extends DefaultObservableValue<T> implements Property<T> {

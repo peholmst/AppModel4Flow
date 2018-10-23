@@ -35,7 +35,7 @@ import java.util.Objects;
  * @param <MODEL>        the value type of the model.
  * @param <PRESENTATION> the value type of the field.
  */
-@SuppressWarnings("UnusedReturnValue")
+@SuppressWarnings({"UnusedReturnValue", "unused"})
 public interface TwoWayFieldBinding<MODEL, PRESENTATION> extends FieldBinding<MODEL, PRESENTATION> {
 
     @Nonnull
