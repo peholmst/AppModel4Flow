@@ -32,13 +32,13 @@ I have no plans to backport this library to any older versions of Java or Vaadin
 Snapshots are uploaded to [Sonatype](https://oss.sonatype.org/content/repositories/snapshots) every now and then.
 Releases are uploaded to Maven Central. My projects tend to get stuck in version 0.x since I can never decide when
 something is good enough to be released. This time I'm going to boldly go where I have not gone before and just release
-early and often. Anyway, here are the Maven coordinates:
+early and often. Anyway, here are the Maven coordinates (reviewed on October 23, 2018):
 
 ```xml
 <dependency>
     <groupId>net.pkhapps.appmodel4flow</groupId>
     <artifactId>appmodel4flow</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
