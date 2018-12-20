@@ -24,7 +24,7 @@
     <artifactId>appmodel4flow-master</artifactId>
     <name>AppModel4Flow Master POM</name>
     <description>
-        An application model library for the Vaadin platform (Vaadin 11+), making it possible to separate the
+        An application model library for the Vaadin platform (Vaadin 12+), making it possible to separate the
         presentation and the model in the UI layer.
     </description>
     <url>https://github.com/peholmst/AppModel4Flow</url>
@@ -59,9 +59,9 @@
     </modules>
 
     <properties>
-        <vaadin.version>11.0.1</vaadin.version>
-        <java.version>10</java.version>
-        <jetty.version>9.4.11.v20180605</jetty.version>
+        <vaadin.version>12.0.0</vaadin.version>
+        <java.version>11</java.version>
+        <jetty.version>9.4.14.v20181114</jetty.version>
         <junit.version>4.12</junit.version>
         <mockito.version>2.21.0</mockito.version>
         <logback.version>1.2.3</logback.version>
