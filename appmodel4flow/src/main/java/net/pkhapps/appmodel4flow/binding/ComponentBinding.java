@@ -63,7 +63,7 @@ public class ComponentBinding<MODEL, COMPONENT extends Component> implements Reg
     }
 
     private void updateComponentState() {
-        setterMethod.accept(component, model.getValue());
+        PushController.getCurrent().push(() -> setterMethod.accept(component, model.getValue()), component::getUI);
     }
 
     @Override
